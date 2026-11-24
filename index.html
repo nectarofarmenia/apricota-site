@@ -1821,10 +1821,10 @@ body:has(#v-quiz:not([hidden])) .totop{bottom:calc(152px + env(safe-area-inset-b
 
   /* ---- screens ---- */
   function axLogin(){ var A=axLS('myapri-admin',null), e=ADX.err||'';
-    if(!A) return '<div class="ax-login"><form id="axCreate" novalidate><p class="eyebrow">my Apricota · Admin</p><h1 class="ax-h1">Create the admin account</h1><p class="tiny" style="margin:0;font-size:14px">Only you and your team will use this account.</p>'+
+    if(!A) return '<div class="ax-login"><form id="axCreate" novalidate><p class="eyebrow">Apricota · Admin</p><h1 class="ax-h1">Create the admin account</h1><p class="tiny" style="margin:0;font-size:14px">Only you and your team will use this account.</p>'+
       '<label class="f"><span>Your name</span><input id="axN" autocomplete="name"></label><label class="f"><span>Email</span><input id="axE" type="email" autocomplete="email"></label><label class="f"><span>Password</span><input id="axP" type="password" placeholder="At least 8 characters" autocomplete="new-password"></label><label class="f"><span>Confirm password</span><input id="axP2" type="password" autocomplete="new-password"></label>'+
       (e?'<p class="qerr">'+qzEsc(e)+'</p>':'')+'<button class="btn btn-green" style="min-height:54px">Create admin account</button><a href="#home" style="text-align:center;font-weight:800;text-decoration:none">← Back to the website</a></form></div>';
-    return '<div class="ax-login"><form id="axSign" novalidate><p class="eyebrow">my Apricota · Admin</p><h1 class="ax-h1">Admin sign in</h1>'+
+    return '<div class="ax-login"><form id="axSign" novalidate><p class="eyebrow">Apricota · Admin</p><h1 class="ax-h1">Admin sign in</h1>'+
       '<label class="f"><span>Email</span><input id="axE" type="email" value="'+qzEsc(A.email)+'" autocomplete="username"></label><label class="f"><span>Password</span><input id="axP" type="password" autocomplete="current-password"></label>'+
       (e?'<p class="qerr">'+qzEsc(e)+'</p>':'')+'<button class="btn btn-green" style="min-height:54px">Sign in</button><a href="#home" style="text-align:center;font-weight:800;text-decoration:none">← Back to the website</a></form></div>'; }
 
@@ -2130,7 +2130,7 @@ body:has(#v-quiz:not([hidden])) .totop{bottom:calc(152px + env(safe-area-inset-b
   function axRender(){ var box=document.getElementById('adx'); if(!box) return; axSeed(); try{ var O0=admOrders(), O1=O0.filter(function(o){ return !axIsTest(o.name); }); if(O1.length!==O0.length) admSave(O1); }catch(x){}
     if(!axIn()){ box.innerHTML=axLogin(); return; }
     var L=axCust(), N=axNavs(L), t=ADX.tab, body=t==='fin'?axFin():t==='orders'?axOrders(L):t==='cust'?axCustS(L):t==='kitchen'?axKitchen(L):t==='deliv'?axDeliv(L):t==='pauses'?axPauses():t==='pay'?axPay(L):t==='prices'?axPrices():t==='acct'?axAcct():axDash(L);
-    box.innerHTML='<div class="ax"><nav class="ax-side" aria-label="Admin menu"><div class="ax-ttl"><b>my Apricota</b><small>Admin</small></div>'+N.map(function(n){ return '<button type="button" class="ax-nav'+(t===n[0]?' on':'')+'" data-ax-tab="'+n[0]+'"><span aria-hidden="true">'+n[1]+'</span>'+sp(n[2])+(n[3]?'<span class="bd num">'+n[3]+'</span>':'')+'</button>'; }).join('')+'<a class="ax-nav" href="#home"><span aria-hidden="true">🏠</span><span>Website</span></a></nav><main class="ax-main">'+body+'</main></div>'; ADX.err=''; }
+    box.innerHTML='<div class="ax"><nav class="ax-side" aria-label="Admin menu"><div class="ax-ttl"><b>Apricota</b><small>Admin</small></div>'+N.map(function(n){ return '<button type="button" class="ax-nav'+(t===n[0]?' on':'')+'" data-ax-tab="'+n[0]+'"><span aria-hidden="true">'+n[1]+'</span>'+sp(n[2])+(n[3]?'<span class="bd num">'+n[3]+'</span>':'')+'</button>'; }).join('')+'<a class="ax-nav" href="#home"><span aria-hidden="true">🏠</span><span>Website</span></a></nav><main class="ax-main">'+body+'</main></div>'; ADX.err=''; }
   function axToast(t){ var el=document.createElement('div'); el.className='ax-toast'; el.textContent=t; document.body.appendChild(el); setTimeout(function(){ el.remove(); },2200); }
   function axOrd(id,fn){ var O=admOrders(); O.forEach(function(o){ if(String(o.id)===String(id)) fn(o); }); admSave(O); }
 
