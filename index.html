@@ -878,6 +878,52 @@ body:has(#v-quiz:not([hidden])) .totop{bottom:calc(152px + env(safe-area-inset-b
 .qbar{position:sticky;bottom:calc(80px + env(safe-area-inset-bottom,0px));z-index:4;margin-top:16px;background:#fff;border-radius:20px;padding:10px 10px 10px 14px;display:flex;align-items:center;gap:12px;box-shadow:0 8px 24px rgba(30,74,67,.18)}
 .qbar .qcnt{font-weight:800;font-size:13px;color:var(--ink)}
 .qbar .btn{min-height:46px;padding:0 18px;flex:none}
+
+/* ---- receipt after payment ---- */
+.rc-ov{position:fixed;inset:0;z-index:9000;background:rgba(29,77,72,.55);backdrop-filter:blur(3px);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:28px 14px 40px;animation:rcFade .25s ease}
+@keyframes rcFade{from{opacity:0}}
+.rc-wrap{width:100%;max-width:400px;position:relative}
+.rc-slot{height:14px;border-radius:10px;background:linear-gradient(#174f49,#1F8075);box-shadow:inset 0 3px 5px rgba(0,0,0,.35);margin:0 -8px;position:relative;z-index:2}
+.rc-clip{overflow:hidden;margin-top:-7px;padding-bottom:12px}
+.rc-paper{position:relative;background:#FFFCF8;color:var(--ink);padding:52px 26px 30px;font:500 15px var(--body);
+  --z:10px;
+  -webkit-mask:conic-gradient(from -45deg at bottom,#0000,#000 1deg 89deg,#0000 90deg) 50%/calc(2*var(--z)) 100%;
+          mask:conic-gradient(from -45deg at bottom,#0000,#000 1deg 89deg,#0000 90deg) 50%/calc(2*var(--z)) 100%;
+  padding-bottom:calc(30px + var(--z));
+  background-image:radial-gradient(circle at 100% 0,var(--peach-soft) 0,transparent 55%),linear-gradient(#FFFCF8,#FFFCF8);
+  filter:drop-shadow(0 18px 24px rgba(0,0,0,.18));
+  animation:rcPrint 1.1s cubic-bezier(.2,.8,.2,1) both}
+@keyframes rcPrint{from{transform:translateY(-100%)}to{transform:none}}
+.rc-stamp{position:absolute;left:50%;top:18px;width:78px;height:78px;margin-left:-39px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#3FB6A8,#1F8075 70%);box-shadow:0 0 0 5px var(--peach),0 0 0 8px #FFFCF8,0 8px 18px rgba(31,128,117,.35);
+  display:flex;align-items:center;justify-content:center;animation:rcStamp .5s 1s cubic-bezier(.3,1.6,.5,1) both}
+.rc-stamp::after{content:"";position:absolute;inset:7px;border-radius:50%;border:2px dashed rgba(255,255,255,.55)}
+.rc-stamp svg{width:40px;height:40px}
+.rc-stamp path{stroke-dasharray:60;stroke-dashoffset:60;animation:rcDraw .45s 1.35s ease forwards}
+@keyframes rcStamp{from{transform:scale(2.2) rotate(-14deg);opacity:0}to{transform:none;opacity:1}}
+@keyframes rcDraw{to{stroke-dashoffset:0}}
+.rc-paper .rc-top{margin-top:50px;text-align:center}
+.rc-dl{position:absolute;right:18px;top:16px;display:inline-flex;gap:6px;align-items:center;font:800 12px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--green-btn);background:none;border:0;cursor:pointer;padding:6px}
+.rc-h{font:900 26px var(--display);margin:0 0 6px;color:var(--ink)}
+.rc-sub{margin:0 auto;max-width:300px;color:var(--muted);font-size:14px;line-height:1.45}
+.rc-no{display:inline-block;margin-top:12px;padding:5px 12px;border-radius:999px;background:var(--mint);color:var(--green-dark);font:800 13px var(--body);letter-spacing:.04em}
+.rc-sep{border:0;border-top:2px dashed var(--line);margin:18px 0}
+.rc-row{display:flex;justify-content:space-between;gap:12px;align-items:baseline;padding:4px 0}
+.rc-row span{color:var(--muted)}.rc-row b{text-align:right;color:var(--ink)}
+.rc-tot{display:flex;justify-content:space-between;align-items:baseline}
+.rc-tot span{color:var(--muted);font-size:13px;text-transform:uppercase;letter-spacing:.06em;font-weight:800}
+.rc-tot b{font:900 30px var(--display);color:var(--ink)}
+.rc-st{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-weight:800;font-size:13px}
+.rc-st.ok{background:var(--mint);color:var(--green-dark)}.rc-st.wait{background:var(--peach-soft);color:#8A4E3A}
+.rc-wave{display:block;width:120px;height:14px;margin:18px auto 0}
+.rc-foot{text-align:center;font-size:12px;color:var(--muted);margin-top:6px}
+.rc-act{display:flex;flex-direction:column;gap:10px;margin-top:18px;animation:rcFade .4s 1.2s both}
+.rc-act .btn{width:100%;min-height:52px}
+.rc-x{position:absolute;right:-4px;top:-40px;width:40px;height:40px;border-radius:50%;border:0;background:rgba(255,255,255,.9);color:var(--ink);font-size:22px;cursor:pointer}
+@media (prefers-reduced-motion:reduce){.rc-paper,.rc-stamp,.rc-stamp path,.rc-act,.rc-ov{animation:none!important;stroke-dashoffset:0}}
+@media print{body.rc-printing>*:not(.rc-ov){display:none!important}body.rc-printing .rc-ov{position:static;background:none;backdrop-filter:none;padding:0}
+ body.rc-printing .rc-slot,body.rc-printing .rc-act,body.rc-printing .rc-x,body.rc-printing .rc-dl{display:none!important}
+ body.rc-printing .rc-clip{overflow:visible;padding-top:24px}body.rc-printing .rc-paper{filter:none;animation:none}body.rc-printing .rc-stamp,body.rc-printing .rc-stamp path{animation:none;stroke-dashoffset:0}}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -2291,8 +2337,43 @@ body:has(#v-quiz:not([hidden])) .totop{bottom:calc(152px + env(safe-area-inset-b
   }
   window.addEventListener('hashchange',function(){ if(location.hash==='#order') renderOQ(); });
   renderOQ();
+
+  function rcEsc(t){ return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  function showReceipt(o){
+    var old=document.getElementById('rcpt'); if(old) old.remove();
+    var zl=o.pay==='zelle', d=new Date(o.id), ds=(d.getMonth()+1)+'/'+d.getDate()+'/'+d.getFullYear()+' · '+d.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
+    var ov=document.createElement('div'); ov.className='rc-ov'; ov.id='rcpt'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-modal','true'); ov.setAttribute('aria-labelledby','rcH');
+    ov.innerHTML='<div class="rc-wrap"><div class="rc-slot"></div><div class="rc-clip"><div class="rc-paper">'+
+      '<div class="rc-stamp" aria-hidden="true"><svg viewBox="0 0 40 40"><path d="M9 21l7 7 15-16" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>'+
+      
+      '<div class="rc-top"><h2 class="rc-h" id="rcH">'+(zl?'<span>Order received!</span>':'<span>Payment successful!</span>')+'</h2>'+
+      '<p class="rc-sub">'+(zl?'<span>We will check your Zelle payment, then confirm your start day.</span>':'<span>Our team will call you to confirm your start day.</span>')+'</p>'+
+      '<span class="rc-no num">'+rcEsc(o.no)+'</span></div>'+
+      '<hr class="rc-sep">'+
+      '<div class="rc-row"><span>Program</span><b>'+rcEsc(o.prog)+'</b></div>'+
+      '<div class="rc-row"><span>Meals</span><b><span>5 meals a day</span></b></div>'+
+      (o.req?'<div class="rc-row"><span>Requested start</span><b class="num">'+rcEsc(fmtD(o.req))+'</b></div>':'')+
+      '<div class="rc-row"><span>Delivery</span><b>Daily, 3–10 pm</b></div>'+
+      '<div class="rc-row"><span>Payment</span><b>'+(zl?'Zelle':'<span>Card</span>')+'</b></div>'+
+      '<div class="rc-row"><span>Status</span><b>'+(zl?'<span class="rc-st wait"><span>Checking payment</span></span>':'<span class="rc-st ok"><span>Paid</span></span>')+'</b></div>'+
+      '<div class="rc-row"><span>Date</span><b class="num">'+rcEsc(ds)+'</b></div>'+
+      '<hr class="rc-sep">'+
+      '<div class="rc-tot"><span>Total</span><b class="num">'+rcEsc(o.total)+'</b></div>'+
+      '<svg class="rc-wave" viewBox="0 0 640 70" preserveAspectRatio="none" aria-hidden="true"><use href="#apwaveG"/></svg>'+
+      '<p class="rc-foot"><span>Thank you for choosing Apricota</span> · apricota.am</p>'+
+      '</div></div>'+
+      '<div class="rc-act"><a class="btn btn-peach" href="#my-apri" id="rcGo"><span>Open my Apricota →</span></a><div style="display:flex;gap:10px"><button type="button" class="btn btn-line" id="rcDl" style="background:#fff;flex:1"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true" style="margin-right:6px"><path d="M12 3v12M7 10l5 5 5-5M4 19h16"/></svg><span>Download receipt</span></button><button type="button" class="btn btn-line" id="rcClose" style="background:#fff;flex:0 0 34%"><span>Close</span></button></div></div></div>';
+    document.body.appendChild(ov); document.body.style.overflow='hidden';
+    function close(){ ov.remove(); document.body.style.overflow=''; document.removeEventListener('keydown',esc); }
+    function esc(e){ if(e.key==='Escape') close(); }
+    document.addEventListener('keydown',esc);
+    ov.addEventListener('click',function(e){ if(e.target===ov) close(); });
+    document.getElementById('rcClose').onclick=close; document.getElementById('rcGo').onclick=close;
+    document.getElementById('rcDl').onclick=function(){ var t=document.title; document.title='Apricota receipt '+o.no; document.body.classList.add('rc-printing'); setTimeout(function(){ window.print(); document.body.classList.remove('rc-printing'); document.title=t; },30); };
+    setTimeout(function(){ var b=document.getElementById('rcClose'); if(b) b.focus({preventScroll:true}); },1300);
+  }
   function payDone(m){ var zl=m==='zelle'; $('#okH').textContent= zl?'Thank you! Order received.':'Thank you! Payment received.'; $('#okText').innerHTML=(zl?'<span>We will check your Zelle payment, then confirm your start day.</span>':'<span>Paid. Our team will confirm your start day soon.</span>')+(QZ.startd?' <span>Requested:</span> <b class="num">'+fmtD(QZ.startd)+'</b>':'');
-    var p=PLANS[S.len]||PLANS[0], O=admOrders(); O.push({id:Date.now(),name:((QZ.first||'')+' '+(QZ.last||'')).trim()||'Customer',prog:TYPES[S.type]+' · '+p.label+(S.people>1?' × '+S.people:''),days:p.days,total:$('#sumTotal').textContent,req:QZ.startd||'',status:'pending',start:'',city:QZ.city||'',phone:QZ.phone||'',at:axIso(new Date()),pay:zl?'zelle':'card',paid:!zl,from:zl?$('#zFrom').value.trim():'',ref:zl?$('#zRef').value.trim():''}); admSave(O); admPaint(); $('#okBox').hidden=false; var pb=$('#placeBtn'); pb.innerHTML= zl?'<span>Order sent ✓</span>':'<span>Paid ✓</span>'; pb.disabled=true; $('#payErr').hidden=true; setTimeout(function(){ $('#okBox').scrollIntoView({behavior:'smooth',block:'center'}); },50); }
+    var p=PLANS[S.len]||PLANS[0], O=admOrders(); var _id=Date.now(); O.push({id:_id,no:'APR-'+String(_id).slice(-6),name:((QZ.first||'')+' '+(QZ.last||'')).trim()||'Customer',prog:TYPES[S.type]+' · '+p.label+(S.people>1?' × '+S.people:''),days:p.days,total:$('#sumTotal').textContent,req:QZ.startd||'',status:'pending',start:'',city:QZ.city||'',phone:QZ.phone||'',at:axIso(new Date()),pay:zl?'zelle':'card',paid:!zl,from:zl?$('#zFrom').value.trim():'',ref:zl?$('#zRef').value.trim():''}); admSave(O); admPaint(); try{ showReceipt(O[O.length-1]); }catch(x){} $('#okBox').hidden=false; var pb=$('#placeBtn'); pb.innerHTML= zl?'<span>Order sent ✓</span>':'<span>Paid ✓</span>'; pb.disabled=true; $('#payErr').hidden=true; setTimeout(function(){ $('#okBox').scrollIntoView({behavior:'smooth',block:'center'}); },50); }
   function payGate(){ if(!QZ.sent&&!A.qOk&&A.qv&&A.qv.length){ var e=document.getElementById('oQErr'); if(e) e.hidden=false; document.getElementById('oQ').scrollIntoView({behavior:'smooth',block:'center'}); return false; } return true; }
   var PM='zelle';
   function payLabel(){ var pb=$('#placeBtn'); if(pb.disabled) return; pb.innerHTML='<span>'+(PM==='zelle'?'I sent the Zelle payment':'Pay')+'</span>&nbsp;·&nbsp;<span class="num" id="payAmt">'+$('#sumTotal').textContent+'</span>'; var z=$('#zAmt'); if(z) z.textContent=$('#sumTotal').textContent; }
@@ -4094,6 +4175,21 @@ var WKD={Sun:['Կիր','Вс','Dom'],Mon:['Երկ','Пн','Lun'],Tue:['Երք','
 P.push([/^(Sun|Mon|Tue|Wed|Thu|Fri|Sat), (Oct|Nov) (\d+)$/,function(m){return WKD[m[1]][li]+', '+(li===0? m[3]+' '+MSH[m[2]][0] : li===1? m[3]+' '+MSH[m[2]][1] : m[3]+' '+MSH[m[2]][2]);}],
  [/^Pause requested: (\d+) days from (.+)$/,function(m){var d=look(m[2])||m[2];return ['Դադարի հայտ՝ '+m[1]+' օր, սկսած '+d,'Пауза: '+m[1]+' дн. с '+d,'Pausa: '+m[1]+' días desde '+d][li];}],
  [/^Stop requested from (.+)$/,function(m){var d=look(m[1])||m[1];return ['Դադարեցման հայտ՝ սկսած ','Остановка с ','Pausa desde '][li]+d;}]);
+
+;(function(){var X={'Payment successful!':['Վճարումը հաջողվեց։','Оплата прошла!','¡Pago exitoso!'],
+'Order received!':['Պատվերն ընդունված է։','Заказ принят!','¡Pedido recibido!'],
+'Our team will call you to confirm your start day.':['Մեր թիմը կզանգի՝ մեկնարկի օրը հաստատելու։','Мы позвоним, чтобы подтвердить день начала.','Te llamaremos para confirmar el día de inicio.'],
+'Download receipt':['Ներբեռնել կտրոնը','Скачать чек','Descargar recibo'],
+'Program':['Ծրագիր','Программа','Programa'],'Meals':['Ուտեստներ','Питание','Comidas'],'5 meals a day':['Օրական 5 ուտեստ','5 блюд в день','5 comidas al día'],
+'Requested start':['Ցանկալի մեկնարկ','Желаемый старт','Inicio solicitado'],'Payment':['Վճարում','Оплата','Pago'],'Card':['Քարտ','Карта','Tarjeta'],
+'Status':['Կարգավիճակ','Статус','Estado'],'Paid':['Վճարված է','Оплачено','Pagado'],'Checking payment':['Վճարումը ստուգվում է','Проверяем оплату','Verificando pago'],
+'Date':['Ամսաթիվ','Дата','Fecha'],'Total':['Ընդամենը','Итого','Total'],'Close':['Փակել','Закрыть','Cerrar'],
+'Thank you for choosing Apricota':['Շնորհակալություն, որ ընտրեցիր Apricota-ն','Спасибо, что выбрали Apricota','Gracias por elegir Apricota'],
+'Daily, 3–10 pm':['Ամեն օր, 15:00–22:00','Ежедневно, 15:00–22:00','Diario, 3–10 pm'],
+'Delivery':['Առաքում','Доставка','Entrega'],
+'We will check your Zelle payment, then confirm your start day.':['Կստուգենք Zelle վճարումը, հետո կհաստատենք մեկնարկի օրը։','Мы проверим платёж Zelle и подтвердим день начала.','Verificaremos tu pago Zelle y confirmaremos el día de inicio.'],
+'Open my Apricota →':['Բացել my Apricota-ն →','Открыть my Apricota →','Abrir my Apricota →'],
+}; for(var k in X){ if(!D[k]) D[k]=X[k]; }})();
 function look(t){
   if(D[t]) return D[t][li];
   for(var i=0;i<P.length;i++){ var m=t.match(P[i][0]); if(m){ var r=P[i][1]; return typeof r==='function'? r(m) : t.replace(P[i][0], r[li]); } }
