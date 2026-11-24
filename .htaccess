@@ -9,3 +9,6 @@ Options -Indexes
 <FilesMatch "^\.|\.(bak|sql|log|env)$">
   Require all denied
 </FilesMatch>
+
+AddType application/manifest+json .webmanifest
+AddType image/x-icon .ico
