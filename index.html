@@ -1352,13 +1352,13 @@ footer#siteFooter{border-radius:30px 30px 0 0;margin-top:20px}
 @media (max-width:699px){
  .hero{flex-direction:column;padding-top:8px!important;gap:14px!important}
  .hero>.hero-art{order:-1;flex:0 0 auto;max-width:min(66vw,290px)!important;margin:0 auto;padding-top:6px!important}
- .hero-art .kcal-tag{top:auto!important;bottom:2px;right:-14px!important;font-size:13px!important;padding:8px 12px!important}
+ .hero .kcal-tag.kt-low{position:static!important;display:inline-block;transform:none!important;font-size:13px!important;padding:7px 14px!important;margin:4px auto 12px;border-radius:99px!important;box-shadow:0 10px 20px -12px rgba(23,103,94,.7)!important}
+ .hero-art .l2{display:none}
  .hero-art .f2{display:none}
  .hero p{display:none}
- .hero h1{margin-bottom:14px!important}
+ .hero h1{margin-bottom:18px!important;font-size:clamp(26px,7.4vw,31px)!important;line-height:1.08!important;text-wrap:balance}
  .hero .menu-card.mc-low{position:static!important;width:auto!important;margin-top:22px;text-align:left;transform:none!important}
  .hero>div:not(.hero-art){flex:0 0 auto;width:100%;text-align:center}
- .hero h1{font-size:clamp(28px,8vw,34px)!important}
  .hero p{margin-left:auto;margin-right:auto}
  .hero>div:not(.hero-art)>div[style*="flex-wrap"]{justify-content:center}
  .hero .stats{justify-content:center;margin-inline:auto}
@@ -5127,7 +5127,9 @@ setLang(saved);
 /* phone: the "Today's menu" times card sits under the headline, buttons and stats (the clock is on top); on wider screens it goes back beside the clock */
 (function(){ var card=document.querySelector('#heroStage .menu-card'), stage=document.getElementById('heroStage'), txt=document.querySelector('.hero>div:not(.hero-art)'); if(!card||!stage||!txt) return;
   var mq=window.matchMedia('(max-width:699px)');
-  function place(){ if(mq.matches){ if(card.parentNode!==txt){ txt.appendChild(card); card.classList.add('mc-low'); } } else if(card.parentNode!==stage){ stage.insertBefore(card, stage.querySelector('.kcal-tag')); card.classList.remove('mc-low'); } }
+  var tag=stage.querySelector('.kcal-tag');
+  function place(){ if(mq.matches){ if(card.parentNode!==txt){ txt.appendChild(card); card.classList.add('mc-low'); } if(tag&&tag.parentNode!==txt){ txt.insertBefore(tag, txt.firstChild); tag.classList.add('kt-low'); } }
+    else { if(card.parentNode!==stage){ stage.appendChild(card); card.classList.remove('mc-low'); } if(tag&&tag.parentNode!==stage){ stage.appendChild(tag); tag.classList.remove('kt-low'); } } }
   place(); if(mq.addEventListener) mq.addEventListener('change',place); else mq.addListener(place);
 })();
 </script>
