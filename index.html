@@ -48,6 +48,40 @@ window.claude={use:function(n){if(n!=="db")return Promise.resolve(null);return P
   set:function(P){if(P&&P.chef)saveChef(P.chef);return Promise.resolve();}};}});}};
 function rerender(){if(document.activeElement&&/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName))return;try{window.dispatchEvent(new HashChangeEvent("hashchange"));}catch(e){}}
 function warn(t){var b=document.getElementById("apriWarn");if(!b){b=document.createElement("div");b.id="apriWarn";document.body.appendChild(b);}b.textContent="⚠ "+t;b.hidden=false;setTimeout(function(){b.hidden=true;},8000);}
+/* 5. one Customers list for everybody: purchases row cudoc_healthy (Chef Apri's list) is the truth for size, people,
+   food days, stops and archive. The admin reads it live and writes its changes straight into it, so Chef Apri, the
+   managers and the drivers see the same thing. */
+var CU=null,cuMemo={};
+function iso(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+function today(){return iso(new Date());}
+function addD(s,n){var d=new Date(s+"T12:00:00");d.setDate(d.getDate()+n);return iso(d);}
+function rng(a,b){var o=[],d=a;if(!a||!b||b<a)return o;while(d<=b&&o.length<120){o.push(d);d=addD(d,1);}return o;}
+function cuDays(c){var st={},set={};(c.stop||[]).forEach(function(x){st[x]=1;});(c.days||[]).forEach(function(x){set[x]=1;});
+  if(c.end){var s0=c.start||(c.days||[]).slice().sort()[0]||today();rng(s0<=c.end?s0:c.end,c.end).forEach(function(x){set[x]=1;});}
+  return Object.keys(set).filter(function(x){return !st[x];}).sort();}
+function stopOn(c,d){var st=(c.stop||[]).slice(),days=(c.days||[]).slice().sort();if(st.indexOf(d)>=0||days.indexOf(d)<0)return;
+  days.splice(days.indexOf(d),1);var x=addD(days.length&&days[days.length-1]>d?days[days.length-1]:d,1);while(st.indexOf(x)>=0||x===d)x=addD(x,1);
+  days.push(x);st.push(d);days.sort();st.sort();c.days=days;c.stop=st;c.end=days[days.length-1]||c.end;}
+function setCU(doc){CU=doc||null;cuMemo={};}
+function cuFind(n){if(!CU||!n)return null;var L=CU.list||[];for(var i=0;i<L.length;i++)if(L[i].n===n)return L[i];return null;}
+function cuArchd(n){return !!(CU&&(CU.arch||[]).indexOf(n)>=0);}
+function cuSet(n){if(!cuMemo[n]){var e=cuFind(n),o={};if(e)cuDays(e).forEach(function(x){o[x]=1;});cuMemo[n]=o;}return cuMemo[n];}
+window.apriCuApply=function(L){if(!CU)return;L.forEach(function(c){var e=cuFind(c.name);if(!e||cuArchd(e.n))return;c.size=e.size||"M";c.sizeSet=true;var p=+e.ppl||1;c.two=p>1;c.people=p;});};
+window.apriCuPaid=function(hf,d){if(!CU||!hf||!d)return undefined;var e=cuFind(hf.name);if(!e)return undefined;var k=iso(new Date(+d));if(k<today())return undefined;
+  if(cuArchd(e.n))return null;return cuSet(e.n)[k]?[d.getFullYear(),d.getMonth()+1,[],+e.ppl||1]:null;};
+window.apriCuCur=function(c){if(!CU||!c)return undefined;var e=cuFind(c.name);if(!e)return undefined;if(cuArchd(e.n))return false;var t=today();return cuDays(e).some(function(x){return x>=t;})?true:undefined;};
+var cuQ=Promise.resolve();
+function cuWrite(mut){if(!sb||!role)return;cuQ=cuQ.then(function(){return cuWrite1(mut);},function(){return cuWrite1(mut);});}
+function cuWrite1(mut){return sb.from("purchases").select("data").eq("id","cudoc_healthy").maybeSingle().then(function(r){if(r.error){warn(r.error.message);return;}
+  var data=(r.data&&r.data.data)||{business:"healthy",plan:true,cudoc:true,date:"",name:""},doc=data.doc||{};doc.list=doc.list||[];doc.arch=doc.arch||[];
+  var now=new Date().toISOString();if(mut(doc,now)===false)return;doc.at=now;data.doc=doc;data.at=now;
+  return sb.from("purchases").upsert({id:"cudoc_healthy",data:data}).then(function(w){if(w.error){warn(w.error.message);return;}setCU(doc);rerender();});});}
+window.apriCuSet=function(n,patch){var e=cuFind(n);if(e){Object.keys(patch).forEach(function(k){e[k]=patch[k];});cuMemo={};}
+  cuWrite(function(doc,now){var x=null;doc.list.forEach(function(c){if(c.n===n)x=c;});if(!x)return false;Object.keys(patch).forEach(function(k){x[k]=patch[k];});x.ed=now;});};
+window.apriCuArch=function(n,on){cuWrite(function(doc){var i=doc.arch.indexOf(n);if(on){if(i>=0||!doc.list.some(function(c){return c.n===n;}))return false;doc.arch.push(n);}else{if(i<0)return false;doc.arch.splice(i,1);}});};
+window.apriCuPause=function(n,from,k){if(!/^\d{4}-\d{2}-\d{2}$/.test(String(from||"")))return;cuWrite(function(doc,now){var x=null;doc.list.forEach(function(c){if(c.n===n)x=c;});if(!x)return false;
+  x.days=cuDays(x);for(var i=0;i<k&&i<60;i++)stopOn(x,addD(from,i));x.ed=now;});};
+function cuLoad(){return sb.from("purchases").select("data").eq("id","cudoc_healthy").maybeSingle().then(function(r){if(!r.error)setCU(r.data&&r.data.data&&r.data.data.doc);});}
 /* 4. sign-in with the Chef Apri account (admin or Apricota manager) */
 var CSS="#apriGate{position:fixed;inset:0;z-index:99999;background:#F3F5F4;display:flex;align-items:center;justify-content:center;padding:16px;font-family:inherit}#apriGate form{width:100%;max-width:380px;background:#fff;border-radius:22px;padding:26px 22px;box-shadow:0 20px 50px rgba(19,59,48,.15);display:flex;flex-direction:column;gap:12px}#apriGate h1{margin:0;font-size:24px;color:#1D3A2F}#apriGate p{margin:0;color:#5B6670;font-size:14px}#apriGate label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:13px;color:#5B6670}#apriGate input{font:inherit;font-size:16px;padding:12px 44px 12px 12px;border-radius:12px;border:1.5px solid #D5DCD8;width:100%;box-sizing:border-box}#apriGate .pw{position:relative}#apriGate .eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:none;font-size:18px;cursor:pointer;padding:6px}#apriGate button.go{min-height:52px;border:0;border-radius:999px;background:#1D5545;color:#F6E3B4;font:inherit;font-weight:800;font-size:16px;cursor:pointer}#apriGate .err{color:#B42318;font-weight:700}#apriOut{position:fixed;left:12px;bottom:12px;z-index:9999;border:0;border-radius:999px;background:#1D5545;color:#F6E3B4;font:inherit;font-weight:800;padding:9px 14px;box-shadow:0 6px 16px rgba(0,0,0,.2);cursor:pointer}#apriWarn{position:fixed;left:50%;transform:translateX(-50%);top:12px;z-index:99999;background:#B42318;color:#fff;padding:10px 14px;border-radius:12px;font-weight:700;max-width:90vw}body.apri-mgr [data-ax-tab=fin],body.apri-mgr [data-ax-tab=acct],body.apri-mgr .ax-money{display:none!important}#apriPv{position:fixed;left:104px;bottom:12px;z-index:9999;border:0;border-radius:999px;background:#F6E3B4;color:#1D5545;font:inherit;font-weight:800;padding:9px 14px;box-shadow:0 6px 16px rgba(0,0,0,.2);cursor:pointer}";
 function gate(msg){var g=document.getElementById("apriGate");if(!g){g=document.createElement("div");g.id="apriGate";document.body.appendChild(g);}
@@ -58,7 +92,7 @@ function gate(msg){var g=document.getElementById("apriGate");if(!g){g=document.c
 function load(first){sb.rpc("apri_role").then(function(r){role=r.data||null;
   if(r.error){gate(/apri_role/.test(r.error.message)?"Supabase-ում աշխատեցրեք apricota-admin.sql-ը":r.error.message);return;}
   if(!role){ready=false;sb.auth.signOut();gate("Այս հաշիվը Apricota-ի ադմին կամ մենեջեր չէ");return;}
-  Promise.all([sb.from("apri_kv").select("key,value"),sb.from("apri_hf").select("id,data")]).then(function(x){var kv=x[0],hf=x[1];if(kv.error||hf.error){gate((kv.error||hf.error).message);return;}
+  Promise.all([sb.from("apri_kv").select("key,value"),sb.from("apri_hf").select("id,data"),cuLoad()]).then(function(x){var kv=x[0],hf=x[1];if(kv.error||hf.error){gate((kv.error||hf.error).message);return;}
     var H={cust:[],months:[],inv:[],dates:{}};(hf.data||[]).forEach(function(r){if(r.id==="cust")H.cust=r.data;else if(r.id==="dates")H.dates=r.data;else if(r.id==="fin"){H.months=r.data.months||[];H.inv=r.data.inv||[];}});
     var hfJs=JSON.stringify(H),changed=false;
     (kv.data||[]).forEach(function(r){var cur=null;try{cur=LS.getItem(r.key);}catch(e){}var nv=JSON.stringify(r.value);if(cur!==nv){put(r.key,r.value);changed=true;}else srv[r.key]=nv;});
@@ -70,11 +104,11 @@ function load(first){sb.rpc("apri_role").then(function(r){role=r.data||null;
     if(role==="admin"&&!document.getElementById("apriPv")){var b=document.createElement("button");b.id="apriPv";b.type="button";
       var lbl=function(){b.textContent=document.body.classList.contains("apri-mgr")?"↩ Ադմինի տեսք":"👁 Մենեջերի տեսք";};lbl();
       b.onclick=function(){var on=!document.body.classList.contains("apri-mgr");document.body.classList.toggle("apri-mgr",on);try{SS.setItem("apri-pv",on?"1":"0");}catch(e){}lbl();var d=document.querySelector("[data-ax-tab=dash]");if(on&&d)d.click();};document.body.appendChild(b);}
-    if(changed)rerender();live();});});}
+    rerender();live();});});}
 var liveOn=false;
 function live(){if(liveOn)return;liveOn=true;sb.channel("apri-kv").on("postgres_changes",{event:"*",schema:"public",table:"apri_kv"},function(p){var r=p.new&&p.new.key?p.new:null;
   if(r){var cur=null;try{cur=LS.getItem(r.key);}catch(e){}if(cur!==JSON.stringify(r.value)){put(r.key,r.value);rerender();}}
-  else if(p.old&&p.old.key){put(p.old.key,null);rerender();}}).subscribe();}
+  else if(p.old&&p.old.key){put(p.old.key,null);rerender();}}).on("postgres_changes",{event:"*",schema:"public",table:"purchases",filter:"id=eq.cudoc_healthy"},function(p){if(p.new&&p.new.data){setCU(p.new.data.doc);rerender();}}).subscribe();}
 function signOut(){if(!confirm("Դուրս գա՞լ ադմինից"))return;sb.auth.signOut().then(function(){try{Object.keys(LS).forEach(function(k){if(k.indexOf("myapri-")===0||k==="apri-hf-cache")rmI.call(LS,k);});SS.clear();}catch(e){}location.replace("/admin");});}
 function start(){var st=document.createElement("style");st.textContent=CSS;document.head.appendChild(st);
   if(!window.supabase){warn("Supabase-ը չբեռնվեց");return;}
@@ -1904,7 +1938,7 @@ body:has(#v-quiz:not([hidden])) .totop{bottom:calc(152px + env(safe-area-inset-b
   function axSeed(){ axPurge(); }
   function hfWeekRange(lbl){ var m=String(lbl||'').match(/(\d{1,2})\s+(\d{1,2})\s+(\d{4})\s*-\s*(\d{1,2})\s+(\d{1,2})\s+(\d{4})/); if(!m) return null;
     var mk=function(a,b,y){ a=+a; b=+b; if(a>12){ var t=a; a=b; b=t; } return new Date(+y,a-1,b,12); }; return [mk(m[1],m[2],m[3]),mk(m[4],m[5],m[6])]; }
-  function hfPaidOn(c,d){ var t=+d; for(var i=0;i<c.hist.length;i++){ var h=c.hist[i], L=HF.dates[h[0]+'-'+h[1]]||[];
+  function hfPaidOn(c,d){ if(window.apriCuPaid){ var X=apriCuPaid(c,d); if(X!==undefined) return X; } var t=+d; for(var i=0;i<c.hist.length;i++){ var h=c.hist[i], L=HF.dates[h[0]+'-'+h[1]]||[];
       for(var k=0;k<5;k++){ if(!h[2][k]) continue; var r=hfWeekRange(L[k]); if(r&&t>=+r[0]-432e5&&t<=+r[1]+432e5) return h; } } return null; }
   var MONS=['January','February','March','April','May','June','July','August','September','October','November','December'];
   function hfMon(y,m){ return sp(MONS[m-1])+' <span class="num">'+y+'</span>'; }
@@ -1921,6 +1955,8 @@ body:has(#v-quiz:not([hidden])) .totop{bottom:calc(152px + env(safe-area-inset-b
     /* people per customer set by the admin (e.g. a pair that now orders for one) */
     var SZ=axLS('myapri-size',{}); L.forEach(function(c){ if(SZ[c.id]){ c.size=SZ[c.id]; c.sizeSet=true; } });
     var PP=axPpl(); L.forEach(function(c){ c.two=PP[c.id]!=null? PP[c.id]>1 : !!(c.hf&&c.hf.pair); if(PP[c.id]!=null) c.people=PP[c.id]; });
+    /* apricota.am/admin: size and people come from the shared Customers list (Chef Apri) */
+    if(window.apriCuApply) apriCuApply(L);
     return L; }
   /* list for Chef Apri: name, size, people and the days each current customer gets food (next 5 weeks) */
   function chefExport(){ var L=axCust(), cur=curSort(L.filter(avIsCur)), out=cur.map(function(c){ var days=[]; for(var i=-7;i<=35;i++){ var d=axOff(i); if(c.hf?hfPaidOn(c.hf,d):(i>=0&&i<28)) days.push(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')); }
@@ -2127,7 +2163,7 @@ body:has(#v-quiz:not([hidden])) .totop{bottom:calc(152px + env(safe-area-inset-b
   /* a current customer: ordering this week or tomorrow (not a past customer) */
   function avIsCurAuto(c){ if(!c) return false; if(c.status&&c.status!=='past') return true; return !!(c.hf&&hfPaidOn(c.hf,axOff(1))); }
   /* the admin can set who is current by hand: on = add, off = stopped; otherwise it follows the payment book */
-  function avIsCur(c){ if(!c) return false; var o=axLS('myapri-curov',{})[c.id]; if(o==='on') return true; if(o==='off') return false; return avIsCurAuto(c); }
+  function avIsCur(c){ if(!c) return false; if(window.apriCuCur){ var X=apriCuCur(c); if(X!==undefined) return X; } var o=axLS('myapri-curov',{})[c.id]; if(o==='on') return true; if(o==='off') return false; return avIsCurAuto(c); }
   function clLastMonth(c){ if(!c||!c.hf) return 0; for(var i=0;i<=31;i++){ if(hfPaidOn(c.hf,axOff(-i))) return i+1; } return 0; }
   /* tomorrow's conflicts: which dish has something a customer doesn't eat */
   function avConf(L,d,onlyIds){ var w=mnWeekOf(d), di=(d.getDay()+6)%7, D=mnDay(w,di), res=[];
@@ -2279,11 +2315,11 @@ body:has(#v-quiz:not([hidden])) .totop{bottom:calc(152px + env(safe-area-inset-b
     if((b=e.target.closest('[data-ax-tab]'))){ ADX.tab=b.dataset.axTab; ADX.sel=null; axRender(); window.scrollTo(0,0); return; }
     if((b=e.target.closest('[data-ax-per]'))){ ADX.per=+b.dataset.axPer; axRender(); return; }
     if((b=e.target.closest('[data-ax-fy]'))){ ADX.fy=+b.dataset.axFy; axRender(); return; }
-    if((b=e.target.closest('[data-sz]'))){ var pr=b.dataset.sz.split('|'), SZ=axLS('myapri-size',{}); SZ[pr[0]]=pr[1]; axSet('myapri-size',SZ); axRender(); return; }
+    if((b=e.target.closest('[data-sz]'))){ var pr=b.dataset.sz.split('|'), SZ=axLS('myapri-size',{}); SZ[pr[0]]=pr[1]; axSet('myapri-size',SZ); if(window.apriCuSet){ var cz=axCust().filter(function(c){ return c.id===pr[0]; })[0]; if(cz) apriCuSet(cz.name,{size:pr[1]}); } axRender(); return; }
     if((b=e.target.closest('[data-chef-copy]'))){ var txt=chefExport(); var done=function(){ axToast('Copied'); }; try{ navigator.clipboard.writeText(txt).then(done,function(){ chefShowTx(txt); }); }catch(x){ chefShowTx(txt); } return; }
-    if((b=e.target.closest('[data-ppl]'))){ var PP=axPpl(), id=b.dataset.ppl, c0=axCust().filter(function(c){ return c.id===id; })[0]; PP[id]=(c0&&c0.two)?1:2; axSet('myapri-ppl',PP); axToast('Saved'); axRender(); return; }
-    if((b=e.target.closest('[data-cur-off]'))){ var OV=axLS('myapri-curov',{}); OV[b.dataset.curOff]='off'; axSet('myapri-curov',OV); axToast('Saved'); axRender(); return; }
-    if((b=e.target.closest('[data-cur-reset]'))){ var OV=axLS('myapri-curov',{}), id=b.dataset.curReset, c0=axCust().filter(function(c){ return c.id===id; })[0]; delete OV[id]; if(c0&&!avIsCurAuto(c0)) OV[id]='on'; axSet('myapri-curov',OV); axToast('Saved'); axRender(); return; }
+    if((b=e.target.closest('[data-ppl]'))){ var PP=axPpl(), id=b.dataset.ppl, c0=axCust().filter(function(c){ return c.id===id; })[0]; PP[id]=(c0&&c0.two)?1:2; axSet('myapri-ppl',PP); if(window.apriCuSet&&c0) apriCuSet(c0.name,{ppl:PP[id]}); axToast('Saved'); axRender(); return; }
+    if((b=e.target.closest('[data-cur-off]'))){ var OV=axLS('myapri-curov',{}); OV[b.dataset.curOff]='off'; axSet('myapri-curov',OV); if(window.apriCuArch){ var co=axCust().filter(function(c){ return c.id===b.dataset.curOff; })[0]; if(co) apriCuArch(co.name,true); } axToast('Saved'); axRender(); return; }
+    if((b=e.target.closest('[data-cur-reset]'))){ var OV=axLS('myapri-curov',{}), id=b.dataset.curReset, c0=axCust().filter(function(c){ return c.id===id; })[0]; delete OV[id]; if(window.apriCuArch&&c0) apriCuArch(c0.name,false); if(c0&&!avIsCurAuto(c0)) OV[id]='on'; axSet('myapri-curov',OV); axToast('Saved'); axRender(); return; }
     if((b=e.target.closest('[data-ax-cf]'))){ ADX.cf=b.dataset.axCf; if(ADX.cf==='top'){ ADX.cs='top'; ADX.cd=''; } axRender(); return; }
     if((b=e.target.closest('[data-ax-sort]'))){ var k=b.dataset.axSort; if((ADX.cs||'last')===k) ADX.cd=ADX.cd==='rev'?'':'rev'; else { ADX.cs=k; ADX.cd=''; } axRender(); return; }
     if((b=e.target.closest('[data-bpk]'))){ ADX.bpk=+b.dataset.bpk; axRender(); return; }
@@ -2305,7 +2341,7 @@ body:has(#v-quiz:not([hidden])) .totop{bottom:calc(152px + env(safe-area-inset-b
     if((b=e.target.closest('[data-ax-propsend]'))){ var v=document.getElementById('axPropD').value; if(!v) return; axOrd(b.dataset.axPropsend,function(o){ o.status='proposed'; o.start=v; }); ADX.prop=null; axToast('Proposal sent to the customer'); axRender(); return; }
     if((b=e.target.closest('[data-ax-dec]'))){ axOrd(b.dataset.axDec,function(o){ o.status='declined'; }); axRender(); return; }
     if((b=e.target.closest('[data-ax-paid]'))){ axOrd(b.dataset.axPaid,function(o){ o.paid=true; }); axToast('Payment marked as received'); axRender(); return; }
-    if((b=e.target.closest('[data-ax-pz]'))){ var P=axLS('myapri-pauses',[]); P.forEach(function(p){ if(p.id===b.dataset.axPz) p.status=b.dataset.v; }); axSet('myapri-pauses',P); axRender(); return; }
+    if((b=e.target.closest('[data-ax-pz]'))){ var P=axLS('myapri-pauses',[]); P.forEach(function(p){ if(p.id===b.dataset.axPz){ p.status=b.dataset.v; if(p.status==='approved'&&window.apriCuPause) apriCuPause(p.name,p.from,+p.days||1); } }); axSet('myapri-pauses',P); axRender(); return; }
     if(e.target.closest('[data-ax-send]')){ axToast('Sent to drivers'); return; }
     if(e.target.closest('[data-ax-out]')){ axSetIn(false); axRender(); return; }
   },true);
