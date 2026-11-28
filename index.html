@@ -670,6 +670,16 @@ button.pb-r{width:100%;font:inherit;text-align:left;color:inherit}
 .fd-day{margin-top:12px;background:var(--cream);border-radius:16px;padding:12px}.fd-day h3{margin:0 0 10px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;font:800 16px var(--body);color:var(--ink)}.fd-day h3 em{font-style:normal}.fd-day h3 span{font-weight:700;color:var(--muted)}.fd-day h3 b{color:var(--ink);font-size:18px}
 .fd-g{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}.fd-g>small{text-align:center;font-size:11px;font-weight:800;color:var(--muted)}
 .fd-g>span{background:#fff;border-radius:10px;padding:5px 6px;display:flex;flex-direction:column;align-items:center;gap:1px;box-shadow:inset 0 0 0 1px var(--line)}.fd-g>span small{font-size:11px;color:var(--muted);font-weight:700}.fd-g>span b{font-size:17px;color:var(--ink)}.fd-g>span.z b{color:#C9D2CE}
+.ax-ov{position:fixed;inset:0;z-index:70;background:rgba(19,40,34,.45);display:flex;align-items:flex-start;justify-content:center;padding:4vh 16px;overflow:auto}
+.ax-modal{width:min(720px,100%);background:#fff;border-radius:24px;padding:20px 22px 24px;box-shadow:0 30px 70px rgba(10,40,30,.3);display:flex;flex-direction:column;gap:12px;max-height:none}
+.ax-mh{display:flex;align-items:center;justify-content:space-between;gap:10px;position:sticky;top:-20px;background:#fff;padding:4px 0;z-index:2}.ax-mh h2{margin:0;font:900 24px var(--display);color:var(--ink)}
+.ax-x{width:40px;height:40px;border-radius:50%;border:0;background:var(--cream);font-size:24px;line-height:1;cursor:pointer;color:var(--ink);flex:none}.ax-x:hover{background:var(--mint)}
+.aq{background:var(--cream);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:10px}.aq h3,.aq-h{margin:0;font:800 17px var(--body);color:var(--ink)}.aq-at{color:var(--muted);font-size:12px}
+.aq-g{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px}.aq-g label{display:flex;flex-direction:column;gap:4px;font-size:12.5px;font-weight:800;color:var(--muted)}.aq-g label.full{grid-column:1/-1}
+.aq-g input,.aq-g select,.aq-g textarea{min-height:44px;border-radius:12px;border:1.5px solid var(--line);padding:8px 10px;font:600 15px var(--body);color:var(--ink);background:#fff;width:100%;box-sizing:border-box}
+.aq-sec{grid-column:1/-1;margin:8px 0 0;font:800 15px var(--body);color:var(--green-dark);border-bottom:1px solid var(--line);padding-bottom:4px}
+.aq-act{display:flex;gap:8px;flex-wrap:wrap;position:sticky;bottom:-24px;background:#fff;padding:10px 0}
+@media (max-width:600px){.aq-g{grid-template-columns:1fr}.ax-modal{padding:16px}}
 .rc-warn{margin:0;padding:10px 12px;border-radius:12px;background:#FDE7E4;color:#8A2D20;font-size:13.5px;font-weight:600}
 @media (max-width:820px){.rc-f{grid-template-columns:1fr 1fr}.rc-f .ax-btn{grid-column:span 2}}
 .ax-tbl th{text-transform:none;letter-spacing:0}
@@ -2213,7 +2223,7 @@ body:has(#v-quiz:not([hidden])) .totop{bottom:calc(152px + env(safe-area-inset-b
       h+='<div class="chef-exp"><span>🔗 <b>Chef Apri</b> · <span>Send the current customers (size, people, end dates) to the kitchen app.</span></span><button type="button" class="ax-btn" data-chef-copy style="min-height:40px">Copy for Chef Apri</button><textarea id="chefTx" hidden rows="3" readonly></textarea></div>';
       h+='<p class="tiny" style="margin:0;font-size:13px">⠿ <span>Drag the rows to set the order. Deliveries will follow this order.</span></p>';
       if(stopped.length) h+='<div class="ax-card cur-stop"><b>⏸ <span>Stopped</span> <span class="num">('+stopped.length+')</span></b><div class="ne-chips">'+stopped.map(function(c){ return '<span class="ne-chip">'+qzEsc(c.name)+' <button type="button" class="cur-btn go" data-cur-reset="'+qzEsc(c.id)+'">▶ <span>Resume</span></button></span>'; }).join('')+'</div></div>'; }
-    if(sel) h+=axDetail(sel);
+    if(sel) h+='<div class="ax-ov" data-ax-ovl><div class="ax-modal" role="dialog" aria-modal="true" aria-label="'+qzEsc(sel.name)+'">'+(ADX.qed?axQForm(sel):axDetail(sel))+'</div></div>';
     var ini=function(n){ return String(n||'?').trim().split(/\s+/).slice(0,2).map(function(w){ return w.charAt(0).toUpperCase(); }).join(''); };
     h+=R.length?'<div class="pb cl"><div class="pb-h cl-g"><span data-ax-sort="name">Customer'+arr('name')+'</span><span data-ax-sort="last">Last order'+arr('last')+'</span><span class="num" data-ax-sort="weeks">Weeks'+arr('weeks')+'</span><span class="num" data-ax-sort="top">Total paid'+arr('top')+'</span><span>Status</span></div>'+R.slice(0,300).map(function(c,k){
       var hd='';if(cs==='last'){var mk=c.last||0,pv=k?(R[k-1].last||0):-1;if(mk!==pv){var cnt=R.filter(function(x){return (x.last||0)===mk;}).length;hd='<div class="cl-mh">'+(mk?hfMon(Math.floor(mk/100),mk%100):'–')+' · <span class="num">'+cnt+'</span> '+sp(cnt===1?'customer':'customers')+'</div>';}}
@@ -2222,6 +2232,37 @@ body:has(#v-quiz:not([hidden])) .totop{bottom:calc(152px + env(safe-area-inset-b
         '<span class="cl-last">'+last+'</span><span class="num cl-wk">'+(c.hf&&c.hf.weeks?c.hf.weeks:'–')+'</span><span class="pb-t num">'+(c.hf?m2(c.total):'–')+'</span><span class="cl-st">'+(cf==='now'?'<span role="button" tabindex="0" class="cur-btn" data-cur-off="'+qzEsc(c.id)+'">⏸ <span>Stop</span></span>':(avIsCur(c)?'<span class="ax-tag g">'+sp('Current')+'</span>':axTag(c.status)))+'</span></button>'; }).join('')+'</div>'
       : '<div class="ax-card"><p style="margin:0;color:var(--muted)">Nothing found</p></div>';
     return h; }
+var AQYN=[["Yes","Այո"],["No","Ոչ"]];
+  var AQF=[["#","Անձնական"],["first","Անուն"],["last","Ազգանուն"],["phone","Հեռախոս","tel"],["email","Email","email"],["gender","Սեռ",[["Female","Իգական"],["Male","Արական"]]],["dob","Ծննդյան ամսաթիվ","date"],["job","Մասնագիտություն"],
+    ["#","Կանանց առողջություն"],["cycle","Ցիկլ",[["Regular","Կանոնավոր"],["Irregular","Անկանոն"],["Menopause","Դաշտանադադար"],["Prefer not to say","Չի ուզում ասել"]]],["preg","Հղի՞ է",AQYN],["bf","Կրծքով կերակրո՞ւմ է",AQYN],
+    ["#","Նպատակ"],["goal","Նպատակ",[["Lose weight","Նիհարել"],["Keep my weight","Պահել քաշը"],["Eat healthier","Ավելի առողջ սնվել"]]],["weight","Քաշ (lbs)","number"],["hft","Հասակ՝ ֆուտ","number"],["hin","Հասակ՝ դյույմ","number"],["target","Նպատակային քաշ (lbs)","number"],
+    ["#","Օրվա ռեժիմ"],["sport","Սպորտ",AQYN],["sportwhat","Ի՞նչ սպորտ, որքան հաճախ"],["act","Ակտիվություն",[["Mostly sitting (office work)","Հիմնականում նստած"],["Light: walks, 1–2 workouts a week","Թեթև՝ 1–2 մարզում"],["Active: 3–5 workouts a week","Ակտիվ՝ 3–5 մարզում"],["Very active: daily training","Շատ ակտիվ՝ ամեն օր"]]],
+    ["bed","Քնում է","time"],["wake","Արթնանում է","time"],["coffee","Սուրճ օրական",[["None","Չի խմում"],["1 cup","1 բաժակ"],["2 cups","2 բաժակ"],["3 cups or more","3 և ավելի"]]],["water","Ջուր օրական",[["Less than 1 liter","1 լ-ից քիչ"],["1–2 liters","1–2 լ"],["2–3 liters","2–3 լ"],["More than 3 liters","3 լ-ից շատ"]]],
+    ["alc","Ալկոհոլ",[["Never","Երբեք"],["Sometimes","Երբեմն"],["Every week","Ամեն շաբաթ"]]],["smoke","Ծխո՞ւմ է",[["No","Ոչ"],["Yes","Այո"]]],["vit","Վիտամիններ / սպորտային սնունդ",AQYN],["vitwhat","Ի՞նչ է ընդունում"],
+    ["#","Առողջություն"],["diab","Շաքարախտ",AQYN],["diabwhat","Դեղեր, բժշկի խորհուրդ","area"],["allergy","Ալերգիա",AQYN],["allwhat","Ինչի՞ց"],["cond","Այլ հիվանդություններ",AQYN],["condwhat","Նկարագրություն","area"],["meds","Դեղեր",AQYN],["medwhat","Ի՞նչ դեղեր","area"],["dig","Մարսողության խնդիրներ",AQYN],["digwhat","Նկարագրություն"],
+    ["#","Սնունդ"],["foodsTxt","Չի ուտում","area"],["diet","Դիետա փորձե՞լ է",AQYN],["dietwhat","Ո՞ր դիետան, արդյունքը","area"],
+    ["#","Առաքում"],["startd","Ցանկալի սկիզբ","date"],["street","Հասցե"],["city","Քաղաք"],["zip","ZIP"],["code","Մուտքի կոդ / նշում"],["hear","Որտեղի՞ց է իմացել",[["Instagram","Instagram"],["From the web","Համացանցից"],["A friend recommended","Ընկերոջ խորհրդով"],["Advertising","Գովազդից"],["I’m already a customer","Արդեն հաճախորդ է"],["Other","Այլ"]]]];
+  
+  /* the customer's questionnaire — the same questions and the same record (apri_kv "myapri-quests") as the customer card in Chef Apri */
+  function aqLabel(k,v){ var f=AQF.filter(function(x){ return x[0]===k; })[0]; if(!f||!Array.isArray(f[2])) return v; var o=f[2].filter(function(x){ return x[0]===v; })[0]; return o?o[1]:v; }
+  function aqOf(c){ var L=axLS('myapri-quests',[]).filter(function(q){ return q&&!q.demo; }), d=String(c.phone||'').replace(/\D/g,'').slice(-10), hit=null;
+    L.forEach(function(q){ if(d&&String(q.phone||'').replace(/\D/g,'').slice(-10)===d) hit=q; }); if(hit) return hit;
+    var e=window.apriCuCur&&window.apriCuCur(c.hf||c)!==undefined; L.forEach(function(q){ if(q.cust===c.name&&(e||!d)) hit=q; }); return hit; }
+  function axQ(c){ var q=aqOf(c), key=['goal','weight','target','allergy','allwhat','diab','diabwhat','cond','condwhat','meds','medwhat','foodsTxt','job','dob','last','email'];
+    return '<div class="aq"><h3>📝 Հարցաշար</h3>'+(q?'<dl class="ax-dl">'+AQF.filter(function(f){ return f[0]!=='#'&&q[f[0]]&&key.indexOf(f[0])>=0; }).map(function(f){ return '<dt>'+qzEsc(f[1])+'</dt><dd>'+qzEsc(aqLabel(f[0],q[f[0]]))+'</dd>'; }).join('')+'</dl>'+(q.editedAt||q.at?'<small class="aq-at">'+(q.src==='site'?'Կայքից · ':'')+'<span class="num">'+fmtD(String(q.editedAt||q.at).slice(0,10))+'</span></small>':'')
+      :'<p class="tiny" style="margin:0;font-size:14px">Հարցաշար դեռ չկա։</p>')+'<button type="button" class="ax-btn line" data-aq-ed="1" style="align-self:flex-start">'+(q?'✎ Խմբագրել հարցաշարը':'＋ Լրացնել հարցաշարը')+'</button></div>'; }
+  function axQForm(c){ var q=aqOf(c)||{}, Q={}; for(var k in q) Q[k]=q[k]; if(!Q.first&&!q.id) Q.first=c.name; if(!Q.phone&&c.phone) Q.phone=c.phone; if(Array.isArray(Q.foods)&&!Q.foodsTxt) Q.foodsTxt=Q.foods.join(', ');
+    var fld=function(f){ if(f[0]==='#') return '<h3 class="aq-sec">'+qzEsc(f[1])+'</h3>'; var k=f[0], v=Q[k]==null?'':String(Q[k]), t=f[2];
+      if(Array.isArray(t)) return '<label>'+qzEsc(f[1])+'<select data-aq="'+k+'"><option value=""></option>'+t.map(function(o){ return '<option value="'+qzEsc(o[0])+'"'+(v===o[0]?' selected':'')+'>'+qzEsc(o[1])+'</option>'; }).join('')+'</select></label>';
+      if(t==='area') return '<label class="full">'+qzEsc(f[1])+'<textarea data-aq="'+k+'" rows="2">'+qzEsc(v)+'</textarea></label>';
+      return '<label>'+qzEsc(f[1])+'<input data-aq="'+k+'" type="'+(t||'text')+'" value="'+qzEsc(v)+'"'+(t==='tel'?' inputmode="tel"':'')+'></label>'; };
+    return '<div class="ax-mh"><h2>📝 Հարցաշար · '+qzEsc(c.name)+'</h2><button type="button" class="ax-x" data-ax-close="1" aria-label="Close">×</button></div>'+(q.src==='site'?'<p class="tiny" style="margin:0;font-size:13px">Լրացվել է կայքում</p>':'')+
+      '<div class="aq-g">'+AQF.map(fld).join('')+'</div><div class="aq-act"><button type="button" class="ax-btn" data-aq-save="1">Պահպանել</button><button type="button" class="ax-btn line" data-aq-cancel="1">Չեղարկել</button></div>'; }
+  function aqSave(c){ var q=aqOf(c), A={}; document.querySelectorAll('[data-aq]').forEach(function(el){ var v=String(el.value||'').trim().slice(0,600); if(v) A[el.dataset.aq]=v; });
+    var now=new Date().toISOString(), id=(q&&q.id)||('a'+Date.now().toString(36)), L=axLS('myapri-quests',[]), i=-1; L.forEach(function(x,k){ if(x&&x.id===id) i=k; });
+    var rec={}; if(i>=0) for(var k in L[i]) rec[k]=L[i][k]; AQF.forEach(function(f){ if(f[0]!=='#') delete rec[f[0]]; }); for(var k2 in A) rec[k2]=A[k2];
+    rec.id=id; rec.cust=(q&&q.cust)||c.name; rec.src=(q&&q.src)||'manual'; rec.at=(q&&q.at)||now; rec.editedAt=now; rec.by='admin'; if(i>=0) L[i]=rec; else L.push(rec);
+    try{ localStorage.setItem('myapri-quests',JSON.stringify(L)); }catch(x){} }
   function axDetail(c){ var dl=[], R=c.R, add=function(k,v){ if(v!=null&&v!=='') dl.push('<dt>'+sp(k)+'</dt><dd>'+v+'</dd>'); };
     add('Phone','<a href="tel:'+String(c.phone).replace(/\D/g,'')+'">'+qzEsc(c.phone)+'</a>'); add('City',qzEsc(c.city)); if(!c.hf) add('Program',axProg(c.prog)); add('Status',axTag(c.status));
     if(!c.hf){
@@ -2232,7 +2273,7 @@ body:has(#v-quiz:not([hidden])) .totop{bottom:calc(152px + env(safe-area-inset-b
       add('Total paid','<b class="num">'+m2(H.total)+'</b>'); add('Weeks paid','<span class="num">'+H.weeks+'</span>'); if(H.pair) add('Orders','<span class="ax-tag w">'+sp('2 people at one address')+'</span>');
       if(H.w) add('Weight',H.w.map(qzEsc).join(' → '));
       var hist='<div class="ax-tbl"><table style="min-width:0"><thead><tr><th>Month</th><th class="num">Weeks</th><th class="num">Amount</th></tr></thead><tbody>'+H.hist.slice().reverse().map(function(x){ var t=x[2].reduce(function(a,b){ return a+b; },0); return '<tr><td>'+hfMon(x[0],x[1])+(x[3]>1?' <span class="ax-tag w">'+sp('2 people')+'</span>':'')+'</td><td class="num">'+x[2].filter(Boolean).length+'</td><td class="num">'+m2(t)+'</td></tr>'; }).join('')+'</tbody></table></div>';
-      return '<div class="ax-card"><div class="sumrow" style="align-items:center"><h2>'+qzEsc(c.name)+'</h2><button type="button" class="ax-btn line" data-ax-close="1">Close</button></div><dl class="ax-dl">'+dl.join('')+'</dl><h2 style="font-size:17px">Payment history</h2>'+hist+'</div>'; }
+      return '<div class="ax-mh"><h2>'+qzEsc(c.name)+'</h2><button type="button" class="ax-x" data-ax-close="1" aria-label="Close">×</button></div><dl class="ax-dl">'+dl.join('')+'</dl>'+axQ(c)+'<h3 class="aq-h">Payment history</h3>'+hist; }
     if(c.real){ var met=QZ.units==='met';
       add('Weight',R?'<span class="num">'+R.lb+'</span> lbs'+(R.tgt?' → <span class="num">'+R.tgt+'</span> lbs':''):''); if(R) add('Calories','<span class="num">'+myKcal(R).toLocaleString('en-US')+'</span> <span>kcal/day</span>');
       add('Goal',QZ.goal?sp(QZ.goal):''); add('Gender',QZ.gender?sp(QZ.gender):''); add('Date of birth',QZ.dob?fmtD(QZ.dob):'');
@@ -2246,7 +2287,7 @@ body:has(#v-quiz:not([hidden])) .totop{bottom:calc(152px + env(safe-area-inset-b
       add('Size','<b>'+c.size+'</b>'); add('Weight',c.w?'<span class="num">'+c.w[0]+' → '+c.w[1]+'</span> lbs'+(c.t?' · <span>goal</span> <span class="num">'+c.t+'</span>':''):'');
       add('Foods you don’t eat',c.excl.length?c.excl.map(sp).join(', '):sp('I eat everything')); add('Health',c.flags.length?c.flags.map(function(x){ return '<span class="ax-tag r">'+sp(x)+'</span>'; }).join(' '):'');
     }
-    return '<div class="ax-card"><div class="sumrow" style="align-items:center"><h2>'+qzEsc(c.name)+'</h2><button type="button" class="ax-btn line" data-ax-close="1">Close</button></div>'+(c.demo?'<span class="ax-tag g" style="align-self:flex-start">Example</span>':'')+'<dl class="ax-dl">'+dl.join('')+'</dl></div>'; }
+    return '<div class="ax-mh"><h2>'+qzEsc(c.name)+'</h2><button type="button" class="ax-x" data-ax-close="1" aria-label="Close">×</button></div>'+(c.demo?'<span class="ax-tag g" style="align-self:flex-start">Example</span>':'')+'<dl class="ax-dl">'+dl.join('')+'</dl>'+(c.demo?'':axQ(c)); }
 
   var MNM=[['b','Breakfast','09:00'],['f','Fruit','12:00'],['l','Lunch','13:30'],['s','Snack','15:00'],['d','Dinner','18:00']], WDN=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
   var STORES=['Costco','Restaurant Depot','Super King','Sevan Market','Vons','Ralphs','Other'];
@@ -2401,6 +2442,7 @@ body:has(#v-quiz:not([hidden])) .totop{bottom:calc(152px + env(safe-area-inset-b
     return '<div class="langs ax-lang" role="group" aria-label="Language">'+[['en','EN'],['hy','ՀԱՅ'],['ru','РУС'],['es','ES']].map(function(l){ return '<button type="button" data-axlang="'+l[0]+'" lang="'+l[0]+'" aria-pressed="'+(cur===l[0])+'" class="'+(cur===l[0]?'on':'')+'">'+l[1]+'</button>'; }).join('')+'</div>'; }
   document.addEventListener('click',function(e){ var b=e.target.closest&&e.target.closest('[data-axlang]'); if(!b||!window.apSetLang) return; window.apSetLang(b.dataset.axlang);
     document.querySelectorAll('[data-axlang]').forEach(function(x){ var on=x===b; x.classList.toggle('on',on); x.setAttribute('aria-pressed',String(on)); }); });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&document.querySelector('.ax-ov')){ if(ADX.qed) ADX.qed=false; else ADX.sel=null; axRender(); } });
   function axToast(t){ var el=document.createElement('div'); el.className='ax-toast'; el.textContent=t; document.body.appendChild(el); setTimeout(function(){ el.remove(); },2200); }
   function axOrd(id,fn){ var O=admOrders(); O.forEach(function(o){ if(String(o.id)===String(id)) fn(o); }); admSave(O); }
 
@@ -2444,8 +2486,11 @@ body:has(#v-quiz:not([hidden])) .totop{bottom:calc(152px + env(safe-area-inset-b
     if((b=e.target.closest('[data-ax-em]'))){ ADX.em=+b.dataset.axEm; axRender(); return; }
     if((b=e.target.closest('[data-ax-cdir]'))){ ADX.cd=ADX.cd==='rev'?'':'rev'; axRender(); return; }
     if((b=e.target.closest('[data-ax-of]'))){ ADX.of=b.dataset.axOf; axRender(); return; }
-    if((b=e.target.closest('[data-ax-cust]'))){ ADX.tab='cust'; ADX.sel=b.dataset.axCust; axRender(); window.scrollTo(0,0); return; }
-    if(e.target.closest('[data-ax-close]')){ ADX.sel=null; axRender(); return; }
+    if((b=e.target.closest('[data-aq-ed]'))){ ADX.qed=true; axRender(); var m0=document.querySelector('.ax-modal'); if(m0) m0.scrollTop=0; return; }
+    if(e.target.closest('[data-aq-cancel]')){ ADX.qed=false; axRender(); return; }
+    if(e.target.closest('[data-aq-save]')){ var cs=axCust().filter(function(c){ return c.id===ADX.sel; })[0]; if(cs){ aqSave(cs); axToast('Saved'); } ADX.qed=false; axRender(); return; }
+    if((b=e.target.closest('[data-ax-cust]'))){ var was=ADX.tab==='cust'; ADX.tab='cust'; ADX.sel=b.dataset.axCust; ADX.qed=false; axRender(); if(!was) window.scrollTo(0,0); return; }
+    if(e.target.closest('[data-ax-close]')||(e.target.hasAttribute&&e.target.hasAttribute('data-ax-ovl'))){ if(ADX.qed){ ADX.qed=false; } else ADX.sel=null; axRender(); return; }
     if((b=e.target.closest('[data-ax-ok]'))){ axOrd(b.dataset.axOk,function(o){ o.status='confirmed'; o.start=o.req; }); axToast('Start day confirmed'); axRender(); return; }
     if((b=e.target.closest('[data-ax-prop]'))){ ADX.prop=b.dataset.axProp; axRender(); return; }
     if(e.target.closest('[data-ax-propx]')){ ADX.prop=null; axRender(); return; }
