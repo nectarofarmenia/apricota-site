@@ -174,27 +174,7 @@ Storage.prototype.setItem=function(k,v){var r=orig.apply(this,arguments);
 })();</script>
 <style>#cardFields,.paywal,.paysep,#feeNote{display:none!important}</style></head><body>
 <script>
-/* On a wide screen, show the whole site inside a phone-size frame so it looks exactly like on a phone */
-(function(){
-  if(window.name==='apriPhone'){ var wd=function(){ try{ parent.postMessage({apriHash:location.hash},'*'); }catch(e){} }; wd(); window.addEventListener('hashchange',wd); return; }
-  if(window.innerWidth<700||window.APRI_ADMIN) return;
-  window.__apriOuter=true;
-  document.write('<plaintext id="apriSrc" style="display:none">');
-  document.addEventListener('DOMContentLoaded',function(){
-    var src=document.getElementById('apriSrc'); var rest=src?src.textContent:'';
-    var inner='<scr'+'ipt>(function(){try{var h=parent.location.hash;if(h&&h.length>1)location.replace("#"+h.slice(1));}catch(e){}function wd(){try{parent.postMessage({apriHash:location.hash},"*");}catch(e){}try{var f=parent.document.querySelector("iframe.apri-ph");if(f)f.classList.toggle("wide",location.hash==="#admin");}catch(e){}}wd();window.addEventListener("hashchange",function(){wd();try{parent.history.replaceState(null,"",location.hash);}catch(e){}});})();</scr'+'ipt>';
-    var html='<!doctype html><html>'+document.head.outerHTML+'<body>'+inner+rest;
-    document.title='Apricota — Healthy Meal Delivery in Los Angeles';
-    var st=document.createElement('style');
-    st.textContent='html,body{height:100%;margin:0;padding:0!important}body{display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 30% 20%,#FFE6DC,#E2F2EE 60%);overflow:hidden}.apri-ph.wide{width:min(1320px,calc(100vw - 40px));border-radius:22px}.apri-ph{transition:width .25s ease,border-radius .25s ease;width:430px;height:min(932px,calc(100vh - 44px));border:0;border-radius:42px;background:#FFFBF5;box-shadow:0 0 0 10px #1E4A43,0 30px 80px rgba(30,74,67,.35)}';
-    document.head.appendChild(st);
-    document.body.innerHTML='';
-    var f=document.createElement('iframe');
-    f.name='apriPhone'; f.className='apri-ph'; f.title='Apricota'; f.setAttribute('allow','clipboard-write; camera');
-    f.srcdoc=html; document.body.appendChild(f);
-    window.addEventListener('message',function(ev){ if(ev.source===f.contentWindow&&ev.data&&typeof ev.data.apriHash==='string'){ f.classList.toggle('wide',ev.data.apriHash==='#admin'); } });
-  });
-})();
+/* The site adapts to every screen: phone, foldable, tablet and computer (no phone frame on wide screens). */
 </script>
 <title>Apricota — Healthy Meal Delivery in Los Angeles</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -512,6 +492,28 @@ body{padding-bottom:calc(104px + env(safe-area-inset-bottom,0px))}
 .mb-sw{text-align:center;font-size:14px;margin:0}.mb-msg{margin:0;padding:12px;border-radius:12px;background:var(--mint,#E3F4EF);color:var(--green-dark);font-weight:700;font-size:14px}
 .mb-out{border:0;background:rgba(255,255,255,.18);color:inherit;border-radius:999px;padding:8px 14px;font:800 13px var(--body);cursor:pointer;margin-left:6px}
 #v-my-apri .app{padding-top:8px}
+/* ===== responsive: foldables, tablets and computers ===== */
+.a-left,.a-right{min-width:0}
+@media (min-width:700px){
+  .hero-art{max-width:440px}
+  #v-my-apri .app{max-width:720px}
+}
+@media (min-width:760px) and (max-width:999px){
+  .hero>*{flex:1 1 300px}
+  .hero-art{max-width:360px}
+}
+@media (min-width:1000px){
+  #v-my-apri .app{max-width:1120px;display:grid;grid-template-columns:minmax(340px,400px) minmax(0,1fr);column-gap:28px;align-items:start;padding-left:28px;padding-right:28px}
+  #v-my-apri .app>.a-top{grid-column:1/-1}
+  #v-my-apri .a-left{position:sticky;top:12px}
+  #v-my-apri .a-right{padding-top:4px}
+  #v-my-apri .app>.a-nav{grid-column:1/-1}
+}
+@media (max-width:360px){
+  .wrap,.container{padding-left:12px;padding-right:12px}
+  h1{overflow-wrap:anywhere}
+}
+
 @media (max-width:520px){#dForm{grid-template-columns:1fr!important}}
 .navarrows{display:flex;gap:4px}
 .navb{width:40px;height:40px;border-radius:50%;border:0;background:rgba(255,255,255,.16);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer}
@@ -3481,6 +3483,10 @@ var AQYN=[["Yes","Այո"],["No","Ոչ"]];
   MB.day=mbToday();
   if(/access_token=/.test(MB.hash)||mbHasSession()) mbClient(function(){});
 
+
+  (function(){ var app=document.querySelector('#v-my-apri .app'), tabs=document.getElementById('aTabs'), pan=document.getElementById('aPanel'), head=app&&app.querySelector('.a-head'); if(!app||!tabs||!pan||!head) return;
+    var L=document.createElement('div'), R=document.createElement('div'); L.className='a-left'; R.className='a-right'; app.insertBefore(L,head); app.insertBefore(R,head);
+    var n=head; while(n&&n!==tabs){ var nx=n.nextSibling; L.appendChild(n); n=nx; } R.appendChild(tabs); R.appendChild(pan); })();
   renderTabs(); calc(); renderQuiz(); renderOrder(); renderAccount(); renderRows(); renderDriver(); renderApp(); show(); renderOQ(); mbGate();
 })();
 </script>
