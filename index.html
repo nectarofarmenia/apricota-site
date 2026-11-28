@@ -1256,7 +1256,7 @@ footer#siteFooter{border-radius:30px 30px 0 0;margin-top:20px}
 .menu-card .rows .dc-on{color:#1F8075!important;background:#E3F4EF}
 
 /* header logo: alive — glossy green word, a 3D apricot dot that sways, the swoosh draws itself */
-.top .alogo{font-size:31px!important;padding-top:6px!important;filter:drop-shadow(0 6px 10px rgba(31,128,117,.18))}
+.top .alogo{font-size:31px!important;padding-top:6px!important}
 .top .alogo .aw{color:#1F8075;letter-spacing:-.025em;text-shadow:0 1px 0 rgba(255,255,255,.9),0 -1px 0 rgba(23,103,94,.25),0 6px 14px rgba(31,128,117,.22)}
 .top .alogo .ad{width:.46em!important;height:.46em!important;top:-.13em!important;transform-origin:50% 80%;animation:apsway 5s ease-in-out infinite;filter:drop-shadow(0 3px 3px rgba(240,138,98,.45))}
 @keyframes apsway{0%,70%,100%{transform:translateX(-50%) rotate(0)}76%{transform:translateX(-50%) rotate(-14deg) translateY(-2px)}84%{transform:translateX(-50%) rotate(10deg)}92%{transform:translateX(-50%) rotate(-4deg)}}
@@ -1273,6 +1273,19 @@ footer#siteFooter{border-radius:30px 30px 0 0;margin-top:20px}
 .top .langs{background:#fff!important;box-shadow:0 0 0 1px rgba(29,77,72,.08),0 6px 14px -8px rgba(29,77,72,.35)}
 .top .navb{background:#fff!important;box-shadow:0 0 0 1px rgba(29,77,72,.08),0 6px 14px -8px rgba(29,77,72,.35)}
 @media (min-width:1000px){.top{margin:10px auto 0;max-width:calc(100% - 40px)}}
+
+/* language menu: same glass as the header */
+.top .lp-menu{top:calc(100% + 10px)!important;min-width:196px!important;padding:8px!important;gap:4px;border-radius:22px!important;border:1px solid rgba(255,255,255,.95)!important;
+  background:linear-gradient(160deg,#E6F6F1 0%,#FFFBF7 50%,#FFE8DA 100%)!important;-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
+  box-shadow:0 1px 0 #fff inset,0 22px 40px -18px rgba(29,77,72,.45),0 3px 8px -3px rgba(29,77,72,.15)!important;transform-origin:top right;animation:lpin .18s ease-out}
+@keyframes lpin{from{opacity:0;transform:translateY(-6px) scale(.96)}to{opacity:1;transform:none}}
+.top .lp-menu::before{content:"";position:absolute;top:-6px;right:26px;width:12px;height:12px;background:rgba(240,250,246,.98);border-left:1px solid #fff;border-top:1px solid #fff;transform:rotate(45deg);border-radius:3px 0 0 0}
+.top .lp .lp-menu button{min-height:48px!important;border-radius:15px!important;font:700 16px var(--body)!important;gap:12px;padding:0 10px!important;position:relative;transition:background .15s,transform .15s}
+.top .lp .lp-menu button::before{content:attr(lang);flex:none;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:900 11px var(--body);letter-spacing:.04em;text-transform:uppercase;color:#1F8075;background:#fff;box-shadow:0 0 0 1px rgba(29,77,72,.08),0 4px 10px -6px rgba(29,77,72,.5)}
+.top .lp .lp-menu button[lang=hy]::before{content:"ՀԱՅ";font-size:9.5px}.top .lp .lp-menu button[lang=ru]::before{content:"РУС";font-size:10px}
+.top .lp .lp-menu button:hover,.top .lp .lp-menu button:focus-visible{background:rgba(255,255,255,.85)!important;transform:translateX(2px)}
+.top .lp .lp-menu button:active{transform:scale(.98)}
+.top .lp-cur[aria-expanded=true]{box-shadow:0 0 0 2px #2E9E8E}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
