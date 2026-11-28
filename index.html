@@ -68,7 +68,8 @@ function cuArchd(n){return !!(CU&&(CU.arch||[]).indexOf(n)>=0);}
 function cuSet(n){if(!cuMemo[n]){var e=cuFind(n),o={};if(e)cuDays(e).forEach(function(x){o[x]=1;});cuMemo[n]=o;}return cuMemo[n];}
 /* several past customers share a first name ("Armine"); the shared list and extra payments mean the newest of them */
 var newestMemo=null;function newest(){if(newestMemo)return newestMemo;var m={};try{var H=JSON.parse(LS.getItem("apri-hf-cache")||"{}");(H.cust||[]).forEach(function(c){var h=c.hist||[],l=h.length?h[h.length-1][0]*100+h[h.length-1][1]:0;if(!m[c.name]||l>m[c.name].l)m[c.name]={l:l,p:c.phone};});}catch(e){}return newestMemo=m;}
-function isNewest(c){if(!c)return false;var hf=c.hf||c;if(!hf.hist)return true;var n=newest()[hf.name];return !n||n.p===hf.phone;}
+function dig(x){return String(x||"").replace(/\D/g,"").slice(-10);}
+function isNewest(c){if(!c)return false;var hf=c.hf||c;if(!hf.hist)return true;var e=cuFind(hf.name);if(e&&e.ph)return dig(e.ph)===dig(hf.phone);var n=newest()[hf.name];return !n||n.p===hf.phone;}
 window.apriCuApply=function(L){var CH=[];try{CH=JSON.parse(LS.getItem("myapri-charges")||"[]")||[];}catch(e){}
   var act={};CH.forEach(function(x){if(x&&x.name&&String(x.at||"")>(act[x.name]||""))act[x.name]=String(x.at||"");});
   if(CU)(CU.list||[]).forEach(function(e){if(e.ed&&String(e.ed)>(act[e.n]||""))act[e.n]=String(e.ed);});
