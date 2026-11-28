@@ -1225,6 +1225,27 @@ footer#siteFooter{border-radius:30px 30px 0 0;margin-top:20px}
 .fx-sw input:checked+i{background:#2E9E8E}.fx-sw input:checked+i::after{left:17px}.fx-sw input:focus-visible+i{outline:2px solid #1F8075;outline-offset:2px}
 .fx-bub{align-self:flex-start;background:#fff;border-radius:14px 14px 14px 4px;padding:8px 12px;font-size:13px;font-weight:700;box-shadow:0 10px 20px -12px rgba(29,77,72,.6)}
 .fx-bub.pop{animation:fxpop .35s cubic-bezier(.2,1.4,.4,1)}@keyframes fxpop{from{transform:scale(.6) translateY(6px);opacity:0}to{transform:none;opacity:1}}
+
+/* hero: the clock of the day */
+.view:not(#v-admin):not(#v-driver) .hero .btn-peach{background:var(--g3d,linear-gradient(180deg,#33B3A0,#1F8075))!important;color:#fff!important;box-shadow:var(--g3d-sh)!important}
+@media (min-width:700px){.stage .menu-card{display:none}}
+.dayclock{position:relative;padding:0!important}
+.dc-svg{position:absolute;inset:6%;width:88%;height:88%;overflow:visible}
+.dc-b{fill:#fff;filter:drop-shadow(0 3px 4px rgba(122,58,30,.25))}
+.dc-glow{fill:#FFE3A8;opacity:0}
+.dc-m{transition:transform .3s}.dc-m text{font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}
+.dc-ok{opacity:0;transition:opacity .3s}.dc-ok circle{fill:#2E9E8E}
+.dc-m.done .dc-ok{opacity:1}.dc-m.done .dc-b{fill:#F3FBF9}
+.dc-m.next .dc-glow{animation:dcglow 1.8s ease-in-out infinite}
+@keyframes dcglow{0%,100%{opacity:.15;transform:scale(.9)}50%{opacity:.85;transform:scale(1.15)}}
+#dcHand{transition:transform .6s cubic-bezier(.2,.8,.2,1)}
+.dc-c{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;text-align:center;gap:0;width:44%;pointer-events:none;color:#5A2A14}
+.dc-apri{width:34%;aspect-ratio:1;height:auto;color:#F08A62;filter:drop-shadow(0 6px 8px rgba(170,70,30,.35));animation:dcbob 3.2s ease-in-out infinite;margin-bottom:4px}
+@keyframes dcbob{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-5px) rotate(4deg)}}
+.dc-l{font:800 11px var(--body);letter-spacing:.12em;text-transform:uppercase;opacity:.75}
+.dc-n{font:900 clamp(16px,4.6vw,24px)/1.1 var(--display);color:var(--ink)}
+.dc-t{font:800 clamp(13px,3.4vw,16px) var(--body);color:#E07650}
+@media (prefers-reduced-motion:reduce){.dc-apri,.dc-m.next .dc-glow{animation:none}.dc-m.next .dc-glow{opacity:.6}}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -1277,7 +1298,7 @@ footer#siteFooter{border-radius:30px 30px 0 0;margin-top:20px}
       <div class="hero-art" id="heroArt">
         <div class="stage" id="heroStage">
         <span class="fl f1" aria-hidden="true"><svg><use href="#apri"/></svg></span><span class="fl f2" aria-hidden="true"><svg><use href="#apri"/></svg></span><span class="fl f3" aria-hidden="true"><svg><use href="#apri"/></svg></span><span class="leaf l1" aria-hidden="true"></span><span class="leaf l2" aria-hidden="true"></span>
-        <div class="photo">[Hero photo: a full day of meals, top-down]</div>
+        <div class="photo dayclock" id="dayClock" aria-label="Today's meals clock"></div>
         <div class="card menu-card">
           <div class="eyebrow">Today's menu</div>
           <div class="rows num">
@@ -3625,6 +3646,32 @@ var AQYN=[["Yes","Այո"],["No","Ոչ"]];
       if((b=e.target.closest('#fxR'))){ b.classList.toggle('on'); return; }
     });
     document.getElementById('free').addEventListener('change',function(e){ var t=e.target; if(!t.dataset||!t.dataset.fxr) return; var bub=document.getElementById('fxBub'); if(t.checked){ bub.textContent=MSG[t.dataset.fxr]; bub.hidden=false; bub.classList.remove('pop'); void bub.offsetWidth; bub.classList.add('pop'); } else bub.hidden=true; });
+  })();
+
+  /* the hero circle is a living clock of the day: the five meals sit on the dial, the hand shows the real time,
+     meals already served get a tick and the next one glows. On load the hand runs once around the day. */
+  (function(){ var el=document.getElementById('dayClock'); if(!el) return;
+    var M=[[9,0,'🥣','Breakfast'],[12,0,'🍎','Fruit snack'],[13,30,'🥗','Lunch'],[15,0,'🍓','Snack'],[18,0,'🍲','Dinner']];
+    var ang=function(h,m){ return ((h%12)+m/60)/12*360; }, pt=function(a,r){ var t=(a-90)*Math.PI/180; return [100+r*Math.cos(t),100+r*Math.sin(t)]; };
+    var ticks=''; for(var i=0;i<60;i++){ var a=i*6, p1=pt(a,i%5?88:85), p2=pt(a,91); ticks+='<line x1="'+p1[0].toFixed(1)+'" y1="'+p1[1].toFixed(1)+'" x2="'+p2[0].toFixed(1)+'" y2="'+p2[1].toFixed(1)+'" stroke="rgba(122,58,30,'+(i%5?.18:.35)+')" stroke-width="'+(i%5?1:1.6)+'" stroke-linecap="round"/>'; }
+    var badges=M.map(function(x,k){ var p=pt(ang(x[0],x[1]),70); return '<g class="dc-m" data-k="'+k+'" transform="translate('+p[0].toFixed(1)+' '+p[1].toFixed(1)+')"><circle class="dc-glow" r="17"/><circle class="dc-b" r="13"/><text y="4.5" text-anchor="middle" font-size="13">'+x[2]+'</text><g class="dc-ok" transform="translate(9 -9)"><circle r="5.5"/><path d="M-2.4 0l1.6 1.7 3.2-3.4" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></g></g>'; }).join('');
+    el.innerHTML='<svg viewBox="0 0 200 200" class="dc-svg" aria-hidden="true"><defs><linearGradient id="dcArc" x1="0" x2="1"><stop offset="0" stop-color="#2E9E8E" stop-opacity=".25"/><stop offset="1" stop-color="#2E9E8E"/></linearGradient></defs>'+ticks+
+      '<path id="dcDay" fill="none" stroke="url(#dcArc)" stroke-width="5" stroke-linecap="round"/>'+badges+
+      '<g id="dcHand"><line x1="100" y1="52" x2="100" y2="38" stroke="#1D4D48" stroke-width="3.2" stroke-linecap="round"/><circle cx="100" cy="34" r="5" fill="#FF9B6A" stroke="#fff" stroke-width="2"/></g></svg>'+
+      '<div class="dc-c"><svg class="dc-apri" aria-hidden="true"><use href="#apri"/></svg><small class="dc-l"><span id="dcLbl">Next</span></small><b class="dc-n"><span id="dcName">Lunch</span></b><span class="dc-t num" id="dcTime">1:30</span></div>';
+    var hand=document.getElementById('dcHand'), arc=document.getElementById('dcDay');
+    var fmt=function(h,m){ return ((h+11)%12+1)+':'+String(m).padStart(2,'0'); };
+    var paint=function(mins,live){ var h=Math.floor(mins/60), m=Math.floor(mins%60), a=ang(h,m); hand.setAttribute('transform','rotate('+a.toFixed(2)+' 100 100)');
+      var a0=ang(9,0), a1=Math.max(a0,Math.min(a,ang(18,0)+360*0)), on=mins>=540&&mins<=1080; if(on){ var s0=pt(a0,80), s1=pt(a,80), big=((a-a0+360)%360)>180?1:0; arc.setAttribute('d','M'+s0[0].toFixed(1)+' '+s0[1].toFixed(1)+' A80 80 0 '+big+' 1 '+s1[0].toFixed(1)+' '+s1[1].toFixed(1)); } else arc.setAttribute('d','');
+      var next=-1; M.forEach(function(x,k){ var t=x[0]*60+x[1], g=el.querySelector('.dc-m[data-k="'+k+'"]'); g.classList.toggle('done',mins>=t&&mins<1200); if(next<0&&mins<t) next=k; });
+      el.querySelectorAll('.dc-m').forEach(function(g,k){ g.classList.toggle('next',k===next); });
+      if(!live) return; var L=document.getElementById('dcLbl'), N=document.getElementById('dcName'), T=document.getElementById('dcTime');
+      if(next>=0){ L.textContent='Next'; N.textContent=M[next][3]; T.textContent=fmt(M[next][0],M[next][1]); } else { L.textContent='Tomorrow'; N.textContent='Breakfast'; T.textContent='9:00'; } };
+    var now=function(){ var d=new Date(); return d.getHours()*60+d.getMinutes()+d.getSeconds()/60; };
+    var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(reduce){ paint(now(),true); } else { var t0=performance.now(), from=8*60, to=now(), end=to<from?to+1440:to, D=2600;
+      (function step(t){ var k=Math.min(1,(t-t0)/D), e=1-Math.pow(1-k,3), v=from+(end-from)*e; paint(v%1440,k>=1); if(k<1) requestAnimationFrame(step); })(t0); }
+    setInterval(function(){ paint(now(),true); },20000);
   })();
   renderTabs(); calc(); renderQuiz(); renderOrder(); renderAccount(); renderRows(); renderDriver(); renderApp(); show(); renderOQ(); mbGate();
 })();
