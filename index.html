@@ -683,6 +683,8 @@ button.pb-r{width:100%;font:inherit;text-align:left;color:inherit}
 .ax-mh{display:flex;align-items:center;justify-content:space-between;gap:10px;position:sticky;top:-20px;background:#fff;padding:4px 0;z-index:2}.ax-mh h2{margin:0;font:900 24px var(--display);color:var(--ink)}
 .ax-x{width:40px;height:40px;border-radius:50%;border:0;background:var(--cream);font-size:24px;line-height:1;cursor:pointer;color:var(--ink);flex:none}.ax-x:hover{background:var(--mint)}
 .aq{background:var(--cream);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:10px}.aq h3,.aq-h{margin:0;font:800 17px var(--body);color:var(--ink)}.aq-at{color:var(--muted);font-size:12px}
+.inv-l{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:800;color:var(--muted)}.inv-l textarea{border-radius:14px;border:1.5px solid var(--line);padding:10px 12px;font:500 15px/1.45 var(--body);color:var(--ink);resize:vertical}
+.inv-b{display:flex;flex-wrap:wrap;gap:8px}.inv-b .ax-btn{display:inline-flex;align-items:center;text-decoration:none;min-height:46px}.mb-ok2{margin:0;padding:10px 12px;border-radius:12px;background:var(--mint);color:var(--green-dark);font-weight:700}
 .mbx h4{margin:4px 0 0;font:800 14px var(--body);color:var(--green-dark)}.mb-w{display:flex;flex-wrap:wrap;gap:6px}.mb-w span{background:#fff;border-radius:10px;padding:5px 9px;display:flex;flex-direction:column;align-items:center;box-shadow:inset 0 0 0 1px var(--line)}.mb-w small{font-size:11px;color:var(--muted)}.mb-w b{font-size:15px;color:var(--ink)}
 .aq-g{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px}.aq-g label{display:flex;flex-direction:column;gap:4px;font-size:12.5px;font-weight:800;color:var(--muted)}.aq-g label.full{grid-column:1/-1}
 .aq-g input,.aq-g select,.aq-g textarea{min-height:44px;border-radius:12px;border:1.5px solid var(--line);padding:8px 10px;font:600 15px var(--body);color:var(--ink);background:#fff;width:100%;box-sizing:border-box}
@@ -2215,7 +2217,7 @@ body:has(#v-quiz:not([hidden])) .totop{bottom:calc(152px + env(safe-area-inset-b
     var nd=new Date(), nowYM=nd.getFullYear()*100+nd.getMonth()+1, ago3=(function(){ var y=nd.getFullYear(), m=nd.getMonth()+1-3; if(m<1){ m+=12; y--; } return y*100+m; })();
     var tops=L.filter(function(c){ return c.hf; }).slice().sort(function(a,b){ return (b.total||0)-(a.total||0); }).slice(0,25).map(function(c){ return c.id; });
     var cities={}; L.forEach(function(c){ if(c.city) cities[c.city]=(cities[c.city]||0)+1; });
-    var R=L.filter(function(c){ return (!q||(c.name+' '+c.city+' '+c.phone+' '+(c.addr||'')).toLowerCase().indexOf(q)>=0) && (!cc||c.city===cc) &&
+    var R=L.filter(function(c){ return axHit(c,q) && (!cc||c.city===cc) &&
       (cf==='all'||(cf==='now'&&avIsCur(c))||(cf==='rep'&&c.hf&&c.hf.hist.length>1)||(cf==='two'&&c.two)||(cf==='top'&&tops.indexOf(c.id)>=0)||(cf==='new'&&c.hf&&Math.floor(fst(c)/100)===nd.getFullYear())||(cf==='lost'&&c.hf&&c.last&&c.last<=ago3)||(cf==='web'&&!c.hf)); });
     var SF={last:function(a,b){ return (b.last||999999)-(a.last||999999); }, top:function(a,b){ return (b.total||0)-(a.total||0); }, weeks:function(a,b){ return ((b.hf&&b.hf.weeks)||0)-((a.hf&&a.hf.weeks)||0); },
       newest:function(a,b){ return (fst(b)%999999)-(fst(a)%999999); }, oldest:function(a,b){ return fst(a)-fst(b); }, name:function(a,b){ return String(a.name).localeCompare(String(b.name)); }};
@@ -2226,7 +2228,7 @@ body:has(#v-quiz:not([hidden])) .totop{bottom:calc(152px + env(safe-area-inset-b
     var F=mgr?[['now','Current customers']]:[['all','All'],['now','Current customers'],['top','Top 25'],['rep','Returning'],['new','New this year'],['lost','Not ordered 3+ months'],['two','2 people'],['web','From website']];
     var S=[['month','Last month'],['last','Last order'],['top','Top customers'],['weeks','Most weeks'],['newest','Newest customers'],['oldest','Longest with us'],['name','Name A–Z']];
     var sum=R.reduce(function(a,c){ return a+(c.total||0); },0);
-    var h='<h1 class="ax-h1">Customers</h1><div class="sumrow" style="flex-wrap:wrap;gap:10px;align-items:center;justify-content:flex-start"><input id="axQ" type="search" placeholder="Search name, city or phone" value="'+qzEsc(ADX.q)+'" style="max-width:340px;flex:1 1 220px;border-radius:999px">'+
+    var h='<h1 class="ax-h1">Customers</h1><div class="sumrow" style="flex-wrap:wrap;gap:10px;align-items:center;justify-content:flex-start"><input id="axQ" type="search" placeholder="Search name, surname, city or phone" value="'+qzEsc(ADX.q)+'" style="max-width:340px;flex:1 1 220px;border-radius:999px">'+
       '<label class="cl-sel"><span>Sort</span><select id="axCs">'+S.map(function(o){ return '<option value="'+o[0]+'"'+(cs===o[0]?' selected':'')+'>'+o[1]+'</option>'; }).join('')+'</select></label><button type="button" class="cl-dir" data-ax-cdir title="Reverse order">'+(ADX.cd==='rev'?'↑':'↓')+'</button>'+
       '<label class="cl-sel"><span>City</span><select id="axCc"><option value="">All cities</option>'+Object.keys(cities).sort().map(function(k){ return '<option value="'+qzEsc(k)+'"'+(cc===k?' selected':'')+'>'+qzEsc(k)+' ('+cities[k]+')</option>'; }).join('')+'</select></label></div>'+
       '<div class="ax-chips" style="flex-wrap:wrap">'+F.map(function(f){ return '<button type="button" data-ax-cf="'+f[0]+'" class="'+(cf===f[0]?'on':'')+'">'+f[1]+(f[0]==='now'?' <b class="num cl-cnt">'+L.filter(avIsCur).length+'</b>':'')+'</button>'; }).join('')+'</div>'+
@@ -2236,7 +2238,7 @@ body:has(#v-quiz:not([hidden])) .totop{bottom:calc(152px + env(safe-area-inset-b
       h+='<div class="chef-exp"><span>🔗 <b>Chef Apri</b> · <span>Send the current customers (size, people, end dates) to the kitchen app.</span></span><button type="button" class="ax-btn" data-chef-copy style="min-height:40px">Copy for Chef Apri</button><textarea id="chefTx" hidden rows="3" readonly></textarea></div>';
       h+='<p class="tiny" style="margin:0;font-size:13px">⠿ <span>Drag the rows to set the order. Deliveries will follow this order.</span></p>';
       if(stopped.length) h+='<div class="ax-card cur-stop"><b>⏸ <span>Stopped</span> <span class="num">('+stopped.length+')</span></b><div class="ne-chips">'+stopped.map(function(c){ return '<span class="ne-chip">'+qzEsc(c.name)+' <button type="button" class="cur-btn go" data-cur-reset="'+qzEsc(c.id)+'">▶ <span>Resume</span></button></span>'; }).join('')+'</div></div>'; }
-    if(sel) h+='<div class="ax-ov" data-ax-ovl><div class="ax-modal" role="dialog" aria-modal="true" aria-label="'+qzEsc(sel.name)+'">'+(ADX.qed?axQForm(sel):axDetail(sel))+'</div></div>';
+    if(sel) h+='<div class="ax-ov" data-ax-ovl><div class="ax-modal" role="dialog" aria-modal="true" aria-label="'+qzEsc(sel.name)+'">'+(ADX.qed?axQForm(sel):ADX.inv?axInvite(sel):axDetail(sel))+'</div></div>';
     var ini=function(n){ return String(n||'?').trim().split(/\s+/).slice(0,2).map(function(w){ return w.charAt(0).toUpperCase(); }).join(''); };
     h+=R.length?'<div class="pb cl"><div class="pb-h cl-g"><span data-ax-sort="name">Customer'+arr('name')+'</span><span data-ax-sort="last">Last order'+arr('last')+'</span><span class="num" data-ax-sort="weeks">Weeks'+arr('weeks')+'</span><span class="num" data-ax-sort="top">Total paid'+arr('top')+'</span><span>Status</span></div>'+R.slice(0,300).map(function(c,k){
       var hd='';if(cs==='last'){var mk=c.last||0,pv=k?(R[k-1].last||0):-1;if(mk!==pv){var cnt=R.filter(function(x){return (x.last||0)===mk;}).length;hd='<div class="cl-mh">'+(mk?hfMon(Math.floor(mk/100),mk%100):'–')+' · <span class="num">'+cnt+'</span> '+sp(cnt===1?'customer':'customers')+'</div>';}}
@@ -2280,7 +2282,7 @@ var AQYN=[["Yes","Այո"],["No","Ոչ"]];
   function mbOf(c){ var M=window.APRI_MEMBERS||[], d=String(c.phone||'').replace(/\D/g,'').slice(-10), q=aqOf(c), em=String((q&&q.email)||c.email||'').toLowerCase(), hit=null;
     M.forEach(function(m){ var md=String(m.phone||'').replace(/\D/g,'').slice(-10), qz=(m.data&&m.data.ls&&m.data.ls['myapri-quiz'])||{}, qd=String(qz.phone||'').replace(/\D/g,'').slice(-10);
       if((d&&(md===d||qd===d))||(em&&String(m.email||'').toLowerCase()===em)) hit=m; }); return hit; }
-  function axMember(c){ var m=mbOf(c); if(!m) return window.APRI_MEMBERS?'<div class="aq mbx"><h3>📱 Անձնական էջ (my Apricota)</h3><p class="tiny" style="margin:0;font-size:14px">Այս հաճախորդը դեռ հաշիվ չունի apricota.am-ում, կամ հաշվի հեռախոսը/email-ը չի համընկնում։</p></div>':'';
+  function axMember(c){ var m=mbOf(c); if(!m) return '<div class="aq mbx"><h3>📱 Անձնական էջ (my Apricota)</h3><p class="tiny" style="margin:0;font-size:14px">Այս հաճախորդը դեռ հաշիվ չունի apricota.am-ում'+(window.APRI_MEMBERS?'':' (կամ աղյուսակը դեռ ստեղծված չէ Supabase-ում)')+'։</p><button type="button" class="ax-btn" data-inv-open="1" style="align-self:flex-start">✉️ Հրավիրել գրանցվելու</button></div>';
     var d=m.data||{}, a=d.app||{}, qz=(d.ls&&d.ls['myapri-quiz'])||{}, W=d.wlog||[], L=d.log||{}, days=Object.keys(L).sort().reverse().slice(0,14), h='';
     var row=function(k,v){ return v==null||v===''?'':'<dt>'+k+'</dt><dd>'+v+'</dd>'; };
     h+='<dl class="ax-dl">'+row('Հաշիվ',qzEsc(m.email||'')+(m.phone?' · '+qzEsc(m.phone):''))+row('Գրանցվել է','<span class="num">'+fmtD(String(m.created_at||'').slice(0,10))+'</span>')+row('Համաձայնություն','✓ <span class="num">'+fmtD(String(m.consent_at||'').slice(0,10))+'</span>')+row('Վերջին թարմացում','<span class="num">'+fmtD(String(m.updated_at||'').slice(0,10))+'</span>')+
@@ -2293,6 +2295,22 @@ var AQYN=[["Yes","Այո"],["No","Ոչ"]];
     var hq=['allwhat','diabwhat','condwhat','medwhat','digwhat','foodother'].filter(function(k){ return qz[k]; }).map(function(k){ return qzEsc(qz[k]); }); if(qz.foods&&qz.foods.length) hq.unshift('Չի ուտում՝ '+qz.foods.map(qzEsc).join(', '));
     if(hq.length) h+='<h4>Առողջություն և սնունդ</h4><p class="tiny" style="margin:0;font-size:14px">'+hq.join(' · ')+'</p>';
     return '<div class="aq mbx"><h3>📱 Անձնական էջ (my Apricota)</h3>'+h+'</div>'; }
+  function axHit(c,q){ if(!q) return true; var qq=aqOf(c)||{}, hay=(c.name+' '+(qq.first||'')+' '+(qq.last||'')+' '+(qq.email||'')+' '+c.city+' '+c.phone+' '+(c.addr||'')).toLowerCase(), dg=String(c.phone||'').replace(/\D/g,'')+' '+String(qq.phone||'').replace(/\D/g,'');
+    return q.split(/\s+/).filter(Boolean).every(function(w){ var wd=w.replace(/\D/g,''); return hay.indexOf(w)>=0||(wd.length>=3&&wd.length===w.replace(/[\s()+.-]/g,'').length&&dg.indexOf(wd)>=0); }); }
+  /* invite a customer to make an account on apricota.am (my Apricota): a ready message by SMS, WhatsApp or email */
+  function axInvLink(){ return 'https://apricota.am/?join=1#my-apri'; }
+  function axInvMsg(c){ var qq=aqOf(c)||{}, fn=(qq.first||String(c.name||'').split(' ')[0]||'').trim();
+    return 'Բարև'+(fn?' '+fn:'')+'։ Apricota-ում ձեզ համար բացել ենք անձնական էջ, որտեղ կարող եք հետևել ձեր քաշին, ջրին և սննդին, իսկ մենք դրանով ավելի ճիշտ կկազմենք ձեր սննդակարգը։ Գրանցվեք այս հղումով՝ '+axInvLink()+'\n\nHi'+(fn?' '+fn:'')+'! Your personal Apricota page is ready: track your weight, water and meals, and help us plan your meals better. Sign up here: '+axInvLink(); }
+  function axInvite(c){ var qq=aqOf(c)||{}, m=mbOf(c), I=axLS('myapri-invites',[]), d=String(c.phone||qq.phone||'').replace(/\D/g,''), em=qq.email||c.email||'', last=I.filter(function(x){ return x.ph===d.slice(-10)||(x.n===c.name&&!x.ph); }).slice(-1)[0];
+    var msg=ADX.invMsg!=null?ADX.invMsg:axInvMsg(c), enc=encodeURIComponent(msg), us=d.length===10?'1'+d:d;
+    return '<div class="ax-mh"><h2>✉️ Հրավեր · '+qzEsc(c.name)+'</h2><button type="button" class="ax-x" data-ax-close="1" aria-label="Close">×</button></div>'+
+      (m?'<p class="mb-ok2">✓ Արդեն գրանցված է my Apricota-ում ('+qzEsc(m.email||'')+')</p>':'')+(last?'<p class="tiny" style="margin:0;font-size:14px">Վերջին հրավերը՝ <b class="num">'+fmtD(String(last.at).slice(0,10))+'</b> · '+qzEsc(last.via)+'</p>':'')+
+      '<dl class="ax-dl"><dt>Հեռախոս</dt><dd>'+(c.phone?qzEsc(c.phone):'—')+'</dd><dt>Email</dt><dd>'+(em?qzEsc(em):'—')+'</dd></dl>'+
+      '<label class="inv-l"><span>Հաղորդագրություն (կարող ես փոխել)</span><textarea id="axInvT" rows="7">'+qzEsc(msg)+'</textarea></label>'+
+      '<div class="inv-b">'+(d?'<a class="ax-btn" data-inv="sms" href="sms:'+(us?'+'+us:'')+'?&body='+enc+'">💬 SMS</a><a class="ax-btn" data-inv="whatsapp" target="_blank" rel="noopener" href="https://wa.me/'+us+'?text='+enc+'">WhatsApp</a>':'')+
+        (em?'<a class="ax-btn" data-inv="email" href="mailto:'+encodeURIComponent(em)+'?subject='+encodeURIComponent('Ձեր Apricota էջը · Your Apricota page')+'&body='+enc+'">✉️ Email</a>':'')+'<button type="button" class="ax-btn line" data-inv="copy">📋 Պատճենել</button></div>'+
+      '<p class="tiny" style="margin:0;font-size:13px">Կոճակը բացում է քո հեռախոսի կամ համակարգչի SMS, WhatsApp կամ նամակի ծրագիրը՝ պատրաստի տեքստով, ուղարկում ես դու։ Հղումը բացում է գրանցման էջը, որտեղ հաճախորդը նշում է համաձայնության վանդակը։ Գրանցվելուց հետո նրա էջը կերևա այս պատուհանում (կգտնենք հեռախոսով կամ email-ով)։</p>'+
+      '<button type="button" class="ax-btn line" data-inv-back="1" style="align-self:flex-start">← Վերադառնալ</button>'; }
   function axDetail(c){ var dl=[], R=c.R, add=function(k,v){ if(v!=null&&v!=='') dl.push('<dt>'+sp(k)+'</dt><dd>'+v+'</dd>'); };
     add('Phone','<a href="tel:'+String(c.phone).replace(/\D/g,'')+'">'+qzEsc(c.phone)+'</a>'); add('City',qzEsc(c.city)); if(!c.hf) add('Program',axProg(c.prog)); add('Status',axTag(c.status));
     if(!c.hf){
@@ -2472,7 +2490,7 @@ var AQYN=[["Yes","Այո"],["No","Ոչ"]];
     return '<div class="langs ax-lang" role="group" aria-label="Language">'+[['en','EN'],['hy','ՀԱՅ'],['ru','РУС'],['es','ES']].map(function(l){ return '<button type="button" data-axlang="'+l[0]+'" lang="'+l[0]+'" aria-pressed="'+(cur===l[0])+'" class="'+(cur===l[0]?'on':'')+'">'+l[1]+'</button>'; }).join('')+'</div>'; }
   document.addEventListener('click',function(e){ var b=e.target.closest&&e.target.closest('[data-axlang]'); if(!b||!window.apSetLang) return; window.apSetLang(b.dataset.axlang);
     document.querySelectorAll('[data-axlang]').forEach(function(x){ var on=x===b; x.classList.toggle('on',on); x.setAttribute('aria-pressed',String(on)); }); });
-  document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&document.querySelector('.ax-ov')){ if(ADX.qed) ADX.qed=false; else ADX.sel=null; axRender(); } });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&document.querySelector('.ax-ov')){ if(ADX.qed) ADX.qed=false; else if(ADX.inv) ADX.inv=false; else ADX.sel=null; axRender(); } });
   function axToast(t){ var el=document.createElement('div'); el.className='ax-toast'; el.textContent=t; document.body.appendChild(el); setTimeout(function(){ el.remove(); },2200); }
   function axOrd(id,fn){ var O=admOrders(); O.forEach(function(o){ if(String(o.id)===String(id)) fn(o); }); admSave(O); }
 
@@ -2516,11 +2534,15 @@ var AQYN=[["Yes","Այո"],["No","Ոչ"]];
     if((b=e.target.closest('[data-ax-em]'))){ ADX.em=+b.dataset.axEm; axRender(); return; }
     if((b=e.target.closest('[data-ax-cdir]'))){ ADX.cd=ADX.cd==='rev'?'':'rev'; axRender(); return; }
     if((b=e.target.closest('[data-ax-of]'))){ ADX.of=b.dataset.axOf; axRender(); return; }
+    if(e.target.closest('[data-inv-open]')){ ADX.inv=true; ADX.invMsg=null; axRender(); var m1=document.querySelector('.ax-modal'); if(m1) m1.scrollTop=0; return; }
+    if(e.target.closest('[data-inv-back]')){ ADX.inv=false; axRender(); return; }
+    if((b=e.target.closest('[data-inv]'))){ var cs2=axCust().filter(function(c){ return c.id===ADX.sel; })[0]; if(cs2){ var I=axLS('myapri-invites',[]); I.push({n:cs2.name,ph:String(cs2.phone||'').replace(/\D/g,'').slice(-10),via:b.dataset.inv,at:new Date().toISOString()}); axSet('myapri-invites',I.slice(-500)); }
+      if(b.dataset.inv==='copy'){ var tx=(document.getElementById('axInvT')||{}).value||''; try{ navigator.clipboard.writeText(tx).then(function(){ axToast('Պատճենված է'); }); }catch(x){} } return; }
     if((b=e.target.closest('[data-aq-ed]'))){ ADX.qed=true; axRender(); var m0=document.querySelector('.ax-modal'); if(m0) m0.scrollTop=0; return; }
     if(e.target.closest('[data-aq-cancel]')){ ADX.qed=false; axRender(); return; }
     if(e.target.closest('[data-aq-save]')){ var cs=axCust().filter(function(c){ return c.id===ADX.sel; })[0]; if(cs){ aqSave(cs); axToast('Saved'); } ADX.qed=false; axRender(); return; }
-    if((b=e.target.closest('[data-ax-cust]'))){ var was=ADX.tab==='cust'; ADX.tab='cust'; ADX.sel=b.dataset.axCust; ADX.qed=false; axRender(); if(!was) window.scrollTo(0,0); return; }
-    if(e.target.closest('[data-ax-close]')||(e.target.hasAttribute&&e.target.hasAttribute('data-ax-ovl'))){ if(ADX.qed){ ADX.qed=false; } else ADX.sel=null; axRender(); return; }
+    if((b=e.target.closest('[data-ax-cust]'))){ var was=ADX.tab==='cust'; ADX.tab='cust'; ADX.sel=b.dataset.axCust; ADX.qed=false; ADX.inv=false; axRender(); if(!was) window.scrollTo(0,0); return; }
+    if(e.target.closest('[data-ax-close]')||(e.target.hasAttribute&&e.target.hasAttribute('data-ax-ovl'))){ if(ADX.qed){ ADX.qed=false; } else if(ADX.inv){ ADX.inv=false; } else ADX.sel=null; axRender(); return; }
     if((b=e.target.closest('[data-ax-ok]'))){ axOrd(b.dataset.axOk,function(o){ o.status='confirmed'; o.start=o.req; }); axToast('Start day confirmed'); axRender(); return; }
     if((b=e.target.closest('[data-ax-prop]'))){ ADX.prop=b.dataset.axProp; axRender(); return; }
     if(e.target.closest('[data-ax-propx]')){ ADX.prop=null; axRender(); return; }
@@ -2532,7 +2554,7 @@ var AQYN=[["Yes","Այո"],["No","Ոչ"]];
     if(e.target.closest('[data-ax-out]')){ axSetIn(false); axRender(); return; }
   },true);
   window.addEventListener('change',function(e){ var s=e.target; if(s&&s.dataset&&s.dataset.rced){ var B=axLS('myapri-buys',[]); B.forEach(function(x){ if(String(x.id)===s.dataset.rced) x.a=Math.round((+s.value||0)*100)/100; }); axSet('myapri-buys',B); axRender(); return; } if(s&&s.id==='axOm'){ ADX.om=s.value; axRender(); return; } if(s&&s.dataset&&s.dataset.ex){ var E=exLS(), k=s.dataset.ex; E[k]=E[k]||{}; if(s.value==='') delete E[k][s.dataset.exk]; else E[k][s.dataset.exk]=+s.value; try{ localStorage.setItem('myapri-exp',JSON.stringify(E)); }catch(x){} axDbPush(); setTimeout(function(){ var a=document.activeElement, q=a&&a.dataset&&a.dataset.ex?'[data-ex="'+a.dataset.ex+'"][data-exk="'+a.dataset.exk+'"]':null; axRender(); if(q){ var n=document.querySelector(q); if(n){ n.focus(); try{ n.select(); }catch(x){} } } },0); return; } if(s&&s.dataset&&s.dataset.exon){ var on=exOn(); on[s.dataset.exon]=s.checked; try{ localStorage.setItem('myapri-expon',JSON.stringify(on)); }catch(x){} axDbPush(); axRender(); return; } if(s&&s.dataset&&s.dataset.bpck){ var pr=s.dataset.bpck.split('|'), CK=axLS('myapri-buyck',{}); CK[pr[0]]=CK[pr[0]]||{}; if(s.checked) CK[pr[0]][pr[1]]=1; else delete CK[pr[0]][pr[1]]; axSet('myapri-buyck',CK); axRender(); return; } if(s&&s.dataset&&s.dataset.bpx){ var pr=s.dataset.bpx.split('|'), XX=axLS('myapri-buyx',{}); if(XX[pr[0]]&&XX[pr[0]][+pr[1]]) XX[pr[0]][+pr[1]].b=s.checked; axSet('myapri-buyx',XX); axRender(); return; } if(s&&s.id==='axMnCur'){ axSet('myapri-menurot',{cur:+s.value,set:new Date().toISOString()}); ADX.mw=+s.value; axRender(); return; } if(s&&s.id==='axEm'){ ADX.em=+s.value; axRender(); return; } if(s&&s.id==='axCs'){ ADX.cd=''; ADX.csTouched=true; ADX.cs=s.value; axRender(); return; } if(s&&s.id==='axCc'){ ADX.cc=s.value; axRender(); return; } if(s&&s.dataset&&s.dataset.axDrv!==undefined){ var D=axLS('myapri-drv',{}); D[s.dataset.axDrv]=s.value; axSet('myapri-drv',D); } },true);
-  window.addEventListener('input',function(e){ var t=e.target; if(t&&t.dataset&&t.dataset.mn){ var M=axLS('myapri-menu',{}), k=t.dataset.mn; M[k]=M[k]||{}; M[k][t.dataset.mk]=t.value; axSet('myapri-menu',M); return; } if(e.target&&e.target.id==='axQ'){ ADX.q=e.target.value; var pos=e.target.selectionStart; axRender(); var q=document.getElementById('axQ'); if(q){ q.focus(); try{ q.setSelectionRange(pos,pos); }catch(x){} } } },true);
+  window.addEventListener('input',function(e){ var t=e.target; if(t&&t.id==='axInvT'){ ADX.invMsg=t.value; var enc=encodeURIComponent(t.value); document.querySelectorAll('[data-inv]').forEach(function(a){ if(a.tagName==='A') a.href=a.href.replace(/(body=|text=)[^&]*$/,'$1'+enc); }); return; } if(t&&t.dataset&&t.dataset.mn){ var M=axLS('myapri-menu',{}), k=t.dataset.mn; M[k]=M[k]||{}; M[k][t.dataset.mk]=t.value; axSet('myapri-menu',M); return; } if(e.target&&e.target.id==='axQ'){ ADX.q=e.target.value; var pos=e.target.selectionStart; axRender(); var q=document.getElementById('axQ'); if(q){ q.focus(); try{ q.setSelectionRange(pos,pos); }catch(x){} } } },true);
   window.addEventListener('submit',function(e){ var f=e.target; if(!f.closest||!f.closest('#adx')) return; e.preventDefault(); var v=function(id){ var el=document.getElementById(id); return el?el.value.trim():''; };
     if(f.id==='axCreate'){ var n=v('axN'), em=v('axE').toLowerCase(), p=document.getElementById('axP').value, p2=document.getElementById('axP2').value;
       ADX.err=!n||!em||!p?'Please fill in all fields':p.length<8?'Password must be at least 8 characters':p!==p2?'Passwords don’t match':''; if(!ADX.err){ axSet('myapri-admin',{name:n,email:em,ph:axHash(em+'|'+p)}); axSetIn(true); } axRender(); return; }
@@ -3412,6 +3434,7 @@ var AQYN=[["Yes","Այո"],["No","Ոչ"]];
       if(r.error){ cb(/registered|exists/i.test(r.error.message)?'This email already has an account. Log in instead.':r.error.message); return; }
       cb(null,!!(r.data&&r.data.session)); }); }); }
   window.APRI_MEMBER={signUp:mbSignUp,consent:MB_CONSENT};
+  try{ if(/[?&]join=1/.test(location.search)){ MB.mode='up'; history.replaceState(null,'',location.pathname+(location.hash||'#my-apri')); } }catch(x){}
   var MB_EYE='<button type="button" class="pweye" aria-label="Show password" aria-pressed="false"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="eo" d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle class="eo" cx="12" cy="12" r="3"/><path class="ec" d="M3 3l18 18M10.6 5.1A10.8 10.8 0 0 1 12 5c6.4 0 10 7 10 7a17.6 17.6 0 0 1-3.2 4.1M6.6 6.6C3.8 8.4 2 12 2 12s3.6 7 10 7a9.7 9.7 0 0 0 5.4-1.6M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg></button>';
   function mbF(id,lab,type,ac,val){ return '<label class="f"><span>'+lab+'</span><input id="'+id+'" type="'+type+'"'+(ac?' autocomplete="'+ac+'"':'')+(val?' value="'+qzEsc(val)+'"':'')+(type==='password'?' style="padding-right:52px"':'')+' required>'+(type==='password'?MB_EYE:'')+'</label>'; }
   function mbConsentBox(id){ return '<label class="mb-ok"><input type="checkbox" id="'+id+'"><span>'+MB_CONSENT+'</span></label>'; }
@@ -4473,7 +4496,7 @@ Object.assign(D,{
 "Requested start":["Ցանկալի մեկնարկ", "Желаемое начало", "Inicio solicitado"],
 "All orders":["Բոլոր պատվերները", "Все заказы", "Todos los pedidos"],
 "Payment":["Վճարում", "Оплата", "Pago"],
-"Search name, city or phone":["Որոնել անուն, քաղաք կամ հեռախոս", "Поиск по имени, городу или телефону", "Buscar nombre, ciudad o teléfono"],
+"Search name, city or phone":["Որոնել անուն, քաղաք կամ հեռախոս", "Поиск по имени, городу или телефону", "Buscar nombre, ciudad o teléfono"],"Search name, surname, city or phone":["Որոնել անուն, ազգանուն, քաղաք կամ հեռախոս","Поиск по имени, фамилии, городу или телефону","Buscar nombre, apellido, ciudad o teléfono"],
 "Address":["Հասցե", "Адрес", "Dirección"],
 "Signed":["Ստորագրված", "Подпись", "Firmado"],
 "Size":["Չափ", "Размер", "Tamaño"],
