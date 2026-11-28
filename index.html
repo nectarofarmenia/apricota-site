@@ -1592,7 +1592,7 @@ footer#siteFooter{border-radius:30px 30px 0 0;margin-top:20px}
     <aside class="side">
       <div class="card box">
         <h2>Summary</h2>
-        <div style="display:flex;gap:14px;align-items:center"><div style="width:62px;height:62px;border-radius:16px;background:var(--peach-soft);display:flex;align-items:center;justify-content:center;color:var(--green)"><svg width="40" height="40"><use href="#apri"/></svg></div><div><div style="font:800 18px var(--display);color:var(--ink)" id="sumTitle">Diet · 28 days</div><div style="color:var(--muted);font-size:14px">5 meals a day + detox juice</div></div></div>
+        <div style="display:flex;gap:14px;align-items:center"><div style="width:62px;height:62px;border-radius:16px;background:var(--peach-soft);display:flex;align-items:center;justify-content:center;color:var(--green)"><svg width="40" height="40"><use href="#apri"/></svg></div><div><div style="font:800 18px var(--display);color:var(--ink)" id="sumTitle">Diet · 28 days</div><div style="color:var(--muted);font-size:14px">5 meals a day, delivered daily</div></div></div>
         <div style="display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--line);padding-top:14px">
           <div class="sumrow"><span>Program</span><b class="num" id="sumProg">$1,300</b></div>
           <div class="sumrow" id="sumPeopleRow" hidden><span>People:</span><b class="pN num">1</b></div>
@@ -1886,7 +1886,7 @@ footer#siteFooter{border-radius:30px 30px 0 0;margin-top:20px}
         '<div class="pr num">'+money(p.price)+'</div>'+
         '<div class="pd num">≈ $'+per+' / day</div>'+
         '<div style="font-size:16px">'+RES[S.type][i]+'</div>'+
-        '<ul><li>5 meals a day + daily detox juice</li><li>Calories calculated for you</li><li>Free weight tracker included</li></ul>'+
+        '<ul><li>5 meals a day, delivered daily</li><li>Calories calculated for you</li><li>Free weight tracker included</li></ul>'+
         (n>1 ? (unit(p,n)<p.price
            ? '<div class="gl"><span>People:</span> <b class="num">'+n+'</b> · <b class="num">'+money(unit(p,n))+'</b> <span>each</span><br><span>Total:</span> <b class="num">'+money(unit(p,n)*n)+'</b> · <span>You save</span> <b class="num">'+money((p.price-unit(p,n))*n)+'</b></div>'
            : '<div class="gl"><span>People:</span> <b class="num">'+n+'</b> · <span>Total:</span> <b class="num">'+money(p.price*n)+'</b><br><span>No group discount on 1 week</span></div>') : '')+
@@ -2975,7 +2975,7 @@ var AQYN=[["Yes","Այո"],["No","Ոչ"]];
   $('#pauseBtn').onclick=function(){ this.textContent='Tomorrow paused ✓'; };
 
   /* admin */
-  var K=[['Breakfast',62],['Fruit snack',62],['Lunch',60],['Snack',58],['Dinner',61],['Detox juice',48]];
+  var K=[['Breakfast',62],['Fruit snack',62],['Lunch',60],['Snack',58],['Dinner',61]];
   $('#kitchen').innerHTML=K.map(function(k){return '<div class="hbar"><span>'+k[0]+'</span><span class="t"><i style="width:'+Math.round(k[1]/62*100)+'%"></i></span><span class="num">'+k[1]+'</span></div>';}).join('');
   var R=[['Customer A','Lose weight · 4w','Pasadena','12','−9.4 lbs','Active'],['Customer B','Eat healthy · 2w','Glendale','2','−4.1 lbs','Ends soon'],['Customer C','Lose weight · 2w','Los Angeles','9','−3.0 lbs','Active'],['Customer D','Lose weight · 4w','Glendale','21','−2.2 lbs','Active'],['Customer E','Eat healthy · 1w','Pasadena','—','−1.6 lbs','Paused'],['Customer F','Lose weight · 2w','Los Angeles','1','−6.8 lbs','Ends soon']];
   var BC={'Active':'b-act','Ends soon':'b-end','Paused':'b-pause'};
@@ -3013,7 +3013,7 @@ var AQYN=[["Yes","Այո"],["No","Ոչ"]];
   function saveMeds(){ try{ localStorage.setItem('myapri-meds',JSON.stringify(A.meds)); }catch(e){} }
   var medPhoto=null;
   function openMed(){ medPhoto=null; $('#medPrev').hidden=true; $('#medForm').reset(); $('#medErr').hidden=true; $('#medSheet').hidden=false; }
-  var MEALS=[['Breakfast','9:00',420],['Fruit snack','12:00',150],['Lunch','1:30',520],['Snack','3:00',180],['Dinner','6:00',430],['Detox juice','All day',90]];
+  var MEALS=[['Breakfast','9:00',420],['Fruit snack','12:00',150],['Lunch','1:30',520],['Snack','3:00',180],['Dinner','6:00',430]];
   var U={len:'in',wt:'lb'}; try{ var su=JSON.parse(localStorage.getItem('myapri-units')||'null'); if(su&&su.len&&su.wt) U=su; }catch(e){}
   BODY.forEach(function(m){ m.s=Math.round((m.v-m.d)*10)/10; });
   function f1(x){ return (Math.round(x*10)/10).toFixed(1); }
@@ -3924,6 +3924,7 @@ var D={
 'Typical result: lose 5–10 lbs':['Սովորական արդյունք՝ −5–10 ֆունտ','Обычный результат: −5–10 фунтов','Resultado típico: −5 a 10 lb'],
 'Typical result: −10 to 20 lbs':['Սովորական արդյունք՝ −10–20 ֆունտ','Обычный результат: −10–20 фунтов','Resultado típico: −10 a 20 lb'],
 'Typical result: −5 to 10 lbs':['Սովորական արդյունք՝ −5–10 ֆունտ','Обычный результат: −5–10 фунтов','Resultado típico: −5 a 10 lb'],
+'5 meals a day, delivered daily':['Օրական 5 ուտեստ՝ ամեն օր առաքմամբ','5 блюд в день с ежедневной доставкой','5 comidas al día, entrega diaria'],
 '5 meals a day + daily detox juice':['Օրական 5 ուտեստ + ամենօրյա դետոքս հյութ','5 блюд в день + детокс-сок','5 comidas al día + jugo detox diario'],
 'Calories calculated for you':['Կալորիաները հաշվարկված են քեզ համար','Калории рассчитаны для вас','Calorías calculadas para ti'],
 "Dishes you don't eat are left out":['Չուտած մթերքները հանվում են','Нелюбимые продукты исключаются','Quitamos lo que no comes'],
