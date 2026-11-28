@@ -1363,6 +1363,21 @@ footer#siteFooter{border-radius:30px 30px 0 0;margin-top:20px}
  .hero>div:not(.hero-art)>div[style*="flex-wrap"]{justify-content:center}
  .hero .stats{justify-content:center;margin-inline:auto}
 }
+
+/* hero buttons: one tinted-glass bar (same family as the header) holding the main green pill and a quiet menu link */
+.hero .hero-cta{display:flex;align-items:center;gap:4px;padding:6px;border-radius:999px;max-width:460px;
+ background:linear-gradient(135deg,rgba(232,246,241,.85),rgba(255,255,255,.7) 50%,rgba(255,234,222,.85));
+ -webkit-backdrop-filter:blur(14px) saturate(1.3);backdrop-filter:blur(14px) saturate(1.3);
+ border:1px solid rgba(255,255,255,.95);box-shadow:0 18px 34px -20px rgba(29,77,72,.45),0 1px 0 #fff inset}
+.hero .hero-cta .btn{min-height:52px!important;border-radius:999px!important;margin:0}
+.hero .hero-cta .btn-peach{flex:0 0 auto;padding:0 8px 0 22px!important;gap:12px;font-size:16px}
+.hero .hero-cta .cta-ar{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.22);display:inline-flex;align-items:center;justify-content:center;box-shadow:0 0 0 1px rgba(255,255,255,.25) inset;transition:transform .25s}
+.hero .hero-cta .btn-peach:hover .cta-ar{transform:translateX(3px)}
+.view:not(#v-admin):not(#v-driver) .hero .hero-cta .btn-white-line{flex:1 1 auto;background:transparent!important;box-shadow:none!important;border:0!important;color:#1F8075!important;padding:0 14px!important;font-size:15px;line-height:1.15;white-space:normal;text-align:center}
+.hero .hero-cta .btn-white-line span{background:linear-gradient(currentColor,currentColor) 0 100%/0 1.5px no-repeat;transition:background-size .3s}
+.hero .hero-cta .btn-white-line:hover span{background-size:100% 1.5px}
+@media (max-width:699px){.hero .hero-cta{margin:0 auto;width:100%;max-width:400px}.hero .hero-cta .btn-peach{font-size:15px;padding-left:18px!important}}
+@media (max-width:379px){.hero .hero-cta .btn-peach{font-size:14px;padding-left:14px!important;gap:8px}.hero .hero-cta .cta-ar{width:30px;height:30px}.view:not(#v-admin):not(#v-driver) .hero .hero-cta .btn-white-line{font-size:13.5px;padding:0 8px!important}}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -1402,9 +1417,9 @@ footer#siteFooter{border-radius:30px 30px 0 0;margin-top:20px}
       <div>
         <h1>Five healthy meals a day, cooked fresh for you.</h1>
         <p>Breakfast, lunch, dinner and two snacks — cooked fresh every day, portioned to your goal and delivered to your door.</p>
-        <div style="display:flex;flex-wrap:wrap;gap:12px">
-          <a class="btn btn-peach" href="#quiz" style="min-height:56px;padding:0 28px">Find my program</a>
-          <a class="btn btn-white-line" href="#home" data-go="menu" style="min-height:56px;padding:0 28px">See this week's menu</a>
+        <div class="hero-cta">
+          <a class="btn btn-peach" href="#quiz"><span>Find my program</span><i class="cta-ar" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></i></a>
+          <a class="btn btn-white-line" href="#home" data-go="menu"><span>This week's menu</span></a>
         </div>
         <div class="stats">
           <div><b>5</b><span>meals a day</span></div>
@@ -3908,6 +3923,7 @@ var D={
 'Five healthy meals a day, cooked fresh for you.':['Օրական հինգ առողջ ուտեստ՝ թարմ պատրաստված քեզ համար։','Пять полезных блюд в день, приготовленных свежими для вас.','Cinco comidas saludables al día, preparadas frescas para ti.'],
 'We cook today, you eat tomorrow. Breakfast, lunch, dinner and two snacks — portioned to your goal and delivered every evening.':['Մենք պատրաստում ենք այսօր, դու ուտում ես վաղը։ Նախաճաշ, ճաշ, ընթրիք և երկու նախուտեստ՝ քո նպատակին համապատասխան չափաբաժիններով, առաքում ամեն երեկո։','Мы готовим сегодня — вы едите завтра. Завтрак, обед, ужин и два перекуса, порции под вашу цель, доставка каждый вечер.','Cocinamos hoy, tú comes mañana. Desayuno, almuerzo, cena y dos snacks, en porciones según tu meta y entregados cada noche.'],
 'Find my program':['Գտնել իմ ծրագիրը','Подобрать программу','Encontrar mi programa'],
+"This week's menu":['Շաբաթվա մենյուն','Меню недели','Menú de la semana'],
 "See this week's menu":['Տեսնել շաբաթվա մենյուն','Меню этой недели','Ver el menú de la semana'],
 'meals a day':['ուտեստ օրական','блюд в день','comidas al día'],
 'day programs':['օրյա ծրագրեր','дневные программы','programas de días'],
