@@ -108,7 +108,7 @@ function gate(msg){var g=document.getElementById("apriGate");if(!g){g=document.c
 function load(first){sb.rpc("apri_role").then(function(r){role=r.data||null;
   if(r.error){gate(/apri_role/.test(r.error.message)?"Supabase-ում աշխատեցրեք apricota-admin.sql-ը":r.error.message);return;}
   if(role!=="admin"){ready=false;sb.auth.signOut();gate(role?"Մենեջերները աշխատում են Chef Apri Work-ում (☰ → Apricota → Պատվերներ, Դադարներ, Վճարումներ)։ Այս էջը միայն ադմինի համար է։":"Այս հաշիվը Apricota-ի ադմին չէ");return;}
-  Promise.all([sb.from("apri_kv").select("key,value"),sb.from("apri_hf").select("id,data"),cuLoad(),role==="admin"?null:sb.rpc("apri_hf_mgr")]).then(function(x){var kv=x[0],hf=x[1],mc=x[3];if(kv.error||hf.error){gate((kv.error||hf.error).message);return;}
+  Promise.all([sb.from("apri_kv").select("key,value"),sb.from("apri_hf").select("id,data"),cuLoad(),role==="admin"?null:sb.rpc("apri_hf_mgr"),sb.from("apri_member").select("uid,email,name,phone,consent_at,consent_v,data,created_at,updated_at")]).then(function(x){var kv=x[0],hf=x[1],mc=x[3];window.APRI_MEMBERS=x[4]&&!x[4].error?x[4].data||[]:null;if(kv.error||hf.error){gate((kv.error||hf.error).message);return;}
     var H={cust:[],months:[],inv:[],dates:{}};if(mc&&!mc.error&&Array.isArray(mc.data))H.cust=mc.data;(hf.data||[]).forEach(function(r){if(r.id==="cust"&&role==="admin")H.cust=r.data;else if(r.id==="dates")H.dates=r.data;else if(r.id==="fin"){H.months=r.data.months||[];H.inv=r.data.inv||[];}});
     /* extra payments recorded in Chef Apri (days added to a customer) count as income in the month they were received */
     if(role==="admin"){(kv.data||[]).forEach(function(r){if(r.key!=="myapri-charges"||!Array.isArray(r.value))return;r.value.forEach(function(x){if(!x||!x.paid||!(+x.amt))return;
@@ -503,6 +503,14 @@ body{padding-bottom:calc(104px + env(safe-area-inset-bottom,0px))}
 .alert{background:var(--peach-soft);border-radius:14px;padding:12px 14px;font-size:14px;color:var(--ink);line-height:1.45}
 @media (max-width:380px){.bodygrid{grid-template-columns:1fr}}
 
+.mb-gate{position:fixed;inset:0;z-index:80;background:var(--cream,#FBF7F2);overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:max(24px,env(safe-area-inset-top)) 16px 40px}
+.mb-card{position:relative;width:min(460px,100%);background:#fff;border-radius:26px;padding:28px 22px 24px;box-shadow:0 20px 50px rgba(19,59,48,.12);display:flex;flex-direction:column;gap:12px;margin-top:4vh}
+.mb-card h1{margin:0;font-size:30px;padding-right:44px}.mb-card label.f{position:relative}.mb-lang{display:flex;gap:4px;align-self:flex-start;margin-left:0!important;background:var(--cream,#FBF7F2);border-radius:999px;padding:3px}.mb-lang button{border:0;background:none;border-radius:999px;min-height:32px;padding:0 10px;font:800 12px var(--body);color:var(--ink);cursor:pointer}.mb-lang button.on{background:var(--green-btn);color:#fff}.mb-card .qq{display:flex;flex-direction:column;gap:14px}.mb-card .btn{width:100%;min-height:54px}
+.mb-home{position:absolute;top:14px;right:14px;width:40px;height:40px;border-radius:50%;background:var(--cream,#FBF7F2);display:flex;align-items:center;justify-content:center;font-size:24px;text-decoration:none;color:var(--ink)}
+.mb-ok{display:flex!important;gap:10px;align-items:flex-start;font-size:13.5px;line-height:1.45;color:var(--ink);background:var(--mint,#E3F4EF);border-radius:14px;padding:12px;cursor:pointer;font-weight:500}
+.mb-ok input{width:22px!important;height:22px!important;min-height:0!important;flex:0 0 22px;margin:1px 0 0!important;accent-color:var(--green-btn)}
+.mb-sw{text-align:center;font-size:14px;margin:0}.mb-msg{margin:0;padding:12px;border-radius:12px;background:var(--mint,#E3F4EF);color:var(--green-dark);font-weight:700;font-size:14px}
+.mb-out{border:0;background:rgba(255,255,255,.18);color:inherit;border-radius:999px;padding:8px 14px;font:800 13px var(--body);cursor:pointer;margin-left:6px}
 #v-my-apri .app{padding-top:8px}
 @media (max-width:520px){#dForm{grid-template-columns:1fr!important}}
 .navarrows{display:flex;gap:4px}
@@ -675,6 +683,7 @@ button.pb-r{width:100%;font:inherit;text-align:left;color:inherit}
 .ax-mh{display:flex;align-items:center;justify-content:space-between;gap:10px;position:sticky;top:-20px;background:#fff;padding:4px 0;z-index:2}.ax-mh h2{margin:0;font:900 24px var(--display);color:var(--ink)}
 .ax-x{width:40px;height:40px;border-radius:50%;border:0;background:var(--cream);font-size:24px;line-height:1;cursor:pointer;color:var(--ink);flex:none}.ax-x:hover{background:var(--mint)}
 .aq{background:var(--cream);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:10px}.aq h3,.aq-h{margin:0;font:800 17px var(--body);color:var(--ink)}.aq-at{color:var(--muted);font-size:12px}
+.mbx h4{margin:4px 0 0;font:800 14px var(--body);color:var(--green-dark)}.mb-w{display:flex;flex-wrap:wrap;gap:6px}.mb-w span{background:#fff;border-radius:10px;padding:5px 9px;display:flex;flex-direction:column;align-items:center;box-shadow:inset 0 0 0 1px var(--line)}.mb-w small{font-size:11px;color:var(--muted)}.mb-w b{font-size:15px;color:var(--ink)}
 .aq-g{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px}.aq-g label{display:flex;flex-direction:column;gap:4px;font-size:12.5px;font-weight:800;color:var(--muted)}.aq-g label.full{grid-column:1/-1}
 .aq-g input,.aq-g select,.aq-g textarea{min-height:44px;border-radius:12px;border:1.5px solid var(--line);padding:8px 10px;font:600 15px var(--body);color:var(--ink);background:#fff;width:100%;box-sizing:border-box}
 .aq-sec{grid-column:1/-1;margin:8px 0 0;font:800 15px var(--body);color:var(--green-dark);border-bottom:1px solid var(--line);padding-bottom:4px}
@@ -1937,7 +1946,7 @@ body:has(#v-quiz:not([hidden])) .totop{bottom:calc(152px + env(safe-area-inset-b
       h='<div class="qp-head"><p class="eyebrow">Step 1 of 3 · Create your account</p><h1>Create your account</h1></div>'+
         '<form class="qq" id="stForm" novalidate><div class="qf" style="grid-template-columns:1fr">'+
         fl('stName','Full name','text','','name')+fl('stEmail','Email','email','you@email.com','email')+fl('stPhone','Phone','tel','(555) 000-0000','tel')+fl('stPw','Password','password','At least 6 characters','new-password')+fl('stPw2','Confirm password','password','','new-password')+
-        '</div><p class="qerr" id="stErr"'+(STF.err?'':' hidden')+'>'+STF.err+'</p><button class="btn btn-green" style="width:100%;min-height:54px">Create account and continue</button><p class="tiny" style="text-align:center;font-size:14px"><span>Already have an account?</span> <a href="#my-apri" style="font-weight:800">Log in</a></p></form>';
+        '</div>'+mbConsentBox('stOk')+'<p class="qerr" id="stErr"'+(STF.err?'':' hidden')+'>'+STF.err+'</p><button class="btn btn-green" style="width:100%;min-height:54px">Create account and continue</button><p class="tiny" style="text-align:center;font-size:14px"><span>Already have an account?</span> <a href="#my-apri" style="font-weight:800">Log in</a></p></form>';
     }
     pg.innerHTML=h;
   }
@@ -1958,15 +1967,19 @@ body:has(#v-quiz:not([hidden])) .totop{bottom:calc(152px + env(safe-area-inset-b
       e.preventDefault(); var v=function(id){ return ($('#'+id).value||'').trim(); };
       STF.a={stName:v('stName'),stEmail:v('stEmail'),stPhone:v('stPhone')};
       var pw=$('#stPw').value, pw2=$('#stPw2').value;
-      STF.err = (!STF.a.stName||!STF.a.stEmail||!STF.a.stPhone||!pw) ? 'Please fill in all fields' : pw.length<6 ? 'Password must be at least 6 characters' : pw!==pw2 ? 'Passwords don’t match' : '';
+      STF.err = (!STF.a.stName||!STF.a.stEmail||!STF.a.stPhone||!pw) ? 'Please fill in all fields' : pw.length<6 ? 'Password must be at least 6 characters' : pw!==pw2 ? 'Passwords don’t match' : !(document.getElementById('stOk')||{}).checked ? 'Please tick the box to agree' : '';
       if(STF.err){ stRender(); return; }
+      var stB=pg.querySelector('#stForm .btn'); if(stB) stB.disabled=true;
+      mbSignUp({name:STF.a.stName,email:STF.a.stEmail.toLowerCase(),phone:STF.a.stPhone,pw:pw},function(err,signedIn){ if(stB) stB.disabled=false; if(err){ STF.err=err; stRender(); return; } if(!signedIn) toast('We sent you an email. Tap the link in it to confirm your account.'); stDone(); });
+    });
+    function stDone(){
       try{ localStorage.setItem('myapri-acct',JSON.stringify({name:STF.a.stName,email:STF.a.stEmail,phone:STF.a.stPhone})); }catch(x){}
       var parts=STF.a.stName.split(/\s+/);
       if(!QZ.first) QZ.first=parts[0]; if(!QZ.last&&parts.length>1) QZ.last=parts.slice(1).join(' ');
       if(!QZ.email) QZ.email=STF.a.stEmail; if(!QZ.phone) QZ.phone=STF.a.stPhone;
       qzSave(); qzBuild(); STF.err=''; STF.a={}; stRender();
       location.hash='quiz';
-    });
+    }
     stRender();
   })();
   document.addEventListener('click',function(e){
@@ -2263,6 +2276,23 @@ var AQYN=[["Yes","Այո"],["No","Ոչ"]];
     var rec={}; if(i>=0) for(var k in L[i]) rec[k]=L[i][k]; AQF.forEach(function(f){ if(f[0]!=='#') delete rec[f[0]]; }); for(var k2 in A) rec[k2]=A[k2];
     rec.id=id; rec.cust=(q&&q.cust)||c.name; rec.src=(q&&q.src)||'manual'; rec.at=(q&&q.at)||now; rec.editedAt=now; rec.by='admin'; if(i>=0) L[i]=rec; else L.push(rec);
     try{ localStorage.setItem('myapri-quests',JSON.stringify(L)); }catch(x){} }
+  /* the customer's own page on apricota.am (my Apricota), when they have an account — everything they entered there */
+  function mbOf(c){ var M=window.APRI_MEMBERS||[], d=String(c.phone||'').replace(/\D/g,'').slice(-10), q=aqOf(c), em=String((q&&q.email)||c.email||'').toLowerCase(), hit=null;
+    M.forEach(function(m){ var md=String(m.phone||'').replace(/\D/g,'').slice(-10), qz=(m.data&&m.data.ls&&m.data.ls['myapri-quiz'])||{}, qd=String(qz.phone||'').replace(/\D/g,'').slice(-10);
+      if((d&&(md===d||qd===d))||(em&&String(m.email||'').toLowerCase()===em)) hit=m; }); return hit; }
+  function axMember(c){ var m=mbOf(c); if(!m) return window.APRI_MEMBERS?'<div class="aq mbx"><h3>📱 Անձնական էջ (my Apricota)</h3><p class="tiny" style="margin:0;font-size:14px">Այս հաճախորդը դեռ հաշիվ չունի apricota.am-ում, կամ հաշվի հեռախոսը/email-ը չի համընկնում։</p></div>':'';
+    var d=m.data||{}, a=d.app||{}, qz=(d.ls&&d.ls['myapri-quiz'])||{}, W=d.wlog||[], L=d.log||{}, days=Object.keys(L).sort().reverse().slice(0,14), h='';
+    var row=function(k,v){ return v==null||v===''?'':'<dt>'+k+'</dt><dd>'+v+'</dd>'; };
+    h+='<dl class="ax-dl">'+row('Հաշիվ',qzEsc(m.email||'')+(m.phone?' · '+qzEsc(m.phone):''))+row('Գրանցվել է','<span class="num">'+fmtD(String(m.created_at||'').slice(0,10))+'</span>')+row('Համաձայնություն','✓ <span class="num">'+fmtD(String(m.consent_at||'').slice(0,10))+'</span>')+row('Վերջին թարմացում','<span class="num">'+fmtD(String(m.updated_at||'').slice(0,10))+'</span>')+
+      row('Նպատակ',qzEsc(qz.goal||''))+row('Քաշ (հարցաշար)',qz.weight?'<span class="num">'+qzEsc(qz.weight)+'</span> lbs'+(qz.target?' → <span class="num">'+qzEsc(qz.target)+'</span>':''):'')+'</dl>';
+    if(W.length) h+='<h4>Քաշի գրանցումներ</h4><div class="mb-w">'+W.slice(-20).reverse().map(function(x){ return '<span><small class="num">'+fmtD(x.d)+'</small><b class="num">'+(Math.round(x.w*10)/10)+'</b></span>'; }).join('')+'</div>';
+    if(days.length) h+='<h4>Օր առ օր</h4><div class="ax-tbl"><table style="min-width:0"><thead><tr><th>Օր</th><th class="num">Ջուր</th><th class="num">Ուտելիք</th><th class="num">Քայլեր</th><th class="num">Քուն</th></tr></thead><tbody>'+days.map(function(k){ var x=L[k]; return '<tr><td class="num">'+fmtD(k)+'</td><td class="num">'+(x.water||0)+'</td><td class="num">'+(x.meals||0)+' / 5</td><td class="num">'+(x.steps||0).toLocaleString('en-US')+'</td><td class="num">'+(x.sleep||'–')+'</td></tr>'; }).join('')+'</tbody></table></div>';
+    if(a.body&&a.body.length) h+='<h4>Չափսեր (դյույմ)</h4><div class="mb-w">'+a.body.map(function(b){ return '<span><small>'+sp(b.k)+'</small><b class="num">'+b.v+'</b></span>'; }).join('')+'</div>';
+    if(a.meds&&a.meds.length) h+='<h4>Դեղեր և վիտամիններ</h4><p class="tiny" style="margin:0;font-size:14px">'+a.meds.map(function(x){ return qzEsc(x.name||'')+(x.mg?' '+x.mg+' mg':''); }).join(' · ')+'</p>';
+    if(a.pause&&a.pause.date) h+='<p class="tiny" style="margin:0;font-size:14px">⏸ Դադար՝ <span class="num">'+fmtD(String(a.pause.date).slice(0,10))+'</span>, '+a.pause.days+' օր'+(a.pause.why?' · '+qzEsc(a.pause.why):'')+'</p>';
+    var hq=['allwhat','diabwhat','condwhat','medwhat','digwhat','foodother'].filter(function(k){ return qz[k]; }).map(function(k){ return qzEsc(qz[k]); }); if(qz.foods&&qz.foods.length) hq.unshift('Չի ուտում՝ '+qz.foods.map(qzEsc).join(', '));
+    if(hq.length) h+='<h4>Առողջություն և սնունդ</h4><p class="tiny" style="margin:0;font-size:14px">'+hq.join(' · ')+'</p>';
+    return '<div class="aq mbx"><h3>📱 Անձնական էջ (my Apricota)</h3>'+h+'</div>'; }
   function axDetail(c){ var dl=[], R=c.R, add=function(k,v){ if(v!=null&&v!=='') dl.push('<dt>'+sp(k)+'</dt><dd>'+v+'</dd>'); };
     add('Phone','<a href="tel:'+String(c.phone).replace(/\D/g,'')+'">'+qzEsc(c.phone)+'</a>'); add('City',qzEsc(c.city)); if(!c.hf) add('Program',axProg(c.prog)); add('Status',axTag(c.status));
     if(!c.hf){
@@ -2273,7 +2303,7 @@ var AQYN=[["Yes","Այո"],["No","Ոչ"]];
       add('Total paid','<b class="num">'+m2(H.total)+'</b>'); add('Weeks paid','<span class="num">'+H.weeks+'</span>'); if(H.pair) add('Orders','<span class="ax-tag w">'+sp('2 people at one address')+'</span>');
       if(H.w) add('Weight',H.w.map(qzEsc).join(' → '));
       var hist='<div class="ax-tbl"><table style="min-width:0"><thead><tr><th>Month</th><th class="num">Weeks</th><th class="num">Amount</th></tr></thead><tbody>'+H.hist.slice().reverse().map(function(x){ var t=x[2].reduce(function(a,b){ return a+b; },0); return '<tr><td>'+hfMon(x[0],x[1])+(x[3]>1?' <span class="ax-tag w">'+sp('2 people')+'</span>':'')+'</td><td class="num">'+x[2].filter(Boolean).length+'</td><td class="num">'+m2(t)+'</td></tr>'; }).join('')+'</tbody></table></div>';
-      return '<div class="ax-mh"><h2>'+qzEsc(c.name)+'</h2><button type="button" class="ax-x" data-ax-close="1" aria-label="Close">×</button></div><dl class="ax-dl">'+dl.join('')+'</dl>'+axQ(c)+'<h3 class="aq-h">Payment history</h3>'+hist; }
+      return '<div class="ax-mh"><h2>'+qzEsc(c.name)+'</h2><button type="button" class="ax-x" data-ax-close="1" aria-label="Close">×</button></div><dl class="ax-dl">'+dl.join('')+'</dl>'+axQ(c)+axMember(c)+'<h3 class="aq-h">Payment history</h3>'+hist; }
     if(c.real){ var met=QZ.units==='met';
       add('Weight',R?'<span class="num">'+R.lb+'</span> lbs'+(R.tgt?' → <span class="num">'+R.tgt+'</span> lbs':''):''); if(R) add('Calories','<span class="num">'+myKcal(R).toLocaleString('en-US')+'</span> <span>kcal/day</span>');
       add('Goal',QZ.goal?sp(QZ.goal):''); add('Gender',QZ.gender?sp(QZ.gender):''); add('Date of birth',QZ.dob?fmtD(QZ.dob):'');
@@ -2287,7 +2317,7 @@ var AQYN=[["Yes","Այո"],["No","Ոչ"]];
       add('Size','<b>'+c.size+'</b>'); add('Weight',c.w?'<span class="num">'+c.w[0]+' → '+c.w[1]+'</span> lbs'+(c.t?' · <span>goal</span> <span class="num">'+c.t+'</span>':''):'');
       add('Foods you don’t eat',c.excl.length?c.excl.map(sp).join(', '):sp('I eat everything')); add('Health',c.flags.length?c.flags.map(function(x){ return '<span class="ax-tag r">'+sp(x)+'</span>'; }).join(' '):'');
     }
-    return '<div class="ax-mh"><h2>'+qzEsc(c.name)+'</h2><button type="button" class="ax-x" data-ax-close="1" aria-label="Close">×</button></div>'+(c.demo?'<span class="ax-tag g" style="align-self:flex-start">Example</span>':'')+'<dl class="ax-dl">'+dl.join('')+'</dl>'+(c.demo?'':axQ(c)); }
+    return '<div class="ax-mh"><h2>'+qzEsc(c.name)+'</h2><button type="button" class="ax-x" data-ax-close="1" aria-label="Close">×</button></div>'+(c.demo?'<span class="ax-tag g" style="align-self:flex-start">Example</span>':'')+'<dl class="ax-dl">'+dl.join('')+'</dl>'+(c.demo?'':axQ(c)+axMember(c)); }
 
   var MNM=[['b','Breakfast','09:00'],['f','Fruit','12:00'],['l','Lunch','13:30'],['s','Snack','15:00'],['d','Dinner','18:00']], WDN=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
   var STORES=['Costco','Restaurant Depot','Super King','Sevan Market','Vons','Ralphs','Other'];
@@ -3321,13 +3351,138 @@ var AQYN=[["Yes","Այո"],["No","Ոչ"]];
   }
   document.getElementById('mMore').onclick=function(){ mAll=!mAll; renderMenu(); if(!mAll) document.getElementById('mFilters').scrollIntoView({behavior:'smooth',block:'center'}); };
   renderMenu();
-  renderTabs(); calc(); renderQuiz(); renderOrder(); renderAccount(); renderRows(); renderDriver(); renderApp(); show(); renderOQ();
+  /* ===== my Apricota account — real sign-in (email + password) and the customer's page saved in the database
+     (table apri_member). The admin and Apricota managers read it to plan the customer's meals. ===== */
+  var MB={sb:null,user:null,row:null,ready:false,t:null,last:'',log:{},wlog:[],day:'',hash:location.hash||'',err:'',mode:'in',msg:'',busy:false,need:false};
+  var MB_URL='https://oddqwjvqqvoeqdrnasqc.supabase.co', MB_KEY='sb_publishable_ZVvJKCJXM5ylUlICX-57vw__ZZqQul0', MB_V='2026-11';
+  var MB_LS=['myapri-quiz','myapri-health','myapri-meds','myapri-quest','myapri-rings','myapri-rhide','myapri-units'];
+  var MB_CONSENT='I agree that Apricota may use the information on my page (questionnaire, weight, measurements, meals and daily notes) to consult me and to plan my meals. Only the Apricota team sees it. It is never sold or shared, and I can ask to delete it at any time.';
+  function mbToday(){ var d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+  function mbHasSession(){ try{ return !!localStorage.getItem('apri-member-auth'); }catch(x){ return false; } }
+  function mbLib(cb){ if(window.supabase&&window.supabase.createClient) return cb(); var s=document.createElement('script'); s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.js'; s.onload=cb; s.onerror=function(){ MB.err='No connection. Please try again.'; mbGate(); }; document.head.appendChild(s); }
+  function mbClient(cb){ if(MB.sb) return cb(MB.sb); mbLib(function(){ if(MB.sb) return cb(MB.sb);
+    MB.sb=window.supabase.createClient(MB_URL,MB_KEY,{auth:{persistSession:true,storageKey:'apri-member-auth',detectSessionInUrl:false,autoRefreshToken:true}});
+    var hp=new URLSearchParams(MB.hash.replace(/^#/,'')), at=hp.get('access_token'), rt=hp.get('refresh_token'), ty=hp.get('type');
+    var go=function(){ MB.sb.auth.getSession().then(function(r){ mbSession(r.data&&r.data.session); }); MB.sb.auth.onAuthStateChange(function(ev,s){ if(ev==='SIGNED_OUT') mbSession(null); else if(ev==='SIGNED_IN'&&s&&(!MB.user||MB.user.id!==s.user.id)) mbSession(s); }); cb(MB.sb); };
+    if(at&&rt){ MB.hash=''; if(ty==='recovery'){ MB.mode='newpw'; } MB.sb.auth.setSession({access_token:at,refresh_token:rt}).then(function(){ try{ history.replaceState(null,'',location.pathname+'#my-apri'); }catch(x){} show(); go(); }); }
+    else go(); }); }
+  /* the page's state, as saved in the database */
+  function mbCollect(){ var t=mbToday(), w=A.w||[], lw=w[w.length-1];
+    if(lw&&(!MB.wlog.length||MB.wlog[MB.wlog.length-1].w!==lw)){ if(MB.wlog.length&&MB.wlog[MB.wlog.length-1].d===t) MB.wlog[MB.wlog.length-1].w=lw; else MB.wlog.push({d:t,w:lw}); }
+    MB.log[t]={water:A.water||0,steps:A.steps||0,sleep:A.sleep||0,meals:(A.eaten||[]).filter(Boolean).length,kcal:A.extra||0};
+    var keys=Object.keys(MB.log).sort(); while(keys.length>400) delete MB.log[keys.shift()];
+    var ls={}; MB_LS.forEach(function(k){ try{ var v=localStorage.getItem(k); if(v!=null) ls[k]=JSON.parse(v); }catch(x){} });
+    return {v:1,day:t,ls:ls,log:MB.log,wlog:MB.wlog,
+      app:{w:A.w,realW:A.realW,water:A.water,steps:A.steps,sleep:A.sleep,eaten:A.eaten,taken:A.taken,bed:A.bed,wakeT:A.wakeT,pdays:A.pdays,extra:A.extra,
+        pause:A.pause?{date:A.pause.date instanceof Date?A.pause.date.toISOString():A.pause.date,days:A.pause.days,why:A.pause.why||''}:null,
+        hl:A.hl,meds:A.meds,qv:A.qv,rhide:A.rhide,rord:A.rord,units:U,body:BODY.map(function(b){ return {k:b.k,v:b.v}; })}}; }
+  function mbApply(d){ d=d||{}; var a=d.app||{};
+    Object.keys(d.ls||{}).forEach(function(k){ if(MB_LS.indexOf(k)<0) return; try{ localStorage.setItem(k,JSON.stringify(d.ls[k])); }catch(x){} });
+    if(d.ls&&d.ls['myapri-quiz']){ Object.keys(QZ).forEach(function(k){ delete QZ[k]; }); var q=d.ls['myapri-quiz']; for(var k in q) QZ[k]=q[k]; }
+    ['w','realW','sleep','bed','wakeT','pdays','hl','meds','qv','rhide','rord'].forEach(function(k){ if(a[k]!=null) A[k]=a[k]; });
+    if(a.units&&a.units.len&&a.units.wt) U=a.units;
+    if(a.pause&&a.pause.date) A.pause={date:new Date(a.pause.date),days:a.pause.days,why:a.pause.why||''}; else A.pause=null;
+    if(a.body) a.body.forEach(function(x){ BODY.forEach(function(b){ if(b.k===x.k&&x.v!=null) b.v=x.v; }); });
+    MB.log=d.log||{}; MB.wlog=d.wlog||[];
+    if(d.day===mbToday()){ ['water','steps','eaten','taken','extra'].forEach(function(k){ if(a[k]!=null) A[k]=a[k]; }); }
+    else mbNewDay(); }
+  function mbNewDay(){ A.water=0; A.steps=0; A.extra=0; A.eaten=(A.eaten||[]).map(function(){ return false; }); A.taken={}; }
+  /* a brand-new account starts empty, not with the example numbers */
+  function mbFresh(){ mbNewDay(); A.qv=[]; if(!myReal()){ A.w=[0,0]; A.realW=null; } var hasM=false; try{ hasM=!!localStorage.getItem('myapri-meds'); }catch(x){} if(!hasM) A.meds=[]; MB.log={}; MB.wlog=[]; }
+  function mbSave(now){ if(!MB.ready||!MB.user||!MB.sb) return; clearTimeout(MB.t);
+    var run=function(){ var d=mbCollect(), j=JSON.stringify(d); if(j===MB.last) return; MB.last=j;
+      MB.sb.from('apri_member').update({data:d}).eq('uid',MB.user.id).then(function(r){ if(r.error) MB.last=''; }); };
+    if(now) run(); else MB.t=setTimeout(run,1500); }
+  function mbSession(s){ MB.chk=true; var u=s&&s.user||null; if(MB.user&&u&&MB.user.id===u.id&&MB.ready){ mbGate(); return; }
+    MB.user=u; MB.ready=false; MB.need=false;
+    if(!u){ mbGate(); return; }
+    if(MB.loading===u.id) return; MB.loading=u.id;
+    MB.sb.from('apri_member').select('*').eq('uid',u.id).maybeSingle().then(function(r){ MB.loading=null;
+      if(r.error){ MB.err=''; MB.ready=false; mbGate(); return; }
+      var md=u.user_metadata||{};
+      try{ localStorage.setItem('myapri-acct',JSON.stringify({name:(r.data&&r.data.name)||md.name||'',email:u.email,phone:(r.data&&r.data.phone)||md.phone||''})); }catch(x){}
+      if(r.data){ MB.row=r.data; mbApply(r.data.data); MB.ready=true; MB.last=JSON.stringify(mbCollect()); renderApp(); mbGate(); return; }
+      if(!md.consent_at){ MB.need=true; mbGate(); return; }
+      mbCreate(u,md.consent_at,md.name,md.phone); }); }
+  function mbCreate(u,cat,name,phone){ mbFresh(); var row={uid:u.id,email:u.email,name:name||'',phone:phone||'',consent_at:cat,consent_v:MB_V,data:mbCollect()};
+    MB.sb.from('apri_member').upsert(row,{onConflict:'uid',ignoreDuplicates:true}).then(function(r){ if(r.error){ MB.err=r.error.message; mbGate(); return; } MB.row=row; MB.ready=true; MB.need=false; MB.last=JSON.stringify(row.data); renderApp(); mbGate(); }); }
+  /* sign up from the order flow (Step 1) or from the my Apricota screen */
+  function mbSignUp(f,cb){ mbClient(function(sb){ var cat=new Date().toISOString();
+    sb.auth.signUp({email:f.email,password:f.pw,options:{emailRedirectTo:'https://apricota.am/',data:{name:f.name,phone:f.phone,consent_at:cat,consent_v:MB_V}}}).then(function(r){
+      if(r.error){ cb(/registered|exists/i.test(r.error.message)?'This email already has an account. Log in instead.':r.error.message); return; }
+      cb(null,!!(r.data&&r.data.session)); }); }); }
+  window.APRI_MEMBER={signUp:mbSignUp,consent:MB_CONSENT};
+  var MB_EYE='<button type="button" class="pweye" aria-label="Show password" aria-pressed="false"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="eo" d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle class="eo" cx="12" cy="12" r="3"/><path class="ec" d="M3 3l18 18M10.6 5.1A10.8 10.8 0 0 1 12 5c6.4 0 10 7 10 7a17.6 17.6 0 0 1-3.2 4.1M6.6 6.6C3.8 8.4 2 12 2 12s3.6 7 10 7a9.7 9.7 0 0 0 5.4-1.6M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg></button>';
+  function mbF(id,lab,type,ac,val){ return '<label class="f"><span>'+lab+'</span><input id="'+id+'" type="'+type+'"'+(ac?' autocomplete="'+ac+'"':'')+(val?' value="'+qzEsc(val)+'"':'')+(type==='password'?' style="padding-right:52px"':'')+' required>'+(type==='password'?MB_EYE:'')+'</label>'; }
+  function mbConsentBox(id){ return '<label class="mb-ok"><input type="checkbox" id="'+id+'"><span>'+MB_CONSENT+'</span></label>'; }
+  /* the sign-in screen covers my Apricota until the customer is signed in */
+  function mbGate(){ var r=(location.hash||'#home').slice(1), g=document.getElementById('mbGate');
+    var need=r==='my-apri'&&(!MB.user||MB.need||MB.mode==='newpw');
+    if(!need){ if(g) g.remove(); if(r==='my-apri'&&MB.user) mbTop(); return; }
+    if(!MB.sb&&mbHasSession()&&!MB.user){ mbClient(function(){}); }
+    if(!g){ g=document.createElement('div'); g.id='mbGate'; g.className='mb-gate'; document.body.appendChild(g); }
+    var h;
+    if(!MB.user&&mbHasSession()&&!MB.chk) h='<h1>my Apricota</h1><p class="tiny" style="font-size:15px">Loading…</p>';
+    else if(MB.mode==='newpw'&&MB.user) h='<h1>New password</h1><form id="mbPwF" class="qq" novalidate><div class="qf" style="grid-template-columns:1fr">'+mbF('mbP1','New password','password','new-password')+'</div><button class="btn btn-green">Save</button></form>';
+    else if(MB.need) h='<h1>One more step</h1><p class="tiny" style="font-size:15px">Please confirm so we can use your page to plan your meals.</p><form id="mbConF" class="qq" novalidate>'+mbConsentBox('mbOk2')+'<button class="btn btn-green">Continue</button><button type="button" class="lnk" id="mbOut2">Log out</button></form>';
+    else if(MB.mode==='up') h='<h1>Create your account</h1><form id="mbUpF" class="qq" novalidate><div class="qf" style="grid-template-columns:1fr">'+mbF('mbN','Full name','text','name')+mbF('mbE','Email','email','email')+mbF('mbPh','Phone','tel','tel')+mbF('mbP','Password','password','new-password')+mbF('mbP2','Confirm password','password','new-password')+'</div>'+mbConsentBox('mbOk')+'<button class="btn btn-green">Create account</button></form><p class="tiny mb-sw"><span>Already have an account?</span> <button type="button" class="lnk" data-mbm="in">Log in</button></p>';
+    else if(MB.mode==='forgot') h='<h1>Forgot your password?</h1><p class="tiny" style="font-size:15px">We will email you a link to set a new password.</p><form id="mbFgF" class="qq" novalidate><div class="qf" style="grid-template-columns:1fr">'+mbF('mbE','Email','email','email')+'</div><button class="btn btn-green">Send the link</button></form><p class="tiny mb-sw"><button type="button" class="lnk" data-mbm="in">Back to log in</button></p>';
+    else h='<h1>Log in</h1><p class="tiny" style="font-size:15px">Your page: progress, meals, water and your questionnaire.</p><form id="mbInF" class="qq" novalidate><div class="qf" style="grid-template-columns:1fr">'+mbF('mbE','Email','email','username')+mbF('mbP','Password','password','current-password')+'</div><button class="btn btn-green">Log in</button></form><p class="tiny mb-sw"><button type="button" class="lnk" data-mbm="forgot">Forgot your password?</button></p><p class="tiny mb-sw"><span>New here?</span> <button type="button" class="lnk" data-mbm="up">Create your account</button></p>';
+    var cl='en'; try{ cl=localStorage.getItem('myapri-lang')||'en'; }catch(x){}
+    g.innerHTML='<div class="mb-card"><a class="mb-home" href="#home" aria-label="Home">×</a><div class="langs mb-lang" role="group" aria-label="Language">'+[['en','EN'],['hy','ՀԱՅ'],['ru','РУС'],['es','ES']].map(function(l){ return '<button type="button" data-mblang="'+l[0]+'" class="'+(cl===l[0]?'on':'')+'">'+l[1]+'</button>'; }).join('')+'</div>'+h+'<p class="qerr" id="mbErr"'+(MB.err?'':' hidden')+'>'+qzEsc(MB.err)+'</p>'+(MB.msg?'<p class="mb-msg">'+qzEsc(MB.msg)+'</p>':'')+'</div>'; }
+  function mbTop(){ var b=document.getElementById('mbOutB'); if(b) return; var t=document.querySelector('#v-my-apri .a-top'); if(!t) return; b=document.createElement('button'); b.type='button'; b.id='mbOutB'; b.className='mb-out'; b.textContent='Log out'; t.appendChild(b); }
+  function mbBusy(f,on){ var b=f.querySelector('.btn'); if(b){ b.disabled=on; } }
+  document.addEventListener('click',function(e){ var b;
+    if((b=e.target.closest('#mbGate .pweye'))){ var inp=b.parentNode.querySelector('input'), sh=inp.type==='password'; inp.type=sh?'text':'password'; b.classList.toggle('on',sh); b.setAttribute('aria-pressed',sh); b.setAttribute('aria-label',sh?'Hide password':'Show password'); inp.focus(); return; }
+    if((b=e.target.closest('[data-mblang]'))){ if(window.apSetLang) window.apSetLang(b.dataset.mblang); mbGate(); return; }
+    if((b=e.target.closest('[data-mbm]'))){ MB.mode=b.dataset.mbm; MB.err=''; MB.msg=''; mbGate(); return; }
+    if(e.target.closest('#mbOutB')||e.target.closest('#mbOut2')||e.target.closest('#stOut')){ mbSave(true); var fin=function(){ MB_LS.concat(['myapri-acct']).forEach(function(k){ try{ localStorage.removeItem(k); }catch(x){} }); location.hash='#home'; location.reload(); };
+      if(MB.sb) MB.sb.auth.signOut().then(fin,fin); else fin(); }
+  });
+  document.addEventListener('submit',function(e){ var f=e.target; if(!f.id||f.id.indexOf('mb')!==0) return; e.preventDefault(); var v=function(id){ var x=document.getElementById(id); return x?String(x.value||'').trim():''; };
+    MB.err=''; MB.msg='';
+    if(f.id==='mbInF'){ if(!v('mbE')||!document.getElementById('mbP').value){ MB.err='Please fill in all fields'; mbGate(); return; } mbBusy(f,true);
+      mbClient(function(sb){ sb.auth.signInWithPassword({email:v('mbE').toLowerCase(),password:document.getElementById('mbP').value}).then(function(r){ mbBusy(f,false); if(r.error){ MB.err=/invalid login/i.test(r.error.message)?'Wrong email or password':/confirm/i.test(r.error.message)?'Please confirm your email first: open the email we sent and tap the link.':r.error.message; mbGate(); return; } mbSession(r.data.session); }); }); return; }
+    if(f.id==='mbUpF'){ var pw=document.getElementById('mbP').value, pw2=document.getElementById('mbP2').value;
+      MB.err=(!v('mbN')||!v('mbE')||!v('mbPh')||!pw)?'Please fill in all fields':pw.length<6?'Password must be at least 6 characters':pw!==pw2?'Passwords don’t match':!document.getElementById('mbOk').checked?'Please tick the box to agree':'';
+      if(MB.err){ mbGate(); return; } mbBusy(f,true);
+      mbSignUp({name:v('mbN'),email:v('mbE').toLowerCase(),phone:v('mbPh'),pw:pw},function(err,signedIn){ if(err){ MB.err=err; mbGate(); return; } if(!signedIn){ MB.mode='in'; MB.msg='Almost done! We sent you an email. Tap the link in it to confirm, then log in.'; } mbGate(); }); return; }
+    if(f.id==='mbFgF'){ if(!v('mbE')){ MB.err='Please fill in all fields'; mbGate(); return; } mbClient(function(sb){ sb.auth.resetPasswordForEmail(v('mbE').toLowerCase(),{redirectTo:'https://apricota.am/'}).then(function(){ MB.mode='in'; MB.msg='If this email has an account, we sent a link to set a new password (check Spam too).'; mbGate(); }); }); return; }
+    if(f.id==='mbPwF'){ var np=document.getElementById('mbP1').value; if(np.length<6){ MB.err='Password must be at least 6 characters'; mbGate(); return; } MB.sb.auth.updateUser({password:np}).then(function(r){ if(r.error){ MB.err=r.error.message; mbGate(); return; } MB.mode='in'; mbGate(); }); return; }
+    if(f.id==='mbConF'){ if(!document.getElementById('mbOk2').checked){ MB.err='Please tick the box to agree'; mbGate(); return; } var md=MB.user.user_metadata||{}; mbCreate(MB.user,new Date().toISOString(),md.name||'',md.phone||''); return; }
+  },true);
+  window.addEventListener('hashchange',function(){ mbGate(); });
+  /* save after every change on the page (debounced), when the page is hidden and when a new day starts */
+  (function(){ var ra=renderApp; renderApp=function(){ var r=ra.apply(this,arguments); mbSave(); return r; }; })();
+  document.addEventListener('visibilitychange',function(){ if(document.visibilityState==='hidden') mbSave(true); else if(MB.ready&&MB.day&&MB.day!==mbToday()){ mbNewDay(); renderApp(); } MB.day=mbToday(); });
+  MB.day=mbToday();
+  if(/access_token=/.test(MB.hash)||mbHasSession()) mbClient(function(){});
+
+  renderTabs(); calc(); renderQuiz(); renderOrder(); renderAccount(); renderRows(); renderDriver(); renderApp(); show(); renderOQ(); mbGate();
 })();
 </script>
 <script>
 /* Languages: English source text is translated in place; [hy, ru, es] */
 (function(){
 var D={
+"I agree that Apricota may use the information on my page (questionnaire, weight, measurements, meals and daily notes) to consult me and to plan my meals. Only the Apricota team sees it. It is never sold or shared, and I can ask to delete it at any time.":["Համաձայն եմ, որ Apricota-ն օգտագործի իմ էջի տեղեկությունները (հարցաշար, քաշ, չափսեր, սնունդ և օրվա նշումներ)՝ ինձ խորհրդատվություն տալու և իմ սննդակարգը կազմելու համար։ Դրանք տեսնում է միայն Apricota-ի թիմը, երբեք չեն վաճառվում կամ փոխանցվում, և ցանկացած պահի կարող եմ խնդրել ջնջել։", "Я согласен(на), что Apricota может использовать информацию с моей страницы (анкета, вес, замеры, питание и заметки) для консультаций и составления моего питания. Её видит только команда Apricota, она не продаётся и не передаётся, и я могу в любой момент попросить её удалить.", "Acepto que Apricota use la información de mi página (cuestionario, peso, medidas, comidas y notas) para asesorarme y planificar mis comidas. Solo la ve el equipo de Apricota, nunca se vende ni se comparte, y puedo pedir que se borre en cualquier momento."],
+"One more step":["Եվս մեկ քայլ", "Ещё один шаг", "Un paso más"],
+"Please confirm so we can use your page to plan your meals.":["Խնդրում ենք հաստատել, որ կարողանանք ձեր էջով կազմել ձեր սննդակարգը։", "Подтвердите, чтобы мы могли использовать вашу страницу для составления питания.", "Confirma para que podamos usar tu página para planificar tus comidas."],
+"Create account":["Ստեղծել հաշիվ", "Создать аккаунт", "Crear cuenta"],
+"Forgot your password?":["Մոռացե՞լ եք գաղտնաբառը", "Забыли пароль?", "¿Olvidaste tu contraseña?"],
+"We will email you a link to set a new password.":["Մենք ձեզ նամակով կուղարկենք հղում՝ նոր գաղտնաբառ դնելու համար։", "Мы отправим вам ссылку для нового пароля.", "Te enviaremos un enlace para crear una nueva contraseña."],
+"Send the link":["Ուղարկել հղումը", "Отправить ссылку", "Enviar el enlace"],
+"Back to log in":["Վերադառնալ մուտքին", "Назад ко входу", "Volver a iniciar sesión"],
+"Your page: progress, meals, water and your questionnaire.":["Ձեր էջը՝ առաջընթաց, սնունդ, ջուր և ձեր հարցաշարը։", "Ваша страница: прогресс, питание, вода и анкета.", "Tu página: progreso, comidas, agua y tu cuestionario."],
+"New here?":["Նո՞ր եք այստեղ", "Впервые здесь?", "¿Eres nuevo?"],
+"Please confirm your email first: open the email we sent and tap the link.":["Նախ հաստատեք ձեր email-ը․ բացեք մեր ուղարկած նամակը և սեղմեք հղումը։", "Сначала подтвердите email: откройте наше письмо и нажмите на ссылку.", "Primero confirma tu email: abre el correo que te enviamos y toca el enlace."],
+"Please tick the box to agree":["Խնդրում ենք նշել համաձայնության վանդակը", "Отметьте галочку согласия", "Marca la casilla para aceptar"],
+"Almost done! We sent you an email. Tap the link in it to confirm, then log in.":["Գրեթե պատրաստ է։ Ձեզ նամակ ենք ուղարկել․ սեղմեք հղումը՝ հաստատելու համար, հետո մուտք գործեք։", "Почти готово! Мы отправили письмо. Нажмите ссылку для подтверждения и войдите.", "¡Casi listo! Te enviamos un correo. Toca el enlace para confirmar y luego inicia sesión."],
+"If this email has an account, we sent a link to set a new password (check Spam too).":["Եթե այս email-ով հաշիվ կա, ուղարկել ենք նոր գաղտնաբառի հղում (ստուգեք նաև Spam-ը)։", "Если есть аккаунт с этим email, мы отправили ссылку (проверьте и Спам).", "Si este email tiene cuenta, enviamos un enlace (revisa también Spam)."],
+"This email already has an account. Log in instead.":["Այս email-ով արդեն հաշիվ կա։ Մուտք գործեք։", "С этим email уже есть аккаунт. Войдите.", "Este email ya tiene cuenta. Inicia sesión."],
+"No connection. Please try again.":["Կապ չկա։ Փորձեք կրկին։", "Нет соединения. Попробуйте снова.", "Sin conexión. Inténtalo de nuevo."],
+"We sent you an email. Tap the link in it to confirm your account.":["Ձեզ նամակ ենք ուղարկել։ Սեղմեք հղումը՝ հաշիվը հաստատելու համար։", "Мы отправили письмо. Нажмите ссылку, чтобы подтвердить аккаунт.", "Te enviamos un correo. Toca el enlace para confirmar tu cuenta."],
+"Loading…":["Բեռնվում է…", "Загрузка…", "Cargando…"],
 'Preview · all pages':['Նախադիտում · բոլոր էջերը','Просмотр · все страницы','Vista previa · todas las páginas'],
 'Website':['Կայք','Сайт','Sitio web'],
 'Questionnaire':['Հարցաշար','Анкета','Cuestionario'],
