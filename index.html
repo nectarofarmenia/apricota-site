@@ -57,7 +57,7 @@ function today(){return iso(new Date());}
 function addD(s,n){var d=new Date(s+"T12:00:00");d.setDate(d.getDate()+n);return iso(d);}
 function rng(a,b){var o=[],d=a;if(!a||!b||b<a)return o;while(d<=b&&o.length<120){o.push(d);d=addD(d,1);}return o;}
 function cuDays(c){var st={},set={};(c.stop||[]).forEach(function(x){st[x]=1;});(c.days||[]).forEach(function(x){set[x]=1;});
-  if(c.end){var s0=c.start||(c.days||[]).slice().sort()[0]||today();rng(s0<=c.end?s0:c.end,c.end).forEach(function(x){set[x]=1;});}
+  if(c.end&&!(c.days||[]).length){var s0=c.start||(c.days||[]).slice().sort()[0]||today();rng(s0<=c.end?s0:c.end,c.end).forEach(function(x){set[x]=1;});}
   return Object.keys(set).filter(function(x){return !st[x];}).sort();}
 function stopOn(c,d){var st=(c.stop||[]).slice(),days=(c.days||[]).slice().sort();if(st.indexOf(d)>=0||days.indexOf(d)<0)return;
   days.splice(days.indexOf(d),1);var x=addD(days.length&&days[days.length-1]>d?days[days.length-1]:d,1);while(st.indexOf(x)>=0||x===d)x=addD(x,1);
