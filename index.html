@@ -1264,6 +1264,15 @@ footer#siteFooter{border-radius:30px 30px 0 0;margin-top:20px}
 @keyframes apdraw{to{clip-path:inset(0 0 0 0)}}
 .top .alogo:hover .ad{animation-duration:1.2s}
 @media (prefers-reduced-motion:reduce){.top .alogo .ad,.top .alogo .awv{animation:none;clip-path:none}}
+
+/* header: a floating, tinted glass bar (mint → cream → apricot) with an accent line */
+.top{margin:6px 8px 0;border-radius:24px!important;background:linear-gradient(115deg,rgba(222,245,239,.94) 0%,rgba(255,250,246,.94) 48%,rgba(255,226,208,.94) 100%)!important;border:1px solid rgba(255,255,255,.95);box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 14px 30px -14px rgba(29,77,72,.35),0 2px 6px -2px rgba(29,77,72,.12)!important;overflow:visible}
+.top::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:radial-gradient(60% 120% at 100% 0,rgba(255,170,130,.28),transparent 60%),radial-gradient(50% 120% at 0 100%,rgba(63,182,168,.22),transparent 60%)}
+.top::after{content:"";position:absolute;left:18px;right:18px;bottom:-1px;height:3px;border-radius:3px;background:linear-gradient(90deg,#2E9E8E,#8FE3D3 40%,#FFC4A8 70%,#FF9B6A);opacity:.85}
+.top>*{position:relative}
+.top .langs{background:#fff!important;box-shadow:0 0 0 1px rgba(29,77,72,.08),0 6px 14px -8px rgba(29,77,72,.35)}
+.top .navb{background:#fff!important;box-shadow:0 0 0 1px rgba(29,77,72,.08),0 6px 14px -8px rgba(29,77,72,.35)}
+@media (min-width:1000px){.top{margin:10px auto 0;max-width:calc(100% - 40px)}}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
