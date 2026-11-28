@@ -93,7 +93,7 @@ function gate(msg){var g=document.getElementById("apriGate");if(!g){g=document.c
     sb.auth.signInWithPassword({email:document.getElementById("apE").value.trim(),password:document.getElementById("apP").value}).then(function(r){if(r.error){var m=r.error.message||"";gate(/invalid login/i.test(m)?"Սխալ email կամ գաղտնաբառ":/confirm/i.test(m)?"Email-ը դեռ հաստատված չէ. բացեք նամակը և սեղմեք հաստատման հղումը":m);return;}load(true);});};}
 function load(first){sb.rpc("apri_role").then(function(r){role=r.data||null;
   if(r.error){gate(/apri_role/.test(r.error.message)?"Supabase-ում աշխատեցրեք apricota-admin.sql-ը":r.error.message);return;}
-  if(!role){ready=false;sb.auth.signOut();gate("Այս հաշիվը Apricota-ի ադմին կամ մենեջեր չէ");return;}
+  if(role!=="admin"){ready=false;sb.auth.signOut();gate(role?"Մենեջերները աշխատում են Chef Apri Work-ում (☰ → Apricota → Պատվերներ, Դադարներ, Վճարումներ)։ Այս էջը միայն ադմինի համար է։":"Այս հաշիվը Apricota-ի ադմին չէ");return;}
   Promise.all([sb.from("apri_kv").select("key,value"),sb.from("apri_hf").select("id,data"),cuLoad(),role==="admin"?null:sb.rpc("apri_hf_mgr")]).then(function(x){var kv=x[0],hf=x[1],mc=x[3];if(kv.error||hf.error){gate((kv.error||hf.error).message);return;}
     var H={cust:[],months:[],inv:[],dates:{}};if(mc&&!mc.error&&Array.isArray(mc.data))H.cust=mc.data;(hf.data||[]).forEach(function(r){if(r.id==="cust"&&role==="admin")H.cust=r.data;else if(r.id==="dates")H.dates=r.data;else if(r.id==="fin"){H.months=r.data.months||[];H.inv=r.data.inv||[];}});
     var hfJs=JSON.stringify(H),changed=false;
@@ -102,10 +102,8 @@ function load(first){sb.rpc("apri_role").then(function(r){role=r.data||null;
     var oldHf=null;try{oldHf=LS.getItem("apri-hf-cache");}catch(e){}
     try{setI.call(LS,"apri-hf-cache",hfJs);SS.setItem("apri-role",role);}catch(e){}
     if(!ready||first||oldHf!==hfJs){try{SS.setItem("apri-ready","1");SS.setItem("myapri-admin-in","1");if(!LS.getItem("myapri-admin"))setI.call(LS,"myapri-admin",JSON.stringify({name:"Admin",email:"",pw:"supabase"}));}catch(e){}try{history.replaceState(null,"","/admin#admin");}catch(e){}location.reload();return;}
-    var pv=false;try{pv=SS.getItem("apri-pv")==="1";}catch(e){}document.body.classList.toggle("apri-mgr",role!=="admin"||pv);
-    if(role==="admin"&&!document.getElementById("apriPv")){var b=document.createElement("button");b.id="apriPv";b.type="button";
-      var lbl=function(){b.textContent=document.body.classList.contains("apri-mgr")?"↩ Ադմինի տեսք":"👁 Մենեջերի տեսք";};lbl();
-      b.onclick=function(){var on=!document.body.classList.contains("apri-mgr");document.body.classList.toggle("apri-mgr",on);try{SS.setItem("apri-pv",on?"1":"0");}catch(e){}lbl();var d=document.querySelector("[data-ax-tab=dash]");if(on&&d)d.click();};document.body.appendChild(b);}
+    document.body.classList.remove("apri-mgr");
+    
     rerender();live();});});}
 var liveOn=false;
 function live(){if(liveOn)return;liveOn=true;sb.channel("apri-kv").on("postgres_changes",{event:"*",schema:"public",table:"apri_kv"},function(p){var r=p.new&&p.new.key?p.new:null;
@@ -130,6 +128,9 @@ var API="/api/order.php";
 function post(kind,data){try{var b=JSON.stringify({kind:kind,data:data,hp:""});
  if(navigator.sendBeacon&&navigator.sendBeacon(API,new Blob([b],{type:"application/json"})))return;
  fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},body:b,keepalive:true});}catch(e){}}
+/* new orders also go to the shared database, where Apricota managers see them in Chef Apri Work */
+var SBU="https://oddqwjvqqvoeqdrnasqc.supabase.co",SBK="sb_publishable_ZVvJKCJXM5ylUlICX-57vw__ZZqQul0";
+function toDb(o){if(o.demo)return;try{fetch(SBU+"/rest/v1/rpc/apri_site_order",{method:"POST",keepalive:true,headers:{"apikey":SBK,"Authorization":"Bearer "+SBK,"Content-Type":"application/json"},body:JSON.stringify({p_order:o})});}catch(e){}}
 var LS;try{LS=window.localStorage;}catch(e){return;}
 var orig=Storage.prototype.setItem,sent={};
 try{sent=JSON.parse(LS.getItem("apr-sent")||"{}")||{};}catch(e){}
@@ -137,7 +138,7 @@ function mark(id){sent[id]=1;try{orig.call(LS,"apr-sent",JSON.stringify(sent));}
 function quiz(){try{return JSON.parse(LS.getItem("myapri-quiz")||"{}")||{};}catch(e){return {};}}
 Storage.prototype.setItem=function(k,v){var r=orig.apply(this,arguments);
  try{if(this===LS){
-  if(k==="myapri-orders"){(JSON.parse(v)||[]).forEach(function(o){if(o&&o.id&&!sent["o"+o.id]){mark("o"+o.id);post("order",{order:o,quiz:quiz()});}});}
+  if(k==="myapri-orders"){(JSON.parse(v)||[]).forEach(function(o){if(o&&o.id&&!sent["o"+o.id]){mark("o"+o.id);post("order",{order:o,quiz:quiz()});toDb(o);}});}
   else if(k==="myapri-quiz"){var q=JSON.parse(v)||{};if(q.sent&&!sent["q"+q.sent]){mark("q"+q.sent);post("quiz",q);}}
   else if(k==="myapri-acct"){var a=JSON.parse(v);if(a&&a.email&&!sent["a"+a.email]){mark("a"+a.email);post("signup",{name:a.name,email:a.email,phone:a.phone});}}
  }}catch(e){}return r;};
