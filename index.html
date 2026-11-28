@@ -1427,6 +1427,19 @@ footer#siteFooter{border-radius:30px 30px 0 0;margin-top:20px}
 .ig-inv{display:flex;align-items:center;gap:12px;text-align:left;width:100%;box-sizing:border-box;padding:12px 14px;border-radius:16px;background:linear-gradient(135deg,#FFF3EC,#FCE7F0);color:var(--ink);text-decoration:none;border:1px solid rgba(214,41,118,.18)}
 .ig-inv .ig-ic{flex:0 0 42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 30% 107%,#fdf497 0%,#fd5949 45%,#d6249f 60%,#285AEB 90%);color:#fff}
 .ig-inv b{display:block;font:800 15px var(--body)}.ig-inv small{display:block;font-size:13px;color:var(--muted);line-height:1.35}
+
+.ck{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(92px + env(safe-area-inset-bottom,0px));z-index:40;width:min(460px,calc(100% - 24px));background:rgba(255,255,255,.97);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-radius:22px;box-shadow:0 18px 46px rgba(19,59,48,.22);padding:16px 16px 14px;display:flex;flex-direction:column;gap:10px;color:var(--ink);animation:ckIn .35s ease}
+@keyframes ckIn{from{opacity:0;transform:translate(-50%,16px)}}
+.ck h2{margin:0;font:900 17px var(--display);display:flex;align-items:center;gap:8px}
+.ck p{margin:0;font-size:13.5px;line-height:1.45;color:var(--muted)}
+.ck-b{display:flex;gap:8px}.ck-b .btn{flex:1;min-height:46px;padding:0 12px;font-size:15px}
+.ck-lnk{background:none;border:0;padding:2px;color:var(--green-btn,#1F8075);font:800 13.5px var(--body);cursor:pointer;text-decoration:underline;align-self:center}
+.ck-opt{display:flex;flex-direction:column;gap:8px}
+.ck-row{display:flex;gap:10px;align-items:flex-start;background:var(--mint,#E3F4EF);border-radius:14px;padding:10px 12px;font-size:13px;line-height:1.4;cursor:pointer}
+.ck-row b{display:block;font-size:14px;color:var(--ink)}.ck-row input{width:20px;height:20px;margin-top:2px;accent-color:var(--green-btn,#1F8075);flex:0 0 auto}
+.ck-row.off{opacity:.75;cursor:default}
+@media (min-width:900px){.ck{left:auto;right:24px;transform:none;bottom:96px}@keyframes ckIn{from{opacity:0;transform:translateY(16px)}}}
+.ck-foot{background:none;border:0;padding:0;color:inherit;font:inherit;cursor:pointer;text-decoration:underline;opacity:.85}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -1936,7 +1949,7 @@ footer#siteFooter{border-radius:30px 30px 0 0;margin-top:20px}
     <div class="col"><b>Contact</b><span>(515) 522-5555</span><span>[EMAIL]</span><span>Instagram · [handle]</span></div>
     
   </div>
-  <div class="wrap base"><span>© 2026 Apricota. All rights reserved.</span><span>Preview · prices and photos are placeholders</span></div>
+  <div class="wrap base"><span>© 2026 Apricota. All rights reserved.</span><button type="button" class="ck-foot" data-ckopen="1"><span>Cookie settings</span></button><span>Preview · prices and photos are placeholders</span></div>
 </footer>
 
 <button class="totop" id="toTop" aria-label="Back to top" hidden><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button>
@@ -5126,6 +5139,21 @@ P.push([/^(Sun|Mon|Tue|Wed|Thu|Fri|Sat), (Oct|Nov) (\d+)$/,function(m){return WK
 'Follow us on Instagram':['Հետևիր մեզ Instagram-ում','Подпишитесь на нас в Instagram','Síguenos en Instagram'],
 'Our programs, menu and all the details are on our page.':['Մեր ծրագրերը, մենյուն և բոլոր մանրամասները մեր էջում են։','Наши программы, меню и все подробности — на нашей странице.','Nuestros programas, el menú y todos los detalles están en nuestra página.'],
 }; for(var k in X){ if(!D[k]) D[k]=X[k]; }})();
+;(function(){var X={
+'We use cookies':['Մենք օգտագործում ենք cookie-ներ','Мы используем файлы cookie','Usamos cookies'],
+'We use necessary cookies to keep you signed in and remember your settings. With your OK, we also use analytics and advertising cookies to improve the site and show you relevant offers.':['Անհրաժեշտ cookie-ները պահում են քո մուտքը և կարգավորումները։ Քո համաձայնությամբ օգտագործում ենք նաև վերլուծական և գովազդային cookie-ներ՝ կայքը լավացնելու և քեզ հետաքրքիր առաջարկներ ցույց տալու համար։','Необходимые cookie сохраняют вход и ваши настройки. С вашего согласия мы также используем аналитические и рекламные cookie, чтобы улучшать сайт и показывать подходящие предложения.','Usamos cookies necesarias para mantener tu sesión y tus ajustes. Con tu permiso, también usamos cookies de análisis y publicidad para mejorar el sitio y mostrarte ofertas relevantes.'],
+'Only necessary':['Միայն անհրաժեշտները','Только необходимые','Solo necesarias'],
+'Accept all':['Ընդունել բոլորը','Принять все','Aceptar todas'],
+'Settings':['Կարգավորումներ','Настройки','Ajustes'],
+'Necessary':['Անհրաժեշտ','Необходимые','Necesarias'],
+'Sign-in, language, your cart. Always on.':['Մուտք, լեզու, զամբյուղ։ Միշտ միացված է։','Вход, язык, корзина. Всегда включены.','Inicio de sesión, idioma, carrito. Siempre activas.'],
+'Analytics':['Վերլուծական','Аналитика','Análisis'],
+'Helps us see which pages are useful.':['Օգնում է հասկանալ, թե որ էջերն են օգտակար։','Помогает понять, какие страницы полезны.','Nos ayuda a ver qué páginas son útiles.'],
+'Advertising':['Գովազդային','Реклама','Publicidad'],
+'Instagram and Facebook ads that match your interests.':['Instagram-ի և Facebook-ի գովազդ՝ քո հետաքրքրություններով։','Реклама в Instagram и Facebook по вашим интересам.','Anuncios en Instagram y Facebook según tus intereses.'],
+'Save my choice':['Պահպանել ընտրությունս','Сохранить выбор','Guardar mi elección'],
+'Cookie settings':['Cookie-ների կարգավորումներ','Настройки cookie','Ajustes de cookies'],
+}; for(var k in X){ if(!D[k]) D[k]=X[k]; }})();
 function look(t){
   if(D[t]) return D[t][li];
   for(var i=0;i<P.length;i++){ var m=t.match(P[i][0]); if(m){ var r=P[i][1]; return typeof r==='function'? r(m) : t.replace(P[i][0], r[li]); } }
@@ -5303,6 +5331,36 @@ setLang(saved);
   document.addEventListener('click',function(e){ if(!e.target.closest('#hb')) set(false); });
   document.addEventListener('keydown',function(e){ if(e.key==='Escape') set(false); });
   var lb=document.getElementById('lpBtn'); if(lb) lb.addEventListener('click',function(){ set(false); });
+})();
+</script>
+
+<script>
+/* cookie consent: necessary always on; analytics & marketing only after the visitor agrees.
+   Other scripts (Meta Pixel, Google Analytics) must check window.aprCookies.ok('analytics'|'marketing')
+   or listen for the 'apr-cookies' event before loading. */
+(function(){
+  var KEY='apr-cookies', V=1;
+  function get(){ try{ var c=JSON.parse(localStorage.getItem(KEY)||'null'); return c&&c.v===V?c:null; }catch(x){ return null; } }
+  function set(a,m){ var c={v:V,analytics:!!a,marketing:!!m,ts:new Date().toISOString()}; try{ localStorage.setItem(KEY,JSON.stringify(c)); }catch(x){} close(); try{ window.dispatchEvent(new CustomEvent('apr-cookies',{detail:c})); }catch(x){} }
+  window.aprCookies={get:get,ok:function(k){ var c=get(); return !!(c&&c[k]); },open:function(){ show(true); }};
+  function hiddenRoute(){ var r=(location.hash||'#home').slice(1); return r==='admin'||r==='driver'; }
+  function close(){ var b=document.getElementById('ckBar'); if(b) b.remove(); }
+  function show(opts){ close(); if(hiddenRoute()&&!opts) return; var c=get()||{};
+    var b=document.createElement('div'); b.id='ckBar'; b.className='ck'; b.setAttribute('role','dialog'); b.setAttribute('aria-label','Cookies');
+    b.innerHTML='<h2>🍪 <span>We use cookies</span></h2><p><span>We use necessary cookies to keep you signed in and remember your settings. With your OK, we also use analytics and advertising cookies to improve the site and show you relevant offers.</span></p>'+
+      (opts?'<div class="ck-opt"><label class="ck-row off"><input type="checkbox" checked disabled><span><b><span>Necessary</span></b><span>Sign-in, language, your cart. Always on.</span></span></label>'+
+        '<label class="ck-row"><input type="checkbox" id="ckA"'+(c.analytics?' checked':'')+'><span><b><span>Analytics</span></b><span>Helps us see which pages are useful.</span></span></label>'+
+        '<label class="ck-row"><input type="checkbox" id="ckM"'+(c.marketing?' checked':'')+'><span><b><span>Advertising</span></b><span>Instagram and Facebook ads that match your interests.</span></span></label></div>'+
+        '<div class="ck-b"><button type="button" class="btn btn-line" data-ck="save"><span>Save my choice</span></button><button type="button" class="btn btn-green" data-ck="all"><span>Accept all</span></button></div>'
+      :'<div class="ck-b"><button type="button" class="btn btn-line" data-ck="min"><span>Only necessary</span></button><button type="button" class="btn btn-green" data-ck="all"><span>Accept all</span></button></div><button type="button" class="ck-lnk" data-ck="opts"><span>Settings</span></button>');
+    document.body.appendChild(b); }
+  document.addEventListener('click',function(e){ var t=e.target.closest&&e.target.closest('[data-ck],[data-ckopen]'); if(!t) return;
+    if(t.dataset.ckopen){ e.preventDefault(); show(true); return; }
+    var a=t.dataset.ck; if(a==='all') set(true,true); else if(a==='min') set(false,false); else if(a==='opts') show(true);
+    else if(a==='save') set(document.getElementById('ckA').checked,document.getElementById('ckM').checked); });
+  window.addEventListener('hashchange',function(){ if(!get()){ if(hiddenRoute()) close(); else if(!document.getElementById('ckBar')) show(false); } });
+  function init(){ if(!get()) setTimeout(function(){ if(!get()) show(false); },1200); }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
 })();
 </script>
 </body></html>
