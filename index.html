@@ -144,6 +144,7 @@ function post(kind,data){try{var b=JSON.stringify({kind:kind,data:data,hp:""});
  fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},body:b,keepalive:true});}catch(e){}}
 /* new orders also go to the shared database, where Apricota managers see them in Chef Apri Work */
 var SBU="https://oddqwjvqqvoeqdrnasqc.supabase.co",SBK="sb_publishable_ZVvJKCJXM5ylUlICX-57vw__ZZqQul0";
+function toDbQ(q){try{var c={};Object.keys(q).forEach(function(k){if(k!=="sign"&&k!=="cert")c[k]=q[k];});fetch(SBU+"/rest/v1/rpc/apri_site_quiz",{method:"POST",keepalive:true,headers:{"apikey":SBK,"Authorization":"Bearer "+SBK,"Content-Type":"application/json"},body:JSON.stringify({p_q:c})});}catch(e){}}
 function toDb(o){if(o.demo)return;try{fetch(SBU+"/rest/v1/rpc/apri_site_order",{method:"POST",keepalive:true,headers:{"apikey":SBK,"Authorization":"Bearer "+SBK,"Content-Type":"application/json"},body:JSON.stringify({p_order:o})});}catch(e){}}
 var LS;try{LS=window.localStorage;}catch(e){return;}
 var orig=Storage.prototype.setItem,sent={};
@@ -153,7 +154,7 @@ function quiz(){try{return JSON.parse(LS.getItem("myapri-quiz")||"{}")||{};}catc
 Storage.prototype.setItem=function(k,v){var r=orig.apply(this,arguments);
  try{if(this===LS){
   if(k==="myapri-orders"){(JSON.parse(v)||[]).forEach(function(o){if(o&&o.id&&!sent["o"+o.id]){mark("o"+o.id);post("order",{order:o,quiz:quiz()});toDb(o);}});}
-  else if(k==="myapri-quiz"){var q=JSON.parse(v)||{};if(q.sent&&!sent["q"+q.sent]){mark("q"+q.sent);post("quiz",q);}}
+  else if(k==="myapri-quiz"){var q=JSON.parse(v)||{};if(q.sent&&!sent["q"+q.sent]){mark("q"+q.sent);post("quiz",q);toDbQ(q);}}
   else if(k==="myapri-acct"){var a=JSON.parse(v);if(a&&a.email&&!sent["a"+a.email]){mark("a"+a.email);post("signup",{name:a.name,email:a.email,phone:a.phone});}}
  }}catch(e){}return r;};
 })();</script>
