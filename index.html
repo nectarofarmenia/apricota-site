@@ -5157,25 +5157,64 @@ setLang(saved);
 
 <script>(function(){function z(){var b=document.querySelector('[data-pm="zelle"]');if(b)b.click();var p=document.getElementById("pmZelle");if(p)p.hidden=false;}if(document.readyState!=="loading")z();else document.addEventListener("DOMContentLoaded",z);})();</script>
 <script>
-/* pull down to refresh: the installed app (home-screen icon) has no browser pull-to-refresh, so we add our own */
+/* pull down to refresh: the installed app (home-screen icon) has no browser pull-to-refresh, so we add our own.
+   The indicator is a tiny "day clock": a glass disc whose ring fills green→peach as you pull, four meal dots light up
+   along the way, and the apricot in the middle grows; when the ring is full the apricot pops, and while the page reloads
+   a little hand orbits around it. It drops in below the header so it never covers the buttons. */
 (function(){
   var sa=(window.navigator.standalone===true)||(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches); if(!sa) return;
-  var el=document.createElement('div'); el.id='ptr'; el.innerHTML='<svg aria-hidden="true"><use href="#apri"/></svg>'; document.body.appendChild(el);
-  var y0=null, d=0, on=false, MAX=110, TH=72;
-  var skip=function(t){ return t.closest&&t.closest('.sheet,.sheet-bg:not([hidden]),.ax-ov,#mbGate,.dc-grab,input,textarea,select,[data-noptr],.mb-gate'); };
-  document.addEventListener('touchstart',function(e){ if(e.touches.length!==1||window.scrollY>0||skip(e.target)){ y0=null; return; } y0=e.touches[0].clientY; d=0; on=false; },{passive:true});
-  document.addEventListener('touchmove',function(e){ if(y0===null) return; var dy=e.touches[0].clientY-y0; if(dy<=0||window.scrollY>0){ if(on){ el.style.transform=''; el.classList.remove('ready'); } on=false; return; }
-    on=true; d=Math.min(MAX,dy*0.5); el.style.transition='none'; el.style.transform='translate(-50%,'+(d-56)+'px) rotate('+(d*3)+'deg)'; el.style.opacity=Math.min(1,d/TH); el.classList.toggle('ready',d>=TH); },{passive:true});
+  var C=2*Math.PI*25, dots='';
+  [0,90,180,270].forEach(function(a,i){ var r=(a-90)*Math.PI/180; dots+='<circle class="pt-d" data-i="'+i+'" cx="'+(32+25*Math.cos(r)).toFixed(2)+'" cy="'+(32+25*Math.sin(r)).toFixed(2)+'" r="2.6"/>'; });
+  var el=document.createElement('div'); el.id='ptr'; el.setAttribute('aria-hidden','true');
+  el.innerHTML='<svg viewBox="0 0 64 64"><defs>'+
+    '<linearGradient id="ptG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2E9E8E"/><stop offset="1" stop-color="#FFA47A"/></linearGradient>'+
+    '<radialGradient id="ptA" cx=".36" cy=".32" r=".75"><stop offset="0" stop-color="#FFE3CF"/><stop offset=".45" stop-color="#FFAF85"/><stop offset="1" stop-color="#E9744C"/></radialGradient>'+
+    '<radialGradient id="ptB" cx=".5" cy=".45" r=".6"><stop offset="0" stop-color="#fff"/><stop offset=".7" stop-color="#FFF6F0"/><stop offset="1" stop-color="#E9F6F2"/></radialGradient></defs>'+
+    '<circle cx="32" cy="32" r="31" fill="url(#ptB)"/>'+
+    '<circle cx="32" cy="32" r="25" fill="none" stroke="rgba(46,158,142,.14)" stroke-width="3"/>'+
+    '<circle class="pt-ring" cx="32" cy="32" r="25" fill="none" stroke="url(#ptG)" stroke-width="3.2" stroke-linecap="round" stroke-dasharray="'+C.toFixed(1)+'" stroke-dashoffset="'+C.toFixed(1)+'" transform="rotate(-90 32 32)"/>'+
+    dots+
+    '<g class="pt-hand"><circle cx="32" cy="7" r="3.4" fill="#1F8075"/></g>'+
+    '<g class="pt-ap"><path class="pt-leaf" d="M33 20.5c1.5-4.6 5.6-6.6 9.4-5.6-1.2 4-5 6.4-9.4 5.6z" fill="#3DAE97"/>'+
+    '<path d="M32.6 21.2c-.2-2 .3-3.6 1.3-4.8" stroke="#7A4A2A" stroke-width="1.4" fill="none" stroke-linecap="round"/>'+
+    '<circle cx="32" cy="33" r="11" fill="url(#ptA)"/><path d="M32 22.6c-2.6 3.4-2.9 7.6-1 11.2" stroke="rgba(150,60,25,.28)" stroke-width="1.3" fill="none" stroke-linecap="round"/>'+
+    '<ellipse cx="28.2" cy="28.6" rx="2.6" ry="1.7" fill="#fff" opacity=".55" transform="rotate(-30 28.2 28.6)"/></g></svg>';
+  document.body.appendChild(el);
+  var ring=el.querySelector('.pt-ring'), ap=el.querySelector('.pt-ap'), leaf=el.querySelector('.pt-leaf'), ds=el.querySelectorAll('.pt-d');
+  var y0=null, d=0, on=false, MAX=120, TH=80, top=70;
+  function paint(p){ ring.style.strokeDashoffset=(C*(1-p)).toFixed(1); ap.style.transform='scale('+(0.55+0.45*p).toFixed(3)+')';
+    leaf.style.transform='rotate('+(-25+25*p).toFixed(1)+'deg)'; for(var i=0;i<ds.length;i++) ds[i].classList.toggle('lit', p>=i/4+0.01); }
+  var skip=function(t){ return t.closest&&t.closest('.sheet,.sheet-bg:not([hidden]),.ax-ov,#mbGate,.dc-grab,input,textarea,select,[data-noptr],.mb-gate,.hb-menu'); };
+  document.addEventListener('touchstart',function(e){ if(e.touches.length!==1||window.scrollY>0||skip(e.target)){ y0=null; return; } y0=e.touches[0].clientY; d=0; on=false;
+    var h=document.getElementById('siteHeader'); top=h?Math.round(h.getBoundingClientRect().bottom)+10:70; },{passive:true});
+  document.addEventListener('touchmove',function(e){ if(y0===null) return; var dy=e.touches[0].clientY-y0; if(dy<=0||window.scrollY>0){ if(on){ el.style.transform=''; el.style.opacity=0; el.classList.remove('ready'); } on=false; return; }
+    on=true; d=Math.min(MAX,dy*0.5); var p=Math.min(1,d/TH); el.style.transition='none';
+    el.style.transform='translate(-50%,'+(top*p - 70*(1-p)).toFixed(1)+'px)'; el.style.opacity=Math.min(1,p*1.6); paint(p); el.classList.toggle('ready',p>=1); },{passive:true});
   document.addEventListener('touchend',function(){ if(y0===null||!on){ y0=null; return; } y0=null; el.style.transition='';
-    if(d>=TH){ el.classList.add('spin'); el.style.transform='translate(-50%,20px)'; setTimeout(function(){ location.reload(); },350); }
+    if(d>=TH){ el.classList.add('spin'); el.style.transform='translate(-50%,'+top+'px)'; setTimeout(function(){ location.reload(); },650); }
     else { el.style.transform=''; el.style.opacity=0; el.classList.remove('ready'); } });
+  window.__ptrPaint=function(p,cls){ paint(p); el.style.opacity=1; el.style.transform='translate(-50%,'+top+'px)'; el.className=cls||''; }; /* used by our screenshot checks */
 })();
 </script>
 <style>
-#ptr{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 8px);width:44px;height:44px;border-radius:50%;background:#fff;box-shadow:0 8px 20px -8px rgba(29,77,72,.5);display:flex;align-items:center;justify-content:center;z-index:9999;transform:translate(-50%,-60px);opacity:0;transition:transform .3s,opacity .3s;pointer-events:none}
-#ptr svg{width:26px;height:26px;color:#F08A62}
-#ptr.ready{box-shadow:0 0 0 3px #2E9E8E,0 8px 20px -8px rgba(29,77,72,.5)}
-#ptr.spin svg{animation:ptrspin .7s linear infinite}@keyframes ptrspin{to{transform:rotate(360deg)}}
+#ptr{position:fixed;left:50%;top:0;width:58px;height:58px;border-radius:50%;z-index:9999;transform:translate(-50%,-80px);opacity:0;transition:transform .35s cubic-bezier(.3,1.4,.5,1),opacity .3s;pointer-events:none;
+ filter:drop-shadow(0 10px 18px rgba(29,77,72,.28));-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+#ptr svg{width:100%;height:100%;display:block;overflow:visible}
+#ptr .pt-ap{transform-origin:32px 33px;transform:scale(.55);transition:transform .25s}
+#ptr .pt-leaf{transform-origin:33px 20.5px}
+#ptr .pt-d{fill:rgba(46,158,142,.22);transition:fill .2s,r .2s}
+#ptr .pt-d.lit{fill:#FFA47A}
+#ptr .pt-hand{opacity:0;transform-origin:32px 32px}
+#ptr.ready .pt-ap{animation:ptPop .45s cubic-bezier(.3,1.6,.5,1)}
+#ptr.ready{filter:drop-shadow(0 0 10px rgba(46,158,142,.45)) drop-shadow(0 10px 18px rgba(29,77,72,.28))}
+#ptr.spin .pt-hand{opacity:1;animation:ptOrbit .9s linear infinite}
+#ptr.spin .pt-ring{opacity:.35}
+#ptr.spin .pt-ap{animation:ptBob .9s ease-in-out infinite}
+#ptr.spin .pt-leaf{animation:ptLeaf .9s ease-in-out infinite}
+@keyframes ptPop{0%{transform:scale(1)}45%{transform:scale(1.18)}100%{transform:scale(1)}}
+@keyframes ptOrbit{to{transform:rotate(360deg)}}
+@keyframes ptBob{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-2px) scale(1.05)}}
+@keyframes ptLeaf{0%,100%{transform:rotate(-12deg)}50%{transform:rotate(14deg)}}
 </style>
 <script>
 /* phone: the "Today's menu" times card sits under the headline, buttons and stats (the clock is on top); on wider screens it goes back beside the clock */
