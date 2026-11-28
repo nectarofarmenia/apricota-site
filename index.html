@@ -1411,6 +1411,9 @@ footer#siteFooter{border-radius:30px 30px 0 0;margin-top:20px}
 .hb-langs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:4px;margin:2px 2px 8px;border-radius:16px;background:rgba(29,77,72,.06)!important}
 .hb-langs button{min-height:38px;border:0;border-radius:12px;background:transparent;color:#1D4D48!important;font:800 13.5px var(--body);cursor:pointer}
 .hb-langs button.on{background:#fff;color:#1F8075!important;box-shadow:0 6px 14px -8px rgba(29,77,72,.5),0 0 0 1.5px #2E9E8E}
+
+.cu-alt{display:block;margin-top:5px;font:700 12.5px var(--body);color:#1F8075;letter-spacing:.01em}
+.cu-alt[hidden]{display:none}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -1545,11 +1548,11 @@ footer#siteFooter{border-radius:30px 30px 0 0;margin-top:20px}
         <h2 class="h2">How many calories do you need?</h2>
         <p class="lead" style="margin-bottom:24px">Free calculator, no sign-up needed.</p>
         <form class="card" id="calcForm">
-          <div style="grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button type="button" class="chip on" data-sex="f">Female</button><button type="button" class="chip" data-sex="m">Male</button><span class="cu-sw langs" role="group" aria-label="Units"><button type="button" data-cu="us" class="on">lb · in</button><button type="button" data-cu="met">kg · cm</button></span></div>
+          <div style="grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button type="button" class="chip on" data-sex="f">Female</button><button type="button" class="chip" data-sex="m">Male</button><span class="cu-sw" role="group" aria-label="Units"><button type="button" data-cu="us" class="on">lb · in</button><button type="button" data-cu="met">kg · cm</button><button type="button" data-cu="both">both</button></span></div>
           <label class="f">Age<input id="cAge" type="number" value="34" min="16" max="90"></label>
-          <label class="f"><span id="cHl">Height (inches)</span><input id="cH" type="number" value="66" min="50" max="90" step="any"></label>
-          <label class="f"><span id="cWl">Current weight (lbs)</span><input id="cW" type="number" value="180" min="80" max="450" step="any"></label>
-          <label class="f"><span id="cTl">Target weight (lbs)</span><input id="cT" type="number" value="160" min="80" max="450" step="any"></label>
+          <label class="f"><span id="cHl">Height (inches)</span><input id="cH" type="number" value="66" min="50" max="90" step="any"><small class="cu-alt num" id="cHAlt" hidden></small></label>
+          <label class="f"><span id="cWl">Current weight (lbs)</span><input id="cW" type="number" value="180" min="80" max="450" step="any"><small class="cu-alt num" id="cWAlt" hidden></small></label>
+          <label class="f"><span id="cTl">Target weight (lbs)</span><input id="cT" type="number" value="160" min="80" max="450" step="any"><small class="cu-alt num" id="cTAlt" hidden></small></label>
           <label class="f" style="grid-column:1/-1">Activity<select id="cA"><option value="1.2">Mostly sitting</option><option value="1.375" selected>Light, 1–3 workouts a week</option><option value="1.55">Active, 3–5 workouts a week</option><option value="1.725">Very active</option></select></label>
           <button type="submit" class="btn btn-green" style="grid-column:1/-1;min-height:54px">Calculate</button>
         </form>
@@ -2029,17 +2032,24 @@ footer#siteFooter{border-radius:30px 30px 0 0;margin-top:20px}
     var bmi=(lb/(inch*inch))*703;
     $('#cOut').innerHTML=goal.toLocaleString('en-US')+' <span style="font-size:22px">kcal / day</span>';
     $('#cBmi').textContent='BMI '+bmi.toFixed(1);
+    var alt=function(id,t){ var e=$('#'+id+'Alt'); if(!e) return; e.hidden=!CU_BOTH; if(CU_BOTH) e.textContent=t; };
+    var ft=Math.floor(inch/12), ri=Math.round(inch-ft*12); if(ri===12){ ft++; ri=0; }
+    alt('cH','≈ '+Math.round(cm)+' cm · '+ft+'′'+ri+'″'); alt('cW','≈ '+(lb*0.4536).toFixed(1)+' kg'); alt('cT','≈ '+(tgt*0.4536).toFixed(1)+' kg');
   }
   $('#calcForm').addEventListener('submit',function(e){e.preventDefault();calc();});
   /* the calorie calculator works in pounds/inches or kilograms/centimeters */
-  var CU_MET=false;
+  var CU_MET=false, CU_BOTH=false;
   var cuSet=function(met){ if(met===CU_MET) return; var H=$('#cH'), W=$('#cW'), T=$('#cT');
     if(met){ H.value=Math.round((+H.value||66)*2.54); W.value=Math.round((+W.value||180)*0.4536*10)/10; T.value=Math.round((+T.value||160)*0.4536*10)/10; H.min=120;H.max=230;W.min=35;W.max=205;T.min=35;T.max=205; }
     else { H.value=Math.round((+H.value||168)/2.54); W.value=Math.round((+W.value||82)/0.4536); T.value=Math.round((+T.value||73)/0.4536); H.min=50;H.max=90;W.min=80;W.max=450;T.min=80;T.max=450; }
     CU_MET=met; $('#cHl').textContent=met?'Height (cm)':'Height (inches)'; $('#cWl').textContent=met?'Current weight (kg)':'Current weight (lbs)'; $('#cTl').textContent=met?'Target weight (kg)':'Target weight (lbs)';
-    document.querySelectorAll('[data-cu]').forEach(function(b){ b.classList.toggle('on',(b.dataset.cu==='met')===met); }); try{ localStorage.setItem('apri-calc-units',met?'met':'us'); }catch(x){} calc(); };
-  document.querySelectorAll('[data-cu]').forEach(function(b){ b.addEventListener('click',function(){ cuSet(b.dataset.cu==='met'); }); });
-  try{ if(localStorage.getItem('apri-calc-units')==='met') setTimeout(function(){ cuSet(true); },0); }catch(x){}
+    cuMark(); calc(); };
+  /* "both": type in pounds/inches and see kilograms/centimeters under each field as you type */
+  function cuMark(){ var m=CU_BOTH?'both':CU_MET?'met':'us'; document.querySelectorAll('[data-cu]').forEach(function(b){ b.classList.toggle('on',b.dataset.cu===m); }); try{ localStorage.setItem('apri-calc-units',m); }catch(x){} }
+  function cuPick(m){ CU_BOTH=(m==='both'); if(CU_MET!==(m==='met')) cuSet(m==='met'); else { cuMark(); calc(); } }
+  document.querySelectorAll('[data-cu]').forEach(function(b){ b.addEventListener('click',function(){ cuPick(b.dataset.cu); }); });
+  ['cH','cW','cT'].forEach(function(id){ var e=$('#'+id); if(e) e.addEventListener('input',calc); });
+  try{ var cu0=localStorage.getItem('apri-calc-units'); if(cu0==='met'||cu0==='both') setTimeout(function(){ cuPick(cu0); },0); }catch(x){}
 
   /* quiz */
   var Q=[
