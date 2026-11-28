@@ -23,7 +23,7 @@ if ($n >= 40) out(false, 429);
 @file_put_contents($rl, (string)($n + 1), LOCK_EX);
 foreach (glob($dir . '/rl_*.txt') ?: [] as $f) { if (filemtime($f) < time() - 7200) @unlink($f); }
 
-$cfg = ['to' => 'nectarofarmenia@gmail.com', 'from' => 'noreply@apricota.am'];
+$cfg = ['to' => 'orders@apricota.am', 'from' => 'hello@apricota.am'];
 if (is_file($dir . '/config.php')) { $c = include $dir . '/config.php'; if (is_array($c)) $cfg = array_merge($cfg, $c); }
 
 $kind = $j['kind'];
