@@ -1199,6 +1199,32 @@ footer#siteFooter{border-radius:30px 30px 0 0;margin-top:20px}
 .a-tabs button[aria-selected=true]{color:var(--green-btn)}
 .eyebrow{color:#E8865A}
 .view:not(#v-admin):not(#v-driver) h1,.view:not(#v-admin):not(#v-driver) .h2{letter-spacing:-.015em}
+
+/* home: the free tools are little working widgets */
+@media (min-width:1000px){#free .free-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+.free .fx{margin-top:12px;padding:12px;border-radius:16px;background:linear-gradient(180deg,#FFF8F3,#FFF1E8);box-shadow:inset 0 0 0 1px rgba(29,77,72,.06);display:flex;flex-direction:column;gap:8px;color:var(--ink)}
+.fx-row{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}.fx-row b{font:900 22px var(--display)}.fx-arrow{color:#E8865A;font-weight:900}
+.fx-note{font-size:13px;color:#5C6F6B}.fx-note b{color:var(--ink)}
+.fx input[type=range]{width:100%;accent-color:#1F8075;height:28px}
+.fx-spark{width:100%;height:44px}
+.fx-cups{display:grid;grid-template-columns:repeat(8,1fr);gap:5px}
+.fx-cup{height:34px;border:2px solid #9FD6CC;border-top:0;border-radius:3px 3px 9px 9px;background:linear-gradient(to top,#4FB8A8 0,#4FB8A8 0,transparent 0);cursor:pointer;transition:background .25s;padding:0}
+.fx-cup.on{background:linear-gradient(to top,#2E9E8E 0,#6CCAB9 85%,rgba(255,255,255,.6) 85%);border-color:#2E9E8E}
+.fx-meas{align-items:center;flex-wrap:nowrap;gap:8px}.fx-meas>span{margin-right:auto}.fx-meas b{min-width:58px;text-align:center;font-size:20px}
+.fx-pm{width:40px;height:40px;border-radius:50%;border:0;background:#fff;box-shadow:0 6px 14px -8px rgba(29,77,72,.5),0 0 0 1px rgba(29,77,72,.08);font:900 20px var(--body);color:var(--ink);cursor:pointer}.fx-pm:active{transform:translateY(1px)}
+.fx-two{justify-content:space-between}.fx-two>span{display:flex;flex-direction:column}.fx-two small{font-size:11px;color:#6B7C78;font-weight:700}.fx-two b{font-size:18px}
+.fx-flip{position:relative;border:0;padding:0;background:none;cursor:pointer;min-height:104px;perspective:600px;text-align:left;font:inherit;color:inherit}
+.fx-flip>span{position:absolute;inset:0;border-radius:14px;display:flex;flex-direction:column;justify-content:center;gap:2px;padding:10px 12px;backface-visibility:hidden;transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+.fx-f{background:#fff;font-weight:800;flex-direction:row!important;align-items:center;gap:6px!important;box-shadow:0 0 0 1px rgba(29,77,72,.07)}
+.fx-b{background:linear-gradient(160deg,#2BA393,#1F8075);color:#fff;transform:rotateY(180deg)}.fx-b small{color:#DDF3EE}
+.fx-flip.on .fx-f{transform:rotateY(-180deg)}.fx-flip.on .fx-b{transform:rotateY(0)}
+.fx-tg{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:8px}.fx-sw>span{white-space:nowrap}
+.fx-sw{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;cursor:pointer}
+.fx-sw input{position:absolute;opacity:0;pointer-events:none}.fx-sw i{flex:none;width:36px;height:22px;border-radius:999px;background:#D9DFDC;position:relative;transition:background .2s}
+.fx-sw i::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:left .2s}
+.fx-sw input:checked+i{background:#2E9E8E}.fx-sw input:checked+i::after{left:17px}.fx-sw input:focus-visible+i{outline:2px solid #1F8075;outline-offset:2px}
+.fx-bub{align-self:flex-start;background:#fff;border-radius:14px 14px 14px 4px;padding:8px 12px;font-size:13px;font-weight:700;box-shadow:0 10px 20px -12px rgba(29,77,72,.6)}
+.fx-bub.pop{animation:fxpop .35s cubic-bezier(.2,1.4,.4,1)}@keyframes fxpop{from{transform:scale(.6) translateY(6px);opacity:0}to{transform:none;opacity:1}}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -3577,6 +3603,29 @@ var AQYN=[["Yes","Այո"],["No","Ոչ"]];
   (function(){ var app=document.querySelector('#v-my-apri .app'), tabs=document.getElementById('aTabs'), pan=document.getElementById('aPanel'), head=app&&app.querySelector('.a-head'); if(!app||!tabs||!pan||!head) return;
     var L=document.createElement('div'), R=document.createElement('div'); L.className='a-left'; R.className='a-right'; app.insertBefore(L,head); app.insertBefore(R,head);
     var n=head; while(n&&n!==tabs){ var nx=n.nextSibling; L.appendChild(n); n=nx; } R.appendChild(tabs); R.appendChild(pan); })();
+
+  /* the free-tools cards on the home page can be tried right there: every card is a small working widget */
+  (function(){ var cards=document.querySelectorAll('#free .free'); if(cards.length<6) return; var add=function(i,h){ var d=document.createElement('div'); d.className='fx'; d.innerHTML=h; cards[i].appendChild(d); return d; };
+    var W=add(0,'<div class="fx-row"><b class="num" id="fxW">180</b> <span>lbs</span><span class="fx-arrow">→</span><span>goal</span> <b class="num">160</b></div><input type="range" id="fxWr" min="150" max="230" value="180" aria-label="Weight"><svg viewBox="0 0 200 44" class="fx-spark" id="fxSp" preserveAspectRatio="none" aria-hidden="true"></svg><div class="fx-note"><span>About</span> <b class="num" id="fxWk">14</b> <span>weeks to your goal</span></div>');
+    var sp=function(){ var w=+document.getElementById('fxWr').value, n=Math.max(0,Math.ceil((w-160)/1.5)), pts=[], hi=w+1, lo=158, Y=function(v){ return (4+(hi-v)/(hi-lo)*34).toFixed(1); }; for(var i=0;i<=10;i++){ var v=w-(w-160)*(i/10)+(i%2?0.5:-0.3)*(i<10&&i>0?1:0); pts.push((i*19+5)+','+Y(v)); }
+      document.getElementById('fxW').textContent=w; document.getElementById('fxWk').textContent=n; document.getElementById('fxSp').innerHTML='<line x1="5" x2="195" y1="'+Y(160)+'" y2="'+Y(160)+'" stroke="#FFC4A8" stroke-width="2" stroke-dasharray="4 4"/><polyline fill="none" stroke="#2E9E8E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" points="'+pts.join(' ')+'"/>'; };
+    document.getElementById('fxWr').addEventListener('input',sp); sp();
+    var cups=''; for(var i=0;i<8;i++) cups+='<button type="button" class="fx-cup" data-fxc="'+i+'" aria-label="Glass '+(i+1)+'"></button>';
+    add(1,'<div class="fx-cups">'+cups+'</div><div class="fx-note"><b class="num" id="fxWn">0</b> / 8 <span>glasses</span> <span id="fxSt"></span></div>');
+    add(2,'<div class="fx-row fx-meas"><span>Waist</span><button type="button" class="fx-pm" data-fxm="-1" aria-label="Less">−</button><b class="num" id="fxM">38.0″</b><button type="button" class="fx-pm" data-fxm="1" aria-label="More">+</button></div><div class="fx-note" id="fxMd"><span>Tap − as you lose inches</span></div>');
+    add(3,'<input type="range" id="fxBr" min="120" max="260" value="180" aria-label="Weight"><div class="fx-row fx-two"><span><small><span>Weight</span></small><b class="num" id="fxBw">180 lbs</b></span><span><small>BMI</small><b class="num" id="fxB">29.1</b></span><span><small><span>Calories</span></small><b class="num" id="fxK">1,700</b></span></div>');
+    var bm=function(){ var w=+document.getElementById('fxBr').value; document.getElementById('fxBw').textContent=w+' lbs'; document.getElementById('fxB').textContent=(703*w/(66*66)).toFixed(1); document.getElementById('fxK').textContent=(Math.round((w*10.5)/50)*50-200).toLocaleString('en-US'); };
+    document.getElementById('fxBr').addEventListener('input',bm); bm();
+    add(4,'<button type="button" class="fx-flip" id="fxR"><span class="fx-f"><span>🥗</span> <span>Tap for today’s recipe</span></span><span class="fx-b"><b>Greek yogurt bowl</b><span class="num">320 kcal</span><small>Yogurt, berries, oats, a little honey · 5 min</small></span></button>');
+    add(5,'<div class="fx-tg">'+[['w','💧','Water'],['m','🍽','Meals'],['s','⚖️','Weigh-in'],['r','📈','Weekly report']].map(function(x){ return '<label class="fx-sw"><input type="checkbox" data-fxr="'+x[0]+'"'+(x[0]==='w'?' checked':'')+'><i></i><span>'+x[1]+' <span>'+x[2]+'</span></span></label>'; }).join('')+'</div><div class="fx-bub" id="fxBub" hidden></div>');
+    var meas=38, water=0, MSG={w:'💧 Time for a glass of water!',m:'🍽 Lunch is ready: 1:30, 520 kcal',s:'⚖️ Good morning! Step on the scale',r:'📈 Your week: −1.8 lbs, 5 of 7 days on plan'};
+    document.getElementById('free').addEventListener('click',function(e){ var b;
+      if((b=e.target.closest('[data-fxc]'))){ var i=+b.dataset.fxc; water=(water===i+1)?i:i+1; document.querySelectorAll('.fx-cup').forEach(function(c,k){ c.classList.toggle('on',k<water); }); document.getElementById('fxWn').textContent=water; document.getElementById('fxSt').textContent=water>=8?'· 🔥 Goal reached!':''; if(window.translateEl) translateEl(document.getElementById('fxSt')); return; }
+      if((b=e.target.closest('[data-fxm]'))){ meas=Math.max(28,Math.min(50,meas+0.5*(+b.dataset.fxm))); document.getElementById('fxM').textContent=meas.toFixed(1)+'″'; var d=meas-38; document.getElementById('fxMd').innerHTML=d?'<b class="num" style="color:'+(d<0?'#1F8075':'#C2410C')+'">'+(d>0?'+':'−')+Math.abs(d).toFixed(1)+'″</b> <span>since you started</span>':'<span>Tap − as you lose inches</span>'; return; }
+      if((b=e.target.closest('#fxR'))){ b.classList.toggle('on'); return; }
+    });
+    document.getElementById('free').addEventListener('change',function(e){ var t=e.target; if(!t.dataset||!t.dataset.fxr) return; var bub=document.getElementById('fxBub'); if(t.checked){ bub.textContent=MSG[t.dataset.fxr]; bub.hidden=false; bub.classList.remove('pop'); void bub.offsetWidth; bub.classList.add('pop'); } else bub.hidden=true; });
+  })();
   renderTabs(); calc(); renderQuiz(); renderOrder(); renderAccount(); renderRows(); renderDriver(); renderApp(); show(); renderOQ(); mbGate();
 })();
 </script>
@@ -3584,6 +3633,21 @@ var AQYN=[["Yes","Այո"],["No","Ոչ"]];
 /* Languages: English source text is translated in place; [hy, ru, es] */
 (function(){
 var D={
+"goal":["նպատակ", "цель", "meta"],
+"About":["Մոտ", "Примерно", "Unas"],
+"weeks to your goal":["շաբաթ մինչև նպատակը", "недель до цели", "semanas hasta tu meta"],
+"Tap − as you lose inches":["Սեղմիր −, երբ դյույմեր ես կորցնում", "Нажимайте −, когда теряете дюймы", "Toca − cuando pierdas pulgadas"],
+"since you started":["սկզբից ի վեր", "с начала", "desde el inicio"],
+"Tap for today’s recipe":["Սեղմիր՝ այսօրվա բաղադրատոմսի համար", "Нажмите — рецепт дня", "Toca para la receta de hoy"],
+"Greek yogurt bowl":["Հունական յոգուրտով աման", "Боул с греческим йогуртом", "Bol de yogur griego"],
+"Yogurt, berries, oats, a little honey · 5 min":["Յոգուրտ, հատապտուղներ, վարսակ, մի քիչ մեղր · 5 րոպե", "Йогурт, ягоды, овсянка, немного мёда · 5 мин", "Yogur, frutos rojos, avena, un poco de miel · 5 min"],
+"Weigh-in":["Կշռում", "Взвешивание", "Pesaje"],
+"Weekly report":["Շաբաթական հաշվետվություն", "Отчёт за неделю", "Informe semanal"],
+"💧 Time for a glass of water!":["💧 Ժամանակն է մի բաժակ ջուր խմելու։", "💧 Время выпить стакан воды!", "💧 ¡Hora de un vaso de agua!"],
+"🍽 Lunch is ready: 1:30, 520 kcal":["🍽 Ճաշը պատրաստ է՝ 1:30, 520 կկալ", "🍽 Обед готов: 1:30, 520 ккал", "🍽 El almuerzo está listo: 1:30, 520 kcal"],
+"⚖️ Good morning! Step on the scale":["⚖️ Բարի առավոտ։ Կշռվիր", "⚖️ Доброе утро! Встаньте на весы", "⚖️ ¡Buenos días! Súbete a la báscula"],
+"📈 Your week: −1.8 lbs, 5 of 7 days on plan":["📈 Քո շաբաթը՝ −1.8 ֆունտ, 7 օրից 5-ը ծրագրով", "📈 Ваша неделя: −1.8 фунта, 5 из 7 дней по плану", "📈 Tu semana: −1.8 lb, 5 de 7 días en el plan"],
+"· 🔥 Goal reached!":["· 🔥 Նպատակին հասար։", "· 🔥 Цель достигнута!", "· 🔥 ¡Meta alcanzada!"],
 "Apricota is free":["Apricota-ն անվճար է", "Apricota бесплатна", "Apricota es gratis"],
 "You have tried the example page. To keep":["Դուք փորձեցիք օրինակի էջը։ Որպեսզի պահպանեք", "Вы попробовали пример. Чтобы сохранять", "Ya probaste la página de ejemplo. Para guardar"],
 "your own":["ձեր սեփական", "свои", "tus propios"],
