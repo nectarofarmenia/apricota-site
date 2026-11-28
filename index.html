@@ -108,11 +108,17 @@ function load(first){sb.rpc("apri_role").then(function(r){role=r.data||null;
   Promise.all([sb.from("apri_kv").select("key,value"),sb.from("apri_hf").select("id,data"),cuLoad(),role==="admin"?null:sb.rpc("apri_hf_mgr")]).then(function(x){var kv=x[0],hf=x[1],mc=x[3];if(kv.error||hf.error){gate((kv.error||hf.error).message);return;}
     var H={cust:[],months:[],inv:[],dates:{}};if(mc&&!mc.error&&Array.isArray(mc.data))H.cust=mc.data;(hf.data||[]).forEach(function(r){if(r.id==="cust"&&role==="admin")H.cust=r.data;else if(r.id==="dates")H.dates=r.data;else if(r.id==="fin"){H.months=r.data.months||[];H.inv=r.data.inv||[];}});
     /* extra payments recorded in Chef Apri (days added to a customer) count as income in the month they were received */
-    if(role==="admin"){(kv.data||[]).forEach(function(r){if(r.key!=="myapri-charges"||!Array.isArray(r.value))return;r.value.forEach(function(x){if(!x||!x.paid||!(+x.amt))return;var dt=new Date(x.paidAt||x.at),y=dt.getFullYear(),m=dt.getMonth()+1,row=null;
-      H.months.forEach(function(q){if(q.y===y&&q.m===m)row=q;});if(!row){row={y:y,m:m,inc:0};H.months.push(row);H.months.sort(function(a,b){return (a.y*100+a.m)-(b.y*100+b.m);});}row.inc=(+row.inc||0)+(+x.amt);row.extra=(+row.extra||0)+(+x.amt);});});}
+    if(role==="admin"){(kv.data||[]).forEach(function(r){if(r.key!=="myapri-charges"||!Array.isArray(r.value))return;r.value.forEach(function(x){if(!x||!x.paid||!(+x.amt))return;
+      /* a payment for added days counts in the months of those food days (December days → December income); otherwise in the month it was paid */
+      var parts={},e=x.from&&x.to?cuFind(x.name):null,D=e?cuDays(e).filter(function(d){return d>=x.from&&d<=x.to;}):[];
+      if(D.length){var amt=Math.round(+x.amt*100),cnt={},ks=[],done=0;D.forEach(function(d){var k=+d.slice(0,4)*100+(+d.slice(5,7));if(!cnt[k]){cnt[k]=0;ks.push(k);}cnt[k]++;});ks.sort();
+        ks.forEach(function(k,i){var v=i===ks.length-1?amt-done:Math.round(amt*cnt[k]/D.length);done+=v;parts[k]=v/100;});}
+      else{var dt=new Date(x.paidAt||x.at);parts[dt.getFullYear()*100+dt.getMonth()+1]=+x.amt;}
+      Object.keys(parts).forEach(function(k){var y=Math.floor(k/100),m=k%100,row=null;
+      H.months.forEach(function(q){if(q.y===y&&q.m===m)row=q;});if(!row){row={y:y,m:m,inc:0};H.months.push(row);H.months.sort(function(a,b){return (a.y*100+a.m)-(b.y*100+b.m);});}row.inc=(+row.inc||0)+parts[k];row.extra=(+row.extra||0)+parts[k];});});});}
     /* months up to now and up to the last planned food day exist, so a new month (December…) can be filled in */
     if(role==="admin"){var lastM=0,nd=new Date(),cm=nd.getFullYear()*100+nd.getMonth()+1;if(CU)(CU.list||[]).forEach(function(e){if(cuArchd(e.n))return;var D=cuDays(e),ld=D[D.length-1];if(ld){var lm=+ld.slice(0,4)*100+(+ld.slice(5,7));if(lm>lastM)lastM=lm;}});
-      var nx=cm%100===12?cm+89:cm+1,upto=Math.min(Math.max(cm,lastM),nx),have={};H.months.forEach(function(q){have[q.y*100+q.m]=1;});var start=H.months.length?H.months[H.months.length-1]:null,k=start?start.y*100+start.m:cm;
+      var upto=Math.max(cm,lastM),have={};H.months.forEach(function(q){have[q.y*100+q.m]=1;});var start=H.months.length?H.months[H.months.length-1]:null,k=start?start.y*100+start.m:cm;
       while(k<upto){var y=Math.floor(k/100),m=k%100+1;if(m>12){y++;m=1;}k=y*100+m;if(!have[k])H.months.push({y:y,m:m,inc:0});}
       H.months.sort(function(a,b){return (a.y*100+a.m)-(b.y*100+b.m);});}
     var hfJs=JSON.stringify(H),changed=false;
@@ -958,6 +964,7 @@ body.ringdrag{cursor:grabbing;-webkit-user-select:none;user-select:none}
 #adx{background:#F2F6F5;min-height:100vh}
 .ax{display:flex;min-height:100vh;align-items:flex-start}
 .ax-side{flex:0 0 240px;background:var(--green-dark);color:#fff;padding:18px 12px;display:flex;flex-direction:column;gap:4px;position:sticky;top:0;height:100vh;overflow:auto}
+.ax-side .ax-lang{margin:0 8px 12px;background:rgba(255,255,255,.12);align-self:flex-start;flex:none}.ax-side .ax-lang button{color:#fff;min-width:0;padding:0 10px}.ax-side .ax-lang button.on{background:var(--peach);color:var(--ink)}
 .ax-ttl{display:flex;flex-direction:column;padding:4px 12px 14px}.ax-ttl b{font:900 24px var(--display)}.ax-ttl small{color:#BFE3DB;font-size:12px;font-weight:700}
 .ax-nav{display:flex;align-items:center;gap:10px;min-height:44px;padding:0 12px;border-radius:12px;border:0;background:none;color:#E6F4F0;font:700 15px var(--body);cursor:pointer;text-align:left;text-decoration:none;width:100%}
 .ax-nav:hover{background:rgba(255,255,255,.08)}.ax-nav.on{background:#fff;color:var(--ink)}
@@ -986,7 +993,7 @@ body.ringdrag{cursor:grabbing;-webkit-user-select:none;user-select:none}
 .ax-login form{width:min(420px,100%);background:#fff;border-radius:26px;padding:26px;display:flex;flex-direction:column;gap:14px}
 .ax-dl{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:8px 14px;font-size:14px;margin:0}.ax-dl dt{color:var(--muted);font-weight:700}.ax-dl dd{margin:0;color:var(--ink);font-weight:600}
 .ax-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 18px;border-radius:99px;font-weight:700;z-index:60;max-width:calc(100% - 32px)}
-@media (max-width:820px){.ax{flex-direction:column;align-items:stretch}.ax-side{position:sticky;top:0;z-index:5;height:auto;flex:none;flex-direction:row;overflow-x:auto;padding:8px;gap:4px}.ax-ttl{display:none}.ax-nav{width:auto;white-space:nowrap;flex:none}.ax-dl{grid-template-columns:1fr}}
+@media (max-width:820px){.ax{flex-direction:column;align-items:stretch}.ax-side{position:sticky;top:0;z-index:5;height:auto;flex:none;flex-direction:row;overflow-x:auto;padding:8px;gap:4px}.ax-ttl{display:none}.ax-side .ax-lang{margin:0 4px 0 0;align-self:center}.ax-nav{width:auto;white-space:nowrap;flex:none}.ax-dl{grid-template-columns:1fr}}
 /* questionnaire v2: one calm scrolling page */
 body:has(#v-quiz:not([hidden])) .totop{bottom:calc(152px + env(safe-area-inset-bottom,0px))!important}
 #v-quiz{animation:none!important}
@@ -2315,7 +2322,11 @@ body:has(#v-quiz:not([hidden])) .totop{bottom:calc(152px + env(safe-area-inset-b
   function axRender(){ var box=document.getElementById('adx'); if(!box) return; axSeed(); try{ var O0=admOrders(), O1=O0.filter(function(o){ return !axIsTest(o.name); }); if(O1.length!==O0.length) admSave(O1); }catch(x){}
     if(!axIn()){ box.innerHTML=axLogin(); return; }
     var L=axCust(), N=axNavs(L), t=ADX.tab, body=t==='fin'?axFin():t==='orders'?axOrders(L):t==='cust'?axCustS(L):t==='kitchen'?axKitchen(L):t==='deliv'?axDeliv(L):t==='pauses'?axPauses():t==='pay'?axPay(L):t==='prices'?axPrices():t==='acct'?axAcct():axDash(L);
-    box.innerHTML='<div class="ax"><nav class="ax-side" aria-label="Admin menu"><div class="ax-ttl"><b>Apricota</b><small>Admin</small></div>'+N.map(function(n){ return '<button type="button" class="ax-nav'+(t===n[0]?' on':'')+'" data-ax-tab="'+n[0]+'"><span aria-hidden="true">'+n[1]+'</span>'+sp(n[2])+(n[3]?'<span class="bd num">'+n[3]+'</span>':'')+'</button>'; }).join('')+'<a class="ax-nav" href="#home"><span aria-hidden="true">🏠</span><span>Website</span></a></nav><main class="ax-main">'+body+'</main></div>'; ADX.err=''; }
+    box.innerHTML='<div class="ax"><nav class="ax-side" aria-label="Admin menu"><div class="ax-ttl"><b>Apricota</b><small>Admin</small></div>'+axLangs()+N.map(function(n){ return '<button type="button" class="ax-nav'+(t===n[0]?' on':'')+'" data-ax-tab="'+n[0]+'"><span aria-hidden="true">'+n[1]+'</span>'+sp(n[2])+(n[3]?'<span class="bd num">'+n[3]+'</span>':'')+'</button>'; }).join('')+'<a class="ax-nav" href="#home"><span aria-hidden="true">🏠</span><span>Website</span></a></nav><main class="ax-main">'+body+'</main></div>'; ADX.err=''; }
+  function axLangs(){ var cur='en'; try{ cur=localStorage.getItem('myapri-lang')||'en'; }catch(x){}
+    return '<div class="langs ax-lang" role="group" aria-label="Language">'+[['en','EN'],['hy','ՀԱՅ'],['ru','РУС'],['es','ES']].map(function(l){ return '<button type="button" data-axlang="'+l[0]+'" lang="'+l[0]+'" aria-pressed="'+(cur===l[0])+'" class="'+(cur===l[0]?'on':'')+'">'+l[1]+'</button>'; }).join('')+'</div>'; }
+  document.addEventListener('click',function(e){ var b=e.target.closest&&e.target.closest('[data-axlang]'); if(!b||!window.apSetLang) return; window.apSetLang(b.dataset.axlang);
+    document.querySelectorAll('[data-axlang]').forEach(function(x){ var on=x===b; x.classList.toggle('on',on); x.setAttribute('aria-pressed',String(on)); }); });
   function axToast(t){ var el=document.createElement('div'); el.className='ax-toast'; el.textContent=t; document.body.appendChild(el); setTimeout(function(){ el.remove(); },2200); }
   function axOrd(id,fn){ var O=admOrders(); O.forEach(function(o){ if(String(o.id)===String(id)) fn(o); }); admSave(O); }
 
@@ -4368,6 +4379,7 @@ function setLang(l){
   try{ localStorage.setItem('myapri-lang',l); }catch(e){}
 }
 document.querySelectorAll('[data-lang]').forEach(function(b){ b.addEventListener('click',function(){ setLang(b.dataset.lang); }); });
+window.apSetLang=setLang;
 var saved='en'; try{ saved=localStorage.getItem('myapri-lang')||'en'; }catch(e){}
 setLang(saved);
 })();
