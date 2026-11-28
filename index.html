@@ -3458,7 +3458,7 @@ var AQYN=[["Yes","Այո"],["No","Ոչ"]];
   function mbTop(){ var b=document.getElementById('mbOutB'); if(b) return; var t=document.querySelector('#v-my-apri .a-top'); if(!t) return; b=document.createElement('button'); b.type='button'; b.id='mbOutB'; b.className='mb-out'; b.textContent='Log out'; t.appendChild(b); }
   function mbBusy(f,on){ var b=f.querySelector('.btn'); if(b){ b.disabled=on; } }
   document.addEventListener('click',function(e){ var b;
-    if((b=e.target.closest('#mbGate .pweye'))){ var inp=b.parentNode.querySelector('input'), sh=inp.type==='password'; inp.type=sh?'text':'password'; b.classList.toggle('on',sh); b.setAttribute('aria-pressed',sh); b.setAttribute('aria-label',sh?'Hide password':'Show password'); inp.focus(); return; }
+    /* the eye button on password fields is handled by the site-wide handler (addEyes) */
     if((b=e.target.closest('[data-mblang]'))){ if(window.apSetLang) window.apSetLang(b.dataset.mblang); mbGate(); return; }
     if((b=e.target.closest('[data-mbm]'))){ MB.mode=b.dataset.mbm; MB.err=''; MB.msg=''; mbGate(); return; }
     if(e.target.closest('#mbOutB')||e.target.closest('#mbOut2')||e.target.closest('#stOut')){ mbSave(true); var fin=function(){ MB_LS.concat(['myapri-acct']).forEach(function(k){ try{ localStorage.removeItem(k); }catch(x){} }); location.hash='#home'; location.reload(); };
