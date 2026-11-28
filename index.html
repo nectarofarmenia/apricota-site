@@ -66,7 +66,10 @@ function setCU(doc){CU=doc||null;cuMemo={};}
 function cuFind(n){if(!CU||!n)return null;var L=CU.list||[];for(var i=0;i<L.length;i++)if(L[i].n===n)return L[i];return null;}
 function cuArchd(n){return !!(CU&&(CU.arch||[]).indexOf(n)>=0);}
 function cuSet(n){if(!cuMemo[n]){var e=cuFind(n),o={};if(e)cuDays(e).forEach(function(x){o[x]=1;});cuMemo[n]=o;}return cuMemo[n];}
-window.apriCuApply=function(L){if(!CU)return;L.forEach(function(c){var e=cuFind(c.name);if(!e||cuArchd(e.n))return;c.size=e.size||"M";c.sizeSet=true;var p=+e.ppl||1;c.two=p>1;c.people=p;});};
+window.apriCuApply=function(L){var CH=[];try{CH=JSON.parse(LS.getItem("myapri-charges")||"[]")||[];}catch(e){}
+  /* paid extra payments recorded in Chef Apri add to the customer's total */
+  if(CH.length)L.forEach(function(c){var add=0;CH.forEach(function(x){if(x&&x.paid&&x.name===c.name)add+=(+x.amt||0);});if(add)c.total=(+c.total||0)+add;});
+  if(!CU)return;L.forEach(function(c){var e=cuFind(c.name);if(!e||cuArchd(e.n))return;c.size=e.size||"M";c.sizeSet=true;var p=+e.ppl||1;c.two=p>1;c.people=p;});};
 window.apriCuPaid=function(hf,d){if(!CU||!hf||!d)return undefined;var e=cuFind(hf.name);if(!e)return undefined;var k=iso(new Date(+d));if(k<today())return undefined;
   if(cuArchd(e.n))return null;return cuSet(e.n)[k]?[d.getFullYear(),d.getMonth()+1,[],+e.ppl||1]:null;};
 window.apriCuCur=function(c){if(!CU||!c)return undefined;var e=cuFind(c.name);if(!e)return undefined;if(cuArchd(e.n))return false;var t=today();return cuDays(e).some(function(x){return x>=t;})?true:undefined;};
