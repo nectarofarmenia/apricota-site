@@ -489,6 +489,7 @@ body{padding-bottom:calc(104px + env(safe-area-inset-bottom,0px))}
 .mb-home{position:absolute;top:14px;right:14px;width:40px;height:40px;border-radius:50%;background:var(--cream,#FBF7F2);display:flex;align-items:center;justify-content:center;font-size:24px;text-decoration:none;color:var(--ink)}
 .mb-ok{display:flex!important;gap:10px;align-items:flex-start;font-size:13.5px;line-height:1.45;color:var(--ink);background:var(--mint,#E3F4EF);border-radius:14px;padding:12px;cursor:pointer;font-weight:500}
 .mb-ok input{width:22px!important;height:22px!important;min-height:0!important;flex:0 0 22px;margin:1px 0 0!important;accent-color:var(--green-btn)}
+.mb-wel{text-align:center;align-items:center}.mb-wel h1{padding-right:0}.mb-wel .btn{width:100%}.mb-confetti{font-size:56px;line-height:1}
 .mb-sw{text-align:center;font-size:14px;margin:0}.mb-msg{margin:0;padding:12px;border-radius:12px;background:var(--mint,#E3F4EF);color:var(--green-dark);font-weight:700;font-size:14px}
 .mb-out{border:0;background:rgba(255,255,255,.18);color:inherit;border-radius:999px;padding:8px 14px;font:800 13px var(--body);cursor:pointer;margin-left:6px}
 #v-my-apri .app{padding-top:8px}
@@ -3429,7 +3430,7 @@ var AQYN=[["Yes","Այո"],["No","Ոչ"]];
       if(!md.consent_at){ MB.need=true; mbGate(); return; }
       mbCreate(u,md.consent_at,md.name,md.phone); }); }
   function mbCreate(u,cat,name,phone){ mbFresh(); var row={uid:u.id,email:u.email,name:name||'',phone:phone||'',consent_at:cat,consent_v:MB_V,data:mbCollect()};
-    MB.sb.from('apri_member').upsert(row,{onConflict:'uid',ignoreDuplicates:true}).then(function(r){ if(r.error){ MB.err=r.error.message; mbGate(); return; } MB.row=row; MB.ready=true; MB.need=false; MB.last=JSON.stringify(row.data); renderApp(); mbGate(); }); }
+    MB.sb.from('apri_member').upsert(row,{onConflict:'uid',ignoreDuplicates:true}).then(function(r){ if(r.error){ MB.err=r.error.message; mbGate(); return; } MB.row=row; MB.ready=true; MB.need=false; MB.last=JSON.stringify(row.data); MB.welcome=(name||'').split(' ')[0]||' '; if((location.hash||'')!=='#quiz') location.hash='#my-apri'; renderApp(); mbGate(); }); }
   /* sign up from the order flow (Step 1) or from the my Apricota screen */
   function mbSignUp(f,cb){ mbClient(function(sb){ var cat=new Date().toISOString();
     sb.auth.signUp({email:f.email,password:f.pw,options:{emailRedirectTo:'https://apricota.am/',data:{name:f.name,phone:f.phone,consent_at:cat,consent_v:MB_V}}}).then(function(r){
@@ -3443,6 +3444,9 @@ var AQYN=[["Yes","Այո"],["No","Ոչ"]];
   /* the sign-in screen covers my Apricota until the customer is signed in */
   function mbGate(){ var r=(location.hash||'#home').slice(1), g=document.getElementById('mbGate');
     var need=r==='my-apri'&&(!MB.user||MB.need||MB.mode==='newpw');
+    if(!need&&MB.welcome&&r==='my-apri'){ if(!g){ g=document.createElement('div'); g.id='mbGate'; g.className='mb-gate'; document.body.appendChild(g); }
+      g.innerHTML='<div class="mb-card mb-wel"><div class="mb-confetti" aria-hidden="true">🎉</div><h1><span>Welcome to Apricota</span>'+(MB.welcome.trim()?', '+qzEsc(MB.welcome):'')+'!</h1><p class="tiny" style="font-size:16px;margin:0">Your personal page is ready. Fill in the questionnaire so we can plan your meals, then track your weight, water and meals here every day.</p>'+
+        '<button type="button" class="btn btn-green" data-mbw="quiz">Fill in the questionnaire</button><button type="button" class="btn btn-line" data-mbw="page">Go to my page</button></div>'; mbTop(); return; }
     if(!need){ if(g) g.remove(); if(r==='my-apri'&&MB.user) mbTop(); return; }
     if(!MB.sb&&mbHasSession()&&!MB.user){ mbClient(function(){}); }
     if(!g){ g=document.createElement('div'); g.id='mbGate'; g.className='mb-gate'; document.body.appendChild(g); }
@@ -3459,6 +3463,7 @@ var AQYN=[["Yes","Այո"],["No","Ոչ"]];
   function mbBusy(f,on){ var b=f.querySelector('.btn'); if(b){ b.disabled=on; } }
   document.addEventListener('click',function(e){ var b;
     /* the eye button on password fields is handled by the site-wide handler (addEyes) */
+    if((b=e.target.closest('[data-mbw]'))){ MB.welcome=null; var gg=document.getElementById('mbGate'); if(gg) gg.remove(); if(b.dataset.mbw==='quiz'){ try{ if(!document.querySelector('#qPage .qq')) qzBuild(); }catch(x){} location.hash='quiz'; } return; }
     if((b=e.target.closest('[data-mblang]'))){ if(window.apSetLang) window.apSetLang(b.dataset.mblang); mbGate(); return; }
     if((b=e.target.closest('[data-mbm]'))){ MB.mode=b.dataset.mbm; MB.err=''; MB.msg=''; mbGate(); return; }
     if(e.target.closest('#mbOutB')||e.target.closest('#mbOut2')||e.target.closest('#stOut')){ mbSave(true); var fin=function(){ MB_LS.concat(['myapri-acct']).forEach(function(k){ try{ localStorage.removeItem(k); }catch(x){} }); location.hash='#home'; location.reload(); };
@@ -3494,6 +3499,9 @@ var AQYN=[["Yes","Այո"],["No","Ոչ"]];
 /* Languages: English source text is translated in place; [hy, ru, es] */
 (function(){
 var D={
+"Welcome to Apricota":["Բարի գալուստ Apricota", "Добро пожаловать в Apricota", "Bienvenido a Apricota"],
+"Your personal page is ready. Fill in the questionnaire so we can plan your meals, then track your weight, water and meals here every day.":["Ձեր անձնական էջը պատրաստ է։ Լրացրեք հարցաշարը, որ կազմենք ձեր սննդակարգը, իսկ հետո ամեն օր այստեղ հետևեք ձեր քաշին, ջրին և սննդին։", "Ваша личная страница готова. Заполните анкету, чтобы мы составили ваше питание, и каждый день отмечайте здесь вес, воду и еду.", "Tu página personal está lista. Completa el cuestionario para planificar tus comidas y registra aquí tu peso, agua y comidas cada día."],
+"Go to my page":["Անցնել իմ էջ", "Перейти на мою страницу", "Ir a mi página"],
 "Too many sign-up emails were sent in the last hour. Please try again in an hour.":["Վերջին ժամում չափից շատ գրանցման նամակ է ուղարկվել։ Խնդրում ենք փորձել մեկ ժամից։", "За последний час отправлено слишком много писем. Попробуйте через час.", "Se enviaron demasiados correos en la última hora. Inténtalo en una hora."],
 "We could not send the confirmation email. Please try again later or contact us.":["Չհաջողվեց ուղարկել հաստատման նամակը։ Փորձեք ավելի ուշ կամ կապվեք մեզ հետ։", "Не удалось отправить письмо подтверждения. Попробуйте позже или свяжитесь с нами.", "No pudimos enviar el correo de confirmación. Inténtalo más tarde o contáctanos."],
 "Please choose a stronger password (letters and numbers, at least 8 characters).":["Ընտրեք ավելի ուժեղ գաղտնաբառ (տառեր և թվեր, առնվազն 8 նիշ)։", "Выберите пароль надёжнее (буквы и цифры, не менее 8 символов).", "Elige una contraseña más segura (letras y números, al menos 8 caracteres)."],
