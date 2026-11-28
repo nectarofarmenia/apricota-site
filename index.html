@@ -1378,6 +1378,33 @@ footer#siteFooter{border-radius:30px 30px 0 0;margin-top:20px}
 .hero .hero-cta .btn-white-line:hover span{background-size:100% 1.5px}
 @media (max-width:699px){.hero .hero-cta{margin:0 auto;width:100%;max-width:400px}.hero .hero-cta .btn-peach{font-size:15px;padding-left:18px!important}}
 @media (max-width:379px){.hero .hero-cta .btn-peach{font-size:14px;padding-left:14px!important;gap:8px}.hero .hero-cta .cta-ar{width:30px;height:30px}.view:not(#v-admin):not(#v-driver) .hero .hero-cta .btn-white-line{font-size:13.5px;padding:0 8px!important}}
+
+/* header: smaller Order button + a ☰ menu with the site's sections, next to the language picker */
+.top .hdr-order{min-height:36px!important;padding:0 13px!important;font-size:14px!important;gap:5px!important}
+.top .hdr-order svg{width:15px;height:15px}
+@media (max-width:440px){.top .hdr-order{min-height:34px!important;padding:0 10px!important;font-size:13px!important;gap:4px!important}.top .hdr-order svg{width:14px;height:14px}}
+@media (max-width:359px){.top .hdr-order span{display:none}}
+.hb{position:relative}
+.hb-btn{width:40px;height:40px;border-radius:50%;border:0;background:#fff;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;box-shadow:0 8px 18px -10px rgba(29,77,72,.45),0 0 0 1px rgba(29,77,72,.07)}
+.hb-btn i{display:block;width:17px;height:2px;border-radius:2px;background:#1D4D48;transition:transform .25s,opacity .2s}
+.hb-btn i:nth-child(2){width:12px;margin-left:5px;background:#2E9E8E}
+.hb-btn[aria-expanded=true]{box-shadow:0 0 0 2px #2E9E8E}
+.hb-btn[aria-expanded=true] i:nth-child(1){transform:translateY(6px) rotate(45deg)}
+.hb-btn[aria-expanded=true] i:nth-child(2){opacity:0}
+.hb-btn[aria-expanded=true] i:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+.hb-menu{position:absolute;right:0;top:calc(100% + 10px);z-index:40;min-width:min(260px,calc(100vw - 40px));max-height:calc(100vh - 210px);max-height:calc(100dvh - 210px);overflow-y:auto;overscroll-behavior:contain;padding:8px;border-radius:22px;display:flex;flex-direction:column;
+ background:linear-gradient(160deg,rgba(236,248,244,.96),rgba(255,255,255,.97) 50%,rgba(255,238,228,.96));-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
+ border:1px solid #fff;box-shadow:0 24px 44px -18px rgba(29,77,72,.45);animation:hbIn .22s ease-out}
+.hb-menu[hidden]{display:none}
+@keyframes hbIn{from{opacity:0;transform:translateY(-6px) scale(.97)}}
+.hb-i{display:flex;align-items:center;gap:12px;min-height:44px;white-space:nowrap;flex:0 0 auto;padding:0 14px;border-radius:14px;color:#1D4D48;text-decoration:none;font:700 15px var(--body)}
+.hb-i svg{color:#2E9E8E;flex:0 0 auto}
+.hb-i:hover,.hb-i:focus-visible{background:rgba(46,158,142,.1)}
+.hb-sep{height:1px;margin:6px 10px;background:rgba(29,77,72,.1)}
+.hb-cta{background:linear-gradient(180deg,#33B3A0,#1F8075);color:#fff!important;margin:2px 0 4px}
+.hb-cta svg{color:#fff}
+.hb-cta:hover{background:linear-gradient(180deg,#2FAE9C,#1A7369)}
+@media (max-width:420px){.hb-btn{width:36px;height:36px}}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -1404,6 +1431,10 @@ footer#siteFooter{border-radius:30px 30px 0 0;margin-top:20px}
       <div class="lp-menu" id="lpMenu" hidden>
         <button data-lang="en" lang="en">English</button><button data-lang="hy" lang="hy">Հայերեն</button><button data-lang="ru" lang="ru">Русский</button><button data-lang="es" lang="es">Español</button>
       </div>
+    </div>
+    <div class="hb" id="hb">
+      <button class="hb-btn" id="hbBtn" aria-haspopup="true" aria-expanded="false" aria-label="Site sections"><i></i><i></i><i></i></button>
+      <nav class="hb-menu" id="hbMenu" hidden aria-label="Site sections"><a href="#home" class="hb-i" data-hbtop="1"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>Home</span></a><a href="#home" data-go="how" class="hb-i"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg><span>How it works</span></a><a href="#home" data-go="programs" class="hb-i"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h8M8 13h8M8 17h5"/></svg><span>Programs</span></a><a href="#home" data-go="menu" class="hb-i"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 13h16a8 8 0 0 1-16 0zM12 5v3M8 6l1 2M16 6l-1 2"/></svg><span>Menu</span></a><a href="#home" data-go="free" class="hb-i"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19l5-6 4 3 7-9"/><path d="M15 7h5v5"/></svg><span>my Apricota</span></a><a href="#home" data-go="calc" class="hb-i"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 11h2M12 11h2M8 15h2M12 15h2M16 11v4"/></svg><span>Calorie calculator</span></a><a href="#home" data-go="delivery" class="hb-i"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg><span>Delivery</span></a><div class="hb-sep"></div><a href="#order" class="hb-i hb-cta"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1 12H6zM9 8V6a3 3 0 0 1 6 0v2"/></svg><span>Order</span></a><a href="#my-apri" class="hb-i"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>My page</span></a></nav>
     </div>
     </div>
   </div>
@@ -1502,7 +1533,7 @@ footer#siteFooter{border-radius:30px 30px 0 0;margin-top:20px}
     </div>
   </div>
 
-  <div class="wrap sec">
+  <div class="wrap sec" id="calc">
     <div class="calc">
       <div>
         <h2 class="h2">How many calories do you need?</h2>
@@ -3912,6 +3943,7 @@ var D={
 'my Apricota account':['my Apricota հաշիվ','Аккаунт my Apricota','Cuenta my Apricota'],
 'Admin':['Ադմին','Админ','Admin'],
 'Driver app':['Վարորդի հավելված','Приложение водителя','App del repartidor'],
+'Calorie calculator':['Կալորիաների հաշվիչ','Калькулятор калорий','Calculadora de calorías'],'my Apricota':['my Apricota','my Apricota','my Apricota'],'My page':['Իմ էջը','Моя страница','Mi página'],'Site sections':['Կայքի բաժինները','Разделы сайта','Secciones'],
 'How it works':['Ինչպես է աշխատում','Как это работает','Cómo funciona'],
 'Programs':['Ծրագրեր','Программы','Programas'],
 'Menu':['Մենյու','Меню','Menú'],
@@ -5147,6 +5179,17 @@ setLang(saved);
   function place(){ if(mq.matches){ if(card.parentNode!==txt){ txt.appendChild(card); card.classList.add('mc-low'); } if(tag&&tag.parentNode!==txt){ txt.insertBefore(tag, txt.firstChild); tag.classList.add('kt-low'); } }
     else { if(card.parentNode!==stage){ stage.appendChild(card); card.classList.remove('mc-low'); } if(tag&&tag.parentNode!==stage){ stage.appendChild(tag); tag.classList.remove('kt-low'); } } }
   place(); if(mq.addEventListener) mq.addEventListener('change',place); else mq.addListener(place);
+})();
+</script>
+<script>
+/* ☰ site sections menu */
+(function(){ var b=document.getElementById('hbBtn'), m=document.getElementById('hbMenu'); if(!b||!m) return;
+  function set(o){ m.hidden=!o; b.setAttribute('aria-expanded',o?'true':'false'); if(o){ var l=document.getElementById('lpMenu'); if(l) l.hidden=true; var u=document.getElementById('upMenu'); if(u) u.hidden=true; } }
+  b.addEventListener('click',function(e){ e.stopPropagation(); set(m.hidden); });
+  m.addEventListener('click',function(e){ var a=e.target.closest('a'); if(!a) return; if(a.dataset.hbtop){ e.preventDefault(); if(location.hash&&location.hash!=='#home') location.hash='home'; window.scrollTo({top:0,behavior:'smooth'}); } set(false); });
+  document.addEventListener('click',function(e){ if(!e.target.closest('#hb')) set(false); });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') set(false); });
+  var lb=document.getElementById('lpBtn'); if(lb) lb.addEventListener('click',function(){ set(false); });
 })();
 </script>
 </body></html>
