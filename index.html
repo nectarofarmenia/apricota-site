@@ -1414,6 +1414,19 @@ footer#siteFooter{border-radius:30px 30px 0 0;margin-top:20px}
 
 .cu-alt{display:block;margin-top:5px;font:700 12.5px var(--body);color:#1F8075;letter-spacing:.01em}
 .cu-alt[hidden]{display:none}
+
+.fp-card{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:4px 0 6px}
+.fp-col{border-radius:16px;padding:12px 12px 10px;font-size:13.5px;line-height:1.35}
+.fp-col h3{margin:0 0 8px;font:900 15px var(--display);display:flex;align-items:center;gap:6px}
+.fp-col ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.fp-col li{display:flex;gap:6px;align-items:flex-start}.fp-col li::before{content:"✓";font-weight:900;flex:0 0 auto}
+.fp-free{background:var(--mint,#E3F4EF);color:var(--ink)}.fp-free li::before{color:var(--green-btn,#1F8075)}
+.fp-paid{background:var(--peach-soft,#FFE9DE);color:var(--ink)}.fp-paid li::before{color:#D9653E}
+.fp-note{grid-column:1/-1;margin:0;text-align:center;font-size:13px;color:var(--muted)}
+@media (max-width:360px){.fp-card{grid-template-columns:1fr}}
+.ig-inv{display:flex;align-items:center;gap:12px;text-align:left;width:100%;box-sizing:border-box;padding:12px 14px;border-radius:16px;background:linear-gradient(135deg,#FFF3EC,#FCE7F0);color:var(--ink);text-decoration:none;border:1px solid rgba(214,41,118,.18)}
+.ig-inv .ig-ic{flex:0 0 42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 30% 107%,#fdf497 0%,#fd5949 45%,#d6249f 60%,#285AEB 90%);color:#fff}
+.ig-inv b{display:block;font:800 15px var(--body)}.ig-inv small{display:block;font-size:13px;color:var(--muted);line-height:1.35}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -2249,6 +2262,12 @@ footer#siteFooter{border-radius:30px 30px 0 0;margin-top:20px}
     return unit(p,n)<p.price
       ? '<span style="font-size:14px;font-weight:700;color:var(--green-btn)"><span>People:</span> <b class="num">'+n+'</b> · <b class="num">'+money(unit(p,n))+'</b> <span>each</span> · <span>Total:</span> <b class="num">'+money(unit(p,n)*n)+'</b></span>'
       : '<span style="font-size:14px;font-weight:700;color:var(--muted)"><span>Total:</span> <b class="num">'+money(p.price*n)+'</b> · <span>No group discount on 1 week</span></span>'; }
+
+  var IG_URL='https://www.instagram.com/healthyfood.usa/';
+  function fpCard(){ return '<div class="fp-card"><div class="fp-col fp-free"><h3>🆓 <span>Free account</span></h3><ul><li><span>Calorie calculator</span></li><li><span>Recipe of the day</span></li><li><span>Weight and measurements</span></li><li><span>Water and meal tracking</span></li></ul></div>'+
+    '<div class="fp-col fp-paid"><h3>🍽 <span>With a plan</span></h3><ul><li><span>5 meals delivered every day</span></li><li><span>A plan built for your goal</span></li><li><span>No foods you don’t eat</span></li><li><span>Pause with 24 hours’ notice</span></li></ul></div>'+
+    '<p class="fp-note"><span>You can choose a plan later. It’s not required.</span></p></div>'; }
+  function igInvite(){ return '<a class="ig-inv" href="'+IG_URL+'" target="_blank" rel="noopener"><span class="ig-ic" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg></span><span><b><span>Follow us on Instagram</span></b><small><span>Our programs, menu and all the details are on our page.</span></small></span></a>'; }
   function stAcct(){ try{ return JSON.parse(localStorage.getItem('myapri-acct')||'null'); }catch(x){ return null; } }
   function stRender(){
     var pg=$('#stPage'); if(!pg) return; var h, ac=stAcct();
@@ -2256,7 +2275,7 @@ footer#siteFooter{border-radius:30px 30px 0 0;margin-top:20px}
       h='<div class="qp-head"><h1>Start your plan</h1><p class="tiny" style="font-size:14px;margin-top:6px"><span>Signed in as</span> <b style="color:var(--ink)">'+qzEsc(ac.name)+'</b> · <button type="button" class="lnk" id="stOut" style="padding:0">Log out</button></p></div><button type="button" class="btn btn-green" id="stGo" style="width:100%;min-height:54px">Go to questionnaire</button>';
     } else {
       var A=STF.a, fl=function(id,lab,type,ph,ac){ return '<label class="f"><span>'+lab+'</span><input id="'+id+'" type="'+type+'"'+(ph?' placeholder="'+ph+'"':'')+(ac?' autocomplete="'+ac+'"':'')+' value="'+qzEsc(A[id]||'')+'"'+(type==='password'?' style="padding-right:52px"':'')+'>'+(type==='password'?'<button type="button" class="pweye" aria-label="Show password" aria-pressed="false"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="eo" d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle class="eo" cx="12" cy="12" r="3"/><path class="ec" d="M3 3l18 18M10.6 5.1A10.8 10.8 0 0 1 12 5c6.4 0 10 7 10 7a17.6 17.6 0 0 1-3.2 4.1M6.6 6.6C3.8 8.4 2 12 2 12s3.6 7 10 7a9.7 9.7 0 0 0 5.4-1.6M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg></button>':'')+'</label>'; };
-      h='<div class="qp-head"><p class="eyebrow">Step 1 of 3 · Create your account</p><h1>Create your account</h1></div>'+
+      h='<div class="qp-head"><p class="eyebrow">Step 1 of 3 · Create your account</p><h1>Create your account</h1></div>'+fpCard()+
         '<form class="qq" id="stForm" novalidate><div class="qf" style="grid-template-columns:1fr">'+
         fl('stName','Full name','text','','name')+fl('stEmail','Email','email','you@email.com','email')+fl('stPhone','Phone','tel','(555) 000-0000','tel')+fl('stPw','Password','password','At least 6 characters','new-password')+fl('stPw2','Confirm password','password','','new-password')+
         '</div>'+mbConsentBox('stOk')+'<p class="qerr" id="stErr"'+(STF.err?'':' hidden')+'>'+STF.err+'</p><button class="btn btn-green" style="width:100%;min-height:54px">Create account and continue</button><p class="tiny" style="text-align:center;font-size:14px"><span>Already have an account?</span> <a href="#my-apri" style="font-weight:800">Log in</a></p></form>';
@@ -2896,7 +2915,7 @@ var AQYN=[["Yes","Այո"],["No","Ոչ"]];
     var n=S.quiz, total=Q.length, c=$('#qCard');
     if(n>=total){
       $('#qStep').textContent='Done'; $('#qBar').style.width='100%';
-      c.innerHTML='<div style="display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px"><svg width="86" height="86" style="color:var(--green)"><use href="#apri"/></svg><h1>Thank you!</h1><p style="margin:0;color:var(--muted);font-size:17px;max-width:460px"><span>Suggested program:</span> <b style="color:var(--ink)">'+GOALS[S.goal]+'</b><br><span>Our team will call you to confirm.</span></p><div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center"><a class="btn btn-peach" href="#order">Order this program</a><a class="btn btn-line" href="#my-apri">Open my Apricota (free)</a></div><button class="btn btn-line" id="qRestart" style="min-height:44px">Start again</button></div>';
+      c.innerHTML='<div style="display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px"><svg width="86" height="86" style="color:var(--green)"><use href="#apri"/></svg><h1>Thank you!</h1><p style="margin:0;color:var(--muted);font-size:17px;max-width:460px"><span>Suggested program:</span> <b style="color:var(--ink)">'+GOALS[S.goal]+'</b><br><span>Our team will call you to confirm.</span></p><div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center"><a class="btn btn-peach" href="#order">Order this program</a><a class="btn btn-line" href="#my-apri">Open my Apricota (free)</a></div><div style="width:100%;max-width:460px">'+igInvite()+'</div><button class="btn btn-line" id="qRestart" style="min-height:44px">Start again</button></div>';
       $('#qRestart').onclick=function(){S.quiz=0;renderQuiz();}; return;
     }
     $('#qStep').textContent='Step '+(n+1)+' of '+total; $('#qBar').style.width=Math.round((n+1)/total*100)+'%';
@@ -3762,7 +3781,7 @@ var AQYN=[["Yes","Այո"],["No","Ոչ"]];
     var guest=!MB.user&&!(mbHasSession()&&!MB.chk); MB.guest=guest; mbDemoBar(r==='my-apri'&&guest);
     var need=r==='my-apri'&&((!MB.user&&(!guest||MB.offer||MB.force))||MB.need||MB.mode==='newpw');
     if(!need&&MB.welcome&&r==='my-apri'){ if(!g){ g=document.createElement('div'); g.id='mbGate'; g.className='mb-gate'; document.body.appendChild(g); }
-      g.innerHTML='<div class="mb-card mb-wel"><div class="mb-confetti" aria-hidden="true">🎉</div><h1><span>Welcome to Apricota</span>'+(MB.welcome.trim()?', '+qzEsc(MB.welcome):'')+'!</h1><p class="tiny" style="font-size:16px;margin:0">Your personal page is ready. Fill in the questionnaire so we can plan your meals, then track your weight, water and meals here every day.</p>'+
+      g.innerHTML='<div class="mb-card mb-wel"><div class="mb-confetti" aria-hidden="true">🎉</div><h1><span>Welcome to Apricota</span>'+(MB.welcome.trim()?', '+qzEsc(MB.welcome):'')+'!</h1><p class="tiny" style="font-size:16px;margin:0">Your personal page is ready. Fill in the questionnaire so we can plan your meals, then track your weight, water and meals here every day.</p>'+igInvite()+
         '<button type="button" class="btn btn-green" data-mbw="quiz">Fill in the questionnaire</button><button type="button" class="btn btn-line" data-mbw="page">Go to my page</button></div>'; mbTop(); return; }
     if(!need){ if(g) g.remove(); if(r==='my-apri'&&MB.user) mbTop(); return; }
     if(!MB.sb&&mbHasSession()&&!MB.user){ mbClient(function(){}); }
@@ -3771,7 +3790,7 @@ var AQYN=[["Yes","Այո"],["No","Ոչ"]];
     if(!MB.user&&mbHasSession()&&!MB.chk) h='<h1>my Apricota</h1><p class="tiny" style="font-size:15px">Loading…</p>';
     else if(MB.mode==='newpw'&&MB.user) h='<h1>New password</h1><form id="mbPwF" class="qq" novalidate><div class="qf" style="grid-template-columns:1fr">'+mbF('mbP1','New password','password','new-password')+'</div><button class="btn btn-green">Save</button></form>';
     else if(MB.need) h='<h1>One more step</h1><p class="tiny" style="font-size:15px">Please confirm so we can use your page to plan your meals.</p><form id="mbConF" class="qq" novalidate>'+mbConsentBox('mbOk2')+'<button class="btn btn-green">Continue</button><button type="button" class="lnk" id="mbOut2">Log out</button></form>';
-    else if(MB.mode==='up') h='<h1>Create your account</h1><form id="mbUpF" class="qq" novalidate><div class="qf" style="grid-template-columns:1fr">'+mbF('mbN','Full name','text','name')+mbF('mbE','Email','email','email')+mbF('mbPh','Phone','tel','tel')+mbF('mbP','Password','password','new-password')+mbF('mbP2','Confirm password','password','new-password')+'</div>'+mbConsentBox('mbOk')+'<button class="btn btn-green">Create account</button></form><p class="tiny mb-sw"><span>Already have an account?</span> <button type="button" class="lnk" data-mbm="in">Log in</button></p>';
+    else if(MB.mode==='up') h='<h1>Create your account</h1>'+fpCard()+'<form id="mbUpF" class="qq" novalidate><div class="qf" style="grid-template-columns:1fr">'+mbF('mbN','Full name','text','name')+mbF('mbE','Email','email','email')+mbF('mbPh','Phone','tel','tel')+mbF('mbP','Password','password','new-password')+mbF('mbP2','Confirm password','password','new-password')+'</div>'+mbConsentBox('mbOk')+'<button class="btn btn-green">Create account</button></form><p class="tiny mb-sw"><span>Already have an account?</span> <button type="button" class="lnk" data-mbm="in">Log in</button></p>';
     else if(MB.mode==='forgot') h='<h1>Forgot your password?</h1><p class="tiny" style="font-size:15px">We will email you a link to set a new password.</p><form id="mbFgF" class="qq" novalidate><div class="qf" style="grid-template-columns:1fr">'+mbF('mbE','Email','email','email')+'</div><button class="btn btn-green">Send the link</button></form><p class="tiny mb-sw"><button type="button" class="lnk" data-mbm="in">Back to log in</button></p>';
     else if(MB.offer&&MB.mode==='in'&&!MB.err&&!MB.msg) h='<svg class="mb-apri" aria-hidden="true"><use href="#apri"/></svg><h1>Apricota is free</h1><p class="tiny" style="font-size:16px;margin:0">You have tried the example page. To keep <b>your own</b> weight, water, meals and questionnaire, create a free account: your data is saved on your personal page and only the Apricota team can see it.</p><button type="button" class="btn btn-green" data-mbm="up">Create free account</button><button type="button" class="btn btn-line" data-mbm="in2">I already have an account</button><button type="button" class="lnk mb-sw" data-mbx="1">Keep exploring</button>';
     else h='<h1>Log in</h1><p class="tiny" style="font-size:15px">Your page: progress, meals, water and your questionnaire.</p><form id="mbInF" class="qq" novalidate><div class="qf" style="grid-template-columns:1fr">'+mbF('mbE','Email','email','username')+mbF('mbP','Password','password','current-password')+'</div><button class="btn btn-green">Log in</button></form><p class="tiny mb-sw"><button type="button" class="lnk" data-mbm="forgot">Forgot your password?</button></p><p class="tiny mb-sw"><span>New here?</span> <button type="button" class="lnk" data-mbm="up">Create your account</button></p>';
@@ -5091,6 +5110,21 @@ P.push([/^(Sun|Mon|Tue|Wed|Thu|Fri|Sat), (Oct|Nov) (\d+)$/,function(m){return WK
 'Delivery':['Առաքում','Доставка','Entrega'],
 'We will check your Zelle payment, then confirm your start day.':['Կստուգենք Zelle վճարումը, հետո կհաստատենք մեկնարկի օրը։','Мы проверим платёж Zelle и подтвердим день начала.','Verificaremos tu pago Zelle y confirmaremos el día de inicio.'],
 'Open my Apricota →':['Բացել my Apricota-ն →','Открыть my Apricota →','Abrir my Apricota →'],
+}; for(var k in X){ if(!D[k]) D[k]=X[k]; }})();
+;(function(){var X={
+'Free account':['Անվճար հաշիվ','Бесплатный аккаунт','Cuenta gratis'],
+'With a plan':['Փաթեթով','С программой','Con un plan'],
+'Calorie calculator':['Կալորիաների հաշվիչ','Калькулятор калорий','Calculadora de calorías'],
+'Recipe of the day':['Օրվա բաղադրատոմս','Рецепт дня','Receta del día'],
+'Weight and measurements':['Քաշ և չափսեր','Вес и замеры','Peso y medidas'],
+'Water and meal tracking':['Ջրի և սնունդի հետևում','Учёт воды и питания','Registro de agua y comidas'],
+'5 meals delivered every day':['Ամեն օր 5 սնունդ դռանդ','5 блюд с доставкой каждый день','5 comidas a domicilio cada día'],
+'A plan built for your goal':['Ծրագիր՝ քո նպատակով','Программа под вашу цель','Un plan para tu objetivo'],
+'No foods you don’t eat':['Առանց քո չուտած մթերքների','Без продуктов, которые вы не едите','Sin alimentos que no comes'],
+'Pause with 24 hours’ notice':['Դադար՝ 24 ժամ առաջ դիմելով','Пауза с уведомлением за 24 часа','Pausa avisando con 24 horas'],
+'You can choose a plan later. It’s not required.':['Փաթեթ կարող ես ընտրել հետո, պարտադիր չէ։','Программу можно выбрать позже — это не обязательно.','Puedes elegir un plan después. No es obligatorio.'],
+'Follow us on Instagram':['Հետևիր մեզ Instagram-ում','Подпишитесь на нас в Instagram','Síguenos en Instagram'],
+'Our programs, menu and all the details are on our page.':['Մեր ծրագրերը, մենյուն և բոլոր մանրամասները մեր էջում են։','Наши программы, меню и все подробности — на нашей странице.','Nuestros programas, el menú y todos los detalles están en nuestra página.'],
 }; for(var k in X){ if(!D[k]) D[k]=X[k]; }})();
 function look(t){
   if(D[t]) return D[t][li];
