@@ -1231,7 +1231,8 @@ footer#siteFooter{border-radius:30px 30px 0 0;margin-top:20px}
 @media (min-width:700px){.stage .menu-card{display:none}}
 .dayclock{position:relative;padding:0!important}
 .dc-svg{position:absolute;inset:6%;width:88%;height:88%;overflow:visible}
-.dc-b{fill:#fff;filter:drop-shadow(0 3px 4px rgba(122,58,30,.25))}
+.dc-b{fill:rgba(255,255,255,.78);stroke:rgba(255,255,255,.95);stroke-width:1;filter:drop-shadow(0 2px 3px rgba(31,128,117,.18))}
+.dc-tk{fill:rgba(31,128,117,.38)}
 .dc-glow{fill:#FFE3A8;opacity:0}
 .dc-m{transition:transform .3s}.dc-m text{font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}
 .dc-ok{opacity:0;transition:opacity .3s}.dc-ok circle{fill:#2E9E8E}
@@ -1288,8 +1289,8 @@ footer#siteFooter{border-radius:30px 30px 0 0;margin-top:20px}
 .top .lp-cur[aria-expanded=true]{box-shadow:0 0 0 2px #2E9E8E}
 
 /* hero: green accents to break the peach monotone */
-.hero-art .photo.dayclock{box-shadow:inset -22px -30px 60px rgba(170,70,30,.28),inset 18px 20px 46px rgba(255,255,255,.6),0 0 0 9px #2BA393,0 0 0 13px #1F8075,0 0 0 15px rgba(255,255,255,.7),0 46px 60px -26px rgba(23,103,94,.55)!important}
-.dc-svg>line{stroke:rgba(31,128,117,.45)}
+.hero-art .photo.dayclock{background:radial-gradient(circle at 44% 38%,#FFF4EC 0%,#FFDCC7 28%,#FCC3A3 46%,#E8CDB6 60%,#C9E7DC 74%,#A6DACC 88%,#86CBB9 100%)!important;box-shadow:inset 0 0 0 1px rgba(255,255,255,.6),inset -14px -20px 44px rgba(31,128,117,.16),inset 16px 18px 40px rgba(255,255,255,.55),0 40px 60px -28px rgba(31,128,117,.38),0 0 0 8px rgba(255,255,255,.4)!important}
+.dc-svg>line{stroke:rgba(31,128,117,.32)}
 .kcal-tag{background:linear-gradient(180deg,#33B3A0,#1F8075)!important;color:#fff!important;box-shadow:0 1px 0 rgba(255,255,255,.35) inset,0 14px 26px -12px rgba(23,103,94,.7)!important}
 .hero .stats>div:first-child{background:linear-gradient(160deg,#2BA393,#1F8075)!important;box-shadow:0 14px 26px -14px rgba(23,103,94,.7)!important}
 .hero .stats>div:first-child b,.hero .stats>div:first-child span{color:#fff!important}
@@ -3718,11 +3719,11 @@ var AQYN=[["Yes","Այո"],["No","Ոչ"]];
   (function(){ var el=document.getElementById('dayClock'); if(!el) return;
     var M=[[9,0,'🥣','Breakfast',420],[12,0,'🍎','Fruit snack',150],[13,30,'🥗','Lunch',520],[15,0,'🍓','Snack',180],[18,0,'🍲','Dinner',430]];
     var ang=function(h,m){ return ((h%12)+m/60)/12*360; }, pt=function(a,r){ var t=(a-90)*Math.PI/180; return [100+r*Math.cos(t),100+r*Math.sin(t)]; };
-    var ticks=''; for(var i=0;i<60;i++){ var a=i*6, p1=pt(a,i%5?88:85), p2=pt(a,91); ticks+='<line x1="'+p1[0].toFixed(1)+'" y1="'+p1[1].toFixed(1)+'" x2="'+p2[0].toFixed(1)+'" y2="'+p2[1].toFixed(1)+'" stroke="rgba(122,58,30,'+(i%5?.18:.35)+')" stroke-width="'+(i%5?1:1.6)+'" stroke-linecap="round"/>'; }
-    var badges=M.map(function(x,k){ var p=pt(ang(x[0],x[1]),70); return '<g class="dc-m" data-k="'+k+'" transform="translate('+p[0].toFixed(1)+' '+p[1].toFixed(1)+')" role="button" tabindex="0" aria-label="'+x[3]+'"><circle class="dc-glow" r="17"/><circle class="dc-b" r="13"/><text y="4.5" text-anchor="middle" font-size="13">'+x[2]+'</text><g class="dc-ok" transform="translate(9 -9)"><circle r="5.5"/><path d="M-2.4 0l1.6 1.7 3.2-3.4" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></g></g>'; }).join('');
+    var ticks=''; for(var i=0;i<12;i++){ var p0=pt(i*30,88); ticks+='<circle class="dc-tk" cx="'+p0[0].toFixed(1)+'" cy="'+p0[1].toFixed(1)+'" r="'+(i%3?1.3:2.2)+'"/>'; }
+    var badges=M.map(function(x,k){ var p=pt(ang(x[0],x[1]),68); return '<g class="dc-m" data-k="'+k+'" transform="translate('+p[0].toFixed(1)+' '+p[1].toFixed(1)+')" role="button" tabindex="0" aria-label="'+x[3]+'"><circle class="dc-glow" r="15"/><circle class="dc-b" r="11.5"/><text y="4" text-anchor="middle" font-size="11.5">'+x[2]+'</text><g class="dc-ok" transform="translate(9 -9)"><circle r="5.5"/><path d="M-2.4 0l1.6 1.7 3.2-3.4" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></g></g>'; }).join('');
     el.innerHTML='<svg viewBox="0 0 200 200" class="dc-svg" aria-hidden="true"><defs><linearGradient id="dcArc" x1="0" x2="1"><stop offset="0" stop-color="#2E9E8E" stop-opacity=".25"/><stop offset="1" stop-color="#2E9E8E"/></linearGradient></defs>'+ticks+
-      '<path id="dcDay" fill="none" stroke="url(#dcArc)" stroke-width="5" stroke-linecap="round"/>'+badges+
-      '<g id="dcHand"><line x1="100" y1="52" x2="100" y2="38" stroke="#1D4D48" stroke-width="3.2" stroke-linecap="round"/><circle cx="100" cy="34" r="5" fill="#FF9B6A" stroke="#fff" stroke-width="2"/><circle class="dc-grab" cx="100" cy="36" r="15" fill="transparent"/></g></svg>'+
+      '<path id="dcDay" fill="none" stroke="url(#dcArc)" stroke-width="3" stroke-linecap="round" opacity=".9"/>'+badges+
+      '<g id="dcHand"><line x1="100" y1="54" x2="100" y2="39" stroke="#1F8075" stroke-width="2.2" stroke-linecap="round" opacity=".85"/><circle cx="100" cy="35" r="4.2" fill="#FF9B6A" stroke="#fff" stroke-width="1.8"/><circle class="dc-grab" cx="100" cy="36" r="15" fill="transparent"/></g></svg>'+
       '<div class="dc-c"><svg class="dc-apri" aria-hidden="true"><use href="#apri"/></svg><small class="dc-l"><span id="dcLbl">Next</span></small><b class="dc-n"><span id="dcName">Lunch</span></b><span class="dc-t num" id="dcTime">1:30</span></div>'+
       '<button type="button" class="dc-now" id="dcNow" hidden>↺ <span>Now</span></button>';
     var hand=document.getElementById('dcHand'), arc=document.getElementById('dcDay'), svg=el.querySelector('.dc-svg'), nowB=document.getElementById('dcNow');
