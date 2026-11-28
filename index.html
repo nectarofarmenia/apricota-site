@@ -1325,6 +1325,28 @@ footer#siteFooter{border-radius:30px 30px 0 0;margin-top:20px}
 .kph-row{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 12px;-webkit-overflow-scrolling:touch}
 .kph-row figure{flex:0 0 min(62vw,220px);margin:0;scroll-snap-align:start;background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 0 0 1px rgba(29,77,72,.06),0 14px 28px -18px rgba(29,77,72,.5)}
 .kph-row img{display:block;width:100%;aspect-ratio:1;object-fit:cover}.kph-row figcaption{padding:10px 12px 12px;font:800 14px var(--body);color:var(--ink)}
+
+/* pricing cards: a soft warm tint instead of flat white, with slow drifting lights and little floating dots */
+.view .card.plan{background:linear-gradient(150deg,#F3FBF8 0%,#FFFFFF 42%,#FFF8F2 100%)!important;border:1px solid rgba(255,255,255,.9)}
+.view .card.plan.pl1{background:linear-gradient(150deg,#FFF6EE 0%,#FFFFFF 45%,#F2FAF7 100%)!important}
+.view .card.plan.pl2{background:linear-gradient(160deg,#FFF3EA 0%,#FFFDFB 50%,#EEF8F4 100%)!important}
+.plan>*:not(.pl-deco):not(.tagb){position:relative;z-index:1}
+.pl-deco{position:absolute;inset:0;border-radius:inherit;overflow:hidden;pointer-events:none;z-index:0}
+.pl-deco i{position:absolute;border-radius:50%;filter:blur(30px);opacity:.55;will-change:transform}
+.pl-deco i:nth-child(1){width:170px;height:170px;right:-50px;top:-60px;background:#BFE8DC;animation:plA 16s ease-in-out infinite alternate}
+.pl-deco i:nth-child(2){width:150px;height:150px;left:-60px;bottom:-50px;background:#FFD2B8;animation:plB 19s ease-in-out infinite alternate}
+.pl1 .pl-deco i:nth-child(1){background:#FFD9C4}.pl1 .pl-deco i:nth-child(2){background:#C6EBDF}
+.pl2 .pl-deco i:nth-child(1){background:#FFCBAE;opacity:.6}
+.pl-deco b{position:absolute;border-radius:50%;background:#F7A77F;opacity:.5;animation:plF 9s ease-in-out infinite}
+.pl-deco b:nth-of-type(1){width:9px;height:9px;right:16%;top:22%}
+.pl-deco b:nth-of-type(2){width:6px;height:6px;right:9%;top:46%;background:#5DB8A3;animation-delay:-3s;animation-duration:11s}
+.pl-deco b:nth-of-type(3){width:5px;height:5px;right:26%;bottom:14%;background:#F7A77F;animation-delay:-6s;animation-duration:13s}
+.pl-deco u{position:absolute;width:64px;height:64px;right:8%;top:9%;border-radius:50%;border:1.5px solid rgba(31,128,117,.16);animation:plR 12s ease-in-out infinite}
+@keyframes plA{to{transform:translate(-40px,30px) scale(1.15)}}
+@keyframes plB{to{transform:translate(40px,-24px) scale(1.1)}}
+@keyframes plF{0%,100%{transform:translate(0,0)}33%{transform:translate(-8px,-14px)}66%{transform:translate(6px,-6px)}}
+@keyframes plR{0%,100%{transform:scale(1);opacity:.9}50%{transform:scale(1.18) translate(-6px,6px);opacity:.4}}
+@media (prefers-reduced-motion:reduce){.pl-deco i,.pl-deco b,.pl-deco u{animation:none}}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -1858,7 +1880,7 @@ footer#siteFooter{border-radius:30px 30px 0 0;margin-top:20px}
     var box=$('#progCards'); if(!box) return; var n=S.people;
     box.innerHTML=PLANS.map(function(p,i){
       var per=Math.round(p.price/p.days);
-      return '<div class="card plan'+(i===2?' best':'')+'">'+(i===2?'<span class="tagb">Best value</span>':'')+
+      return '<div class="card plan pl'+i+(i===2?' best':'')+'"><span class="pl-deco" aria-hidden="true"><i></i><i></i><b></b><b></b><b></b><u></u></span>'+(i===2?'<span class="tagb">Best value</span>':'')+
         '<div style="font-weight:800;color:var(--green-btn)"><span>'+TYPES[S.type]+'</span></div>'+
         '<div class="wk">'+p.label+'</div>'+
         '<div class="pr num">'+money(p.price)+'</div>'+
