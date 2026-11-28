@@ -1254,6 +1254,18 @@ footer#siteFooter{border-radius:30px 30px 0 0;margin-top:20px}
 .dc-now{position:absolute;right:0;bottom:2%;border:0;border-radius:999px;background:#fff;color:var(--ink);font:800 12px var(--body);padding:6px 12px;box-shadow:0 8px 16px -8px rgba(29,77,72,.5);cursor:pointer;z-index:2}
 .dc-row{cursor:pointer;transition:background .2s,color .2s;border-radius:8px}
 .menu-card .rows .dc-on{color:#1F8075!important;background:#E3F4EF}
+
+/* header logo: alive — glossy green word, a 3D apricot dot that sways, the swoosh draws itself */
+.top .alogo{font-size:31px!important;padding-top:6px!important;filter:drop-shadow(0 6px 10px rgba(31,128,117,.18))}
+.top .alogo .aw{background:linear-gradient(180deg,#38B9A6 0%,#1F8075 62%,#17675E 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;letter-spacing:-.025em}
+.top .alogo .aw>span{-webkit-text-fill-color:transparent}
+.top .alogo .ai{-webkit-text-fill-color:transparent}
+.top .alogo .ad{width:.46em!important;height:.46em!important;top:-.13em!important;-webkit-text-fill-color:initial;transform-origin:50% 80%;animation:apsway 5s ease-in-out infinite;filter:drop-shadow(0 3px 3px rgba(240,138,98,.45))}
+@keyframes apsway{0%,70%,100%{transform:translateX(-50%) rotate(0)}76%{transform:translateX(-50%) rotate(-14deg) translateY(-2px)}84%{transform:translateX(-50%) rotate(10deg)}92%{transform:translateX(-50%) rotate(-4deg)}}
+.top .alogo .awv{height:.3em!important;clip-path:inset(0 100% 0 0);animation:apdraw 1.2s .3s cubic-bezier(.3,.7,.2,1) forwards}
+@keyframes apdraw{to{clip-path:inset(0 0 0 0)}}
+.top .alogo:hover .ad{animation-duration:1.2s}
+@media (prefers-reduced-motion:reduce){.top .alogo .ad,.top .alogo .awv{animation:none;clip-path:none}}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
