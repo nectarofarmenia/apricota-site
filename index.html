@@ -62,17 +62,24 @@ function cuDays(c){var st={},set={};(c.stop||[]).forEach(function(x){st[x]=1;});
 function stopOn(c,d){var st=(c.stop||[]).slice(),days=(c.days||[]).slice().sort();if(st.indexOf(d)>=0||days.indexOf(d)<0)return;
   days.splice(days.indexOf(d),1);var x=addD(days.length&&days[days.length-1]>d?days[days.length-1]:d,1);while(st.indexOf(x)>=0||x===d)x=addD(x,1);
   days.push(x);st.push(d);days.sort();st.sort();c.days=days;c.stop=st;c.end=days[days.length-1]||c.end;}
-function setCU(doc){CU=doc||null;cuMemo={};}
+function setCU(doc){CU=doc||null;cuMemo={};newestMemo=null;}
 function cuFind(n){if(!CU||!n)return null;var L=CU.list||[];for(var i=0;i<L.length;i++)if(L[i].n===n)return L[i];return null;}
 function cuArchd(n){return !!(CU&&(CU.arch||[]).indexOf(n)>=0);}
 function cuSet(n){if(!cuMemo[n]){var e=cuFind(n),o={};if(e)cuDays(e).forEach(function(x){o[x]=1;});cuMemo[n]=o;}return cuMemo[n];}
+/* several past customers share a first name ("Armine"); the shared list and extra payments mean the newest of them */
+var newestMemo=null;function newest(){if(newestMemo)return newestMemo;var m={};try{var H=JSON.parse(LS.getItem("apri-hf-cache")||"{}");(H.cust||[]).forEach(function(c){var h=c.hist||[],l=h.length?h[h.length-1][0]*100+h[h.length-1][1]:0;if(!m[c.name]||l>m[c.name].l)m[c.name]={l:l,p:c.phone};});}catch(e){}return newestMemo=m;}
+function isNewest(c){if(!c)return false;var hf=c.hf||c;if(!hf.hist)return true;var n=newest()[hf.name];return !n||n.p===hf.phone;}
 window.apriCuApply=function(L){var CH=[];try{CH=JSON.parse(LS.getItem("myapri-charges")||"[]")||[];}catch(e){}
-  /* paid extra payments recorded in Chef Apri add to the customer's total */
-  if(CH.length)L.forEach(function(c){var add=0;CH.forEach(function(x){if(x&&x.paid&&x.name===c.name)add+=(+x.amt||0);});if(add)c.total=(+c.total||0)+add;});
-  if(!CU)return;L.forEach(function(c){var e=cuFind(c.name);if(!e||cuArchd(e.n))return;c.size=e.size||"M";c.sizeSet=true;var p=+e.ppl||1;c.two=p>1;c.people=p;});};
-window.apriCuPaid=function(hf,d){if(!CU||!hf||!d)return undefined;var e=cuFind(hf.name);if(!e)return undefined;var k=iso(new Date(+d));if(k<today())return undefined;
+  var act={};CH.forEach(function(x){if(x&&x.name&&String(x.at||"")>(act[x.name]||""))act[x.name]=String(x.at||"");});
+  if(CU)(CU.list||[]).forEach(function(e){if(e.ed&&String(e.ed)>(act[e.n]||""))act[e.n]=String(e.ed);});
+  /* paid extra payments recorded in Chef Apri add to that customer's total */
+  if(CH.length)L.forEach(function(c){if(!isNewest(c))return;var add=0;CH.forEach(function(x){if(x&&x.paid&&x.name===c.name)add+=(+x.amt||0);});if(add)c.total=(+c.total||0)+add;});
+  /* the most recently changed customers come first among equal "last order" months */
+  L.forEach(function(c,k){c._k=k;});L.sort(function(a,b){var x=isNewest(a)?act[a.name]||"":"",y=isNewest(b)?act[b.name]||"":"";return x===y?a._k-b._k:(x<y?1:-1);});
+  if(!CU)return;L.forEach(function(c){if(!isNewest(c))return;var e=cuFind(c.name);if(!e||cuArchd(e.n))return;c.size=e.size||"M";c.sizeSet=true;var p=+e.ppl||1;c.two=p>1;c.people=p;});};
+window.apriCuPaid=function(hf,d){if(!CU||!hf||!d||!isNewest(hf))return undefined;var e=cuFind(hf.name);if(!e)return undefined;var k=iso(new Date(+d));if(k<today())return undefined;
   if(cuArchd(e.n))return null;return cuSet(e.n)[k]?[d.getFullYear(),d.getMonth()+1,[],+e.ppl||1]:null;};
-window.apriCuCur=function(c){if(!CU||!c)return undefined;var e=cuFind(c.name);if(!e)return undefined;if(cuArchd(e.n))return false;var t=today();return cuDays(e).some(function(x){return x>=t;})?true:undefined;};
+window.apriCuCur=function(c){if(!CU||!c||!isNewest(c))return undefined;var e=cuFind(c.name);if(!e)return undefined;if(cuArchd(e.n))return false;var t=today();return cuDays(e).some(function(x){return x>=t;})?true:undefined;};
 var cuQ=Promise.resolve();
 function cuWrite(mut){if(!sb||!role)return;cuQ=cuQ.then(function(){return cuWrite1(mut);},function(){return cuWrite1(mut);});}
 function cuWrite1(mut){return sb.from("purchases").select("data").eq("id","cudoc_healthy").maybeSingle().then(function(r){if(r.error){warn(r.error.message);return;}
