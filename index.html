@@ -110,6 +110,11 @@ function load(first){sb.rpc("apri_role").then(function(r){role=r.data||null;
     /* extra payments recorded in Chef Apri (days added to a customer) count as income in the month they were received */
     if(role==="admin"){(kv.data||[]).forEach(function(r){if(r.key!=="myapri-charges"||!Array.isArray(r.value))return;r.value.forEach(function(x){if(!x||!x.paid||!(+x.amt))return;var dt=new Date(x.paidAt||x.at),y=dt.getFullYear(),m=dt.getMonth()+1,row=null;
       H.months.forEach(function(q){if(q.y===y&&q.m===m)row=q;});if(!row){row={y:y,m:m,inc:0};H.months.push(row);H.months.sort(function(a,b){return (a.y*100+a.m)-(b.y*100+b.m);});}row.inc=(+row.inc||0)+(+x.amt);row.extra=(+row.extra||0)+(+x.amt);});});}
+    /* months up to now and up to the last planned food day exist, so a new month (December…) can be filled in */
+    if(role==="admin"){var lastM=0,nd=new Date(),cm=nd.getFullYear()*100+nd.getMonth()+1;if(CU)(CU.list||[]).forEach(function(e){if(cuArchd(e.n))return;var D=cuDays(e),ld=D[D.length-1];if(ld){var lm=+ld.slice(0,4)*100+(+ld.slice(5,7));if(lm>lastM)lastM=lm;}});
+      var nx=cm%100===12?cm+89:cm+1,upto=Math.min(Math.max(cm,lastM),nx),have={};H.months.forEach(function(q){have[q.y*100+q.m]=1;});var start=H.months.length?H.months[H.months.length-1]:null,k=start?start.y*100+start.m:cm;
+      while(k<upto){var y=Math.floor(k/100),m=k%100+1;if(m>12){y++;m=1;}k=y*100+m;if(!have[k])H.months.push({y:y,m:m,inc:0});}
+      H.months.sort(function(a,b){return (a.y*100+a.m)-(b.y*100+b.m);});}
     var hfJs=JSON.stringify(H),changed=false;
     (kv.data||[]).forEach(function(r){var cur=null;try{cur=LS.getItem(r.key);}catch(e){}var nv=JSON.stringify(r.value);if(cur!==nv){put(r.key,r.value);changed=true;}else srv[r.key]=nv;});
     if(first){Object.keys(LS).forEach(function(k){if(k.indexOf("myapri-")===0&&!LOCAL[k]&&!(kv.data||[]).some(function(r){return r.key===k;}))put(k,null);});}
@@ -2036,7 +2041,7 @@ body:has(#v-quiz:not([hidden])) .totop{bottom:calc(152px + env(safe-area-inset-b
   function exMN(k){ var l='en'; try{ l=localStorage.getItem('myapri-lang')||'en'; }catch(x){}
     var M={hy:['Հունվար','Փետրվար','Մարտ','Ապրիլ','Մայիս','Հունիս','Հուլիս','Օգոստոս','Սեպտեմբեր','Հոկտեմբեր','Նոյեմբեր','Դեկտեմբեր'],ru:['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'],es:['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']};
     return (M[l]||MONS)[k-1]; }
-  function axExp(y){ var on=exOn(), nd=new Date(), lastM=(y<nd.getFullYear())?12:(y===nd.getFullYear()?nd.getMonth()+1:0), T={inc:0}, TA=0, mx=1;
+  function axExp(y){ var on=exOn(), nd=new Date(), lastM=Math.max((y<nd.getFullYear())?12:(y===nd.getFullYear()?nd.getMonth()+1:0),HF.months.filter(function(r){ return r.y===y; }).reduce(function(a,r){ return Math.max(a,r.m); },0)), T={inc:0}, TA=0, mx=1;
     EXC.forEach(function(c){ T[c[0]]=0; });
     var rows=[]; for(var m=1;m<=lastM;m++){ var v=exMonth(y,m), cost=0, all=0; EXC.forEach(function(c){ var x=v[c[0]]||0; all+=x; if(on[c[0]]) cost+=x; T[c[0]]+=x; }); T.inc+=v.inc||0; TA+=all; mx=Math.max(mx,v.inc||0,cost); rows.push([m,v,cost,all]); }
     rows.reverse();
@@ -2056,7 +2061,7 @@ body:has(#v-quiz:not([hidden])) .totop{bottom:calc(152px + env(safe-area-inset-b
       return '<button type="button" class="ex-mh'+(cur&&m===cur[0]?' on':'')+'" data-ax-em="'+m+'"><span class="ex-mn">'+sp(MONS[m-1])+'</span><span class="ex-bars"><span class="ex-bi"><i style="width:'+((v.inc||0)/mx*100).toFixed(1)+'%"></i></span><span class="ex-be">'+seg+'</span></span>'+
         '<span class="ex-nums"><span><small>Income</small><b class="num">'+m2(Math.round(v.inc||0))+'</b></span><span><small>Expenses</small><b class="num">'+m2(Math.round(r[2]))+'</b></span><span><small>Profit</small><b class="num" style="color:'+(p<0?'#C2410C':'var(--green-btn)')+'">'+m2(Math.round(p))+'</b></span></span></button>'; }).join('')+'</div></div></div>';
     return h; }
-  function axFin(){ var ys=[]; HF.months.forEach(function(r){ if(ys.indexOf(r.y)<0) ys.push(r.y); }); ys.sort(); var y=ADX.fy&&ys.indexOf(ADX.fy)>=0?ADX.fy:ys[ys.length-1];
+  function axFin(){ var ys=[]; HF.months.forEach(function(r){ if(ys.indexOf(r.y)<0) ys.push(r.y); }); ys.sort(); var y=ADX.fy&&ys.indexOf(ADX.fy)>=0?ADX.fy:(ys.indexOf(new Date().getFullYear())>=0?new Date().getFullYear():ys[ys.length-1]);
     var R=HF.months.filter(function(r){ return r.y===y; }), T={inc:0,work:0,deliv:0,stor:0,food:0,ppl:0}, mx=1;
     R.forEach(function(r){ r._food=hfFood(r); r._cost=hfCosts(r); r._p=(r.inc||0)-r._cost; T.inc+=r.inc||0; T.work+=r.work||0; T.deliv+=r.deliv||0; T.stor+=r.stor||0; T.food+=r._food; T.ppl+=r.ppl||0; mx=Math.max(mx,r.inc||0,r._cost); });
     var XT=(function(){ var on=exOn(), inc=0, c=0; for(var m=1;m<=12;m++){ var v=exMonth(y,m); inc+=v.inc||0; EXC.forEach(function(k){ if(on[k[0]]) c+=v[k[0]]||0; }); } return [inc,c]; })(); T.inc=XT[0]; var cost=XT[1], prof=T.inc-cost;
