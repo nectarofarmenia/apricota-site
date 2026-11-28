@@ -1347,6 +1347,22 @@ footer#siteFooter{border-radius:30px 30px 0 0;margin-top:20px}
 @keyframes plF{0%,100%{transform:translate(0,0)}33%{transform:translate(-8px,-14px)}66%{transform:translate(6px,-6px)}}
 @keyframes plR{0%,100%{transform:scale(1);opacity:.9}50%{transform:scale(1.18) translate(-6px,6px);opacity:.4}}
 @media (prefers-reduced-motion:reduce){.pl-deco i,.pl-deco b,.pl-deco u{animation:none}}
+
+/* phone: the day clock leads the home page, with the headline and order button right under it on the same screen */
+@media (max-width:699px){
+ .hero{flex-direction:column;padding-top:8px!important;gap:14px!important}
+ .hero>.hero-art{order:-1;flex:0 0 auto;max-width:min(66vw,290px)!important;margin:0 auto;padding-top:6px!important}
+ .hero-art .kcal-tag{top:auto!important;bottom:2px;right:-14px!important;font-size:13px!important;padding:8px 12px!important}
+ .hero-art .f2{display:none}
+ .hero p{display:none}
+ .hero h1{margin-bottom:14px!important}
+ .hero-art .menu-card{display:none!important}
+ .hero>div:not(.hero-art){flex:0 0 auto;width:100%;text-align:center}
+ .hero h1{font-size:clamp(28px,8vw,34px)!important}
+ .hero p{margin-left:auto;margin-right:auto}
+ .hero>div:not(.hero-art)>div[style*="flex-wrap"]{justify-content:center}
+ .hero .stats{justify-content:center;margin-inline:auto}
+}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
