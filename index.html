@@ -96,6 +96,9 @@ function load(first){sb.rpc("apri_role").then(function(r){role=r.data||null;
   if(role!=="admin"){ready=false;sb.auth.signOut();gate(role?"Մենեջերները աշխատում են Chef Apri Work-ում (☰ → Apricota → Պատվերներ, Դադարներ, Վճարումներ)։ Այս էջը միայն ադմինի համար է։":"Այս հաշիվը Apricota-ի ադմին չէ");return;}
   Promise.all([sb.from("apri_kv").select("key,value"),sb.from("apri_hf").select("id,data"),cuLoad(),role==="admin"?null:sb.rpc("apri_hf_mgr")]).then(function(x){var kv=x[0],hf=x[1],mc=x[3];if(kv.error||hf.error){gate((kv.error||hf.error).message);return;}
     var H={cust:[],months:[],inv:[],dates:{}};if(mc&&!mc.error&&Array.isArray(mc.data))H.cust=mc.data;(hf.data||[]).forEach(function(r){if(r.id==="cust"&&role==="admin")H.cust=r.data;else if(r.id==="dates")H.dates=r.data;else if(r.id==="fin"){H.months=r.data.months||[];H.inv=r.data.inv||[];}});
+    /* extra payments recorded in Chef Apri (days added to a customer) count as income in the month they were received */
+    if(role==="admin"){(kv.data||[]).forEach(function(r){if(r.key!=="myapri-charges"||!Array.isArray(r.value))return;r.value.forEach(function(x){if(!x||!x.paid||!(+x.amt))return;var dt=new Date(x.paidAt||x.at),y=dt.getFullYear(),m=dt.getMonth()+1,row=null;
+      H.months.forEach(function(q){if(q.y===y&&q.m===m)row=q;});if(!row){row={y:y,m:m,inc:0};H.months.push(row);H.months.sort(function(a,b){return (a.y*100+a.m)-(b.y*100+b.m);});}row.inc=(+row.inc||0)+(+x.amt);row.extra=(+row.extra||0)+(+x.amt);});});}
     var hfJs=JSON.stringify(H),changed=false;
     (kv.data||[]).forEach(function(r){var cur=null;try{cur=LS.getItem(r.key);}catch(e){}var nv=JSON.stringify(r.value);if(cur!==nv){put(r.key,r.value);changed=true;}else srv[r.key]=nv;});
     if(first){Object.keys(LS).forEach(function(k){if(k.indexOf("myapri-")===0&&!LOCAL[k]&&!(kv.data||[]).some(function(r){return r.key===k;}))put(k,null);});}
@@ -107,7 +110,7 @@ function load(first){sb.rpc("apri_role").then(function(r){role=r.data||null;
     rerender();live();});});}
 var liveOn=false;
 function live(){if(liveOn)return;liveOn=true;sb.channel("apri-kv").on("postgres_changes",{event:"*",schema:"public",table:"apri_kv"},function(p){var r=p.new&&p.new.key?p.new:null;
-  if(r){var cur=null;try{cur=LS.getItem(r.key);}catch(e){}if(cur!==JSON.stringify(r.value)){put(r.key,r.value);rerender();}}
+  if(r){var cur=null;try{cur=LS.getItem(r.key);}catch(e){}if(cur!==JSON.stringify(r.value)){put(r.key,r.value);if(r.key==="myapri-charges")load(false);else rerender();}}
   else if(p.old&&p.old.key){put(p.old.key,null);rerender();}}).on("postgres_changes",{event:"*",schema:"public",table:"purchases",filter:"id=eq.cudoc_healthy"},function(p){if(p.new&&p.new.data){setCU(p.new.data.doc);rerender();}}).subscribe();}
 function signOut(){if(!confirm("Դուրս գա՞լ ադմինից"))return;sb.auth.signOut().then(function(){try{Object.keys(LS).forEach(function(k){if(k.indexOf("myapri-")===0||k==="apri-hf-cache")rmI.call(LS,k);});SS.clear();}catch(e){}location.replace("/admin");});}
 function start(){var st=document.createElement("style");st.textContent=CSS;document.head.appendChild(st);
