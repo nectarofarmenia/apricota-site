@@ -15,7 +15,75 @@
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
+
+<script>/* apricota.am/admin — the admin keeps its data in the Chef Apri Work database (Supabase), shared by every
+   device of the admin and the Apricota managers. Only active on the /admin address. */
+(function(){
+if(!/^\/admin\/?$/.test(location.pathname))return;
+window.APRI_ADMIN=true;
+var SB_URL="https://oddqwjvqqvoeqdrnasqc.supabase.co",SB_KEY="sb_publishable_ZVvJKCJXM5ylUlICX-57vw__ZZqQul0";
+var LOCAL={"myapri-admin-in":1,"myapri-lang":1,"myapri-admin":1};
+var LS=window.localStorage,SS=window.sessionStorage;
+var ready=false;try{ready=SS.getItem("apri-ready")==="1";}catch(e){}
+/* 1. the customer history, kept on this device after sign-in, must exist before the admin code reads it */
+try{var hf=LS.getItem("apri-hf-cache");if(hf&&ready){var s=document.createElement("script");s.type="application/json";s.id="hfData";s.textContent=hf;document.head.appendChild(s);}}catch(e){}
+if(location.hash.indexOf("#admin")!==0){try{history.replaceState(null,"","/admin#admin");}catch(e){}}
+/* 2. every change the admin makes is written to the database (and shared live) */
+var setI=Storage.prototype.setItem,rmI=Storage.prototype.removeItem,pend={},tmr=null,quiet=false,sb=null,srv={},role=null;
+function flush(){clearTimeout(tmr);tmr=setTimeout(function(){if(!sb)return;var up=[],del=[];Object.keys(pend).forEach(function(k){var v=pend[k];if(v===null)del.push(k);else{try{up.push({key:k,value:JSON.parse(v),updated_at:new Date().toISOString()});}catch(e){}}});pend={};
+  if(up.length)sb.from("apri_kv").upsert(up).then(function(r){if(r.error)warn(r.error.message);});
+  if(del.length)sb.from("apri_kv").delete().in("key",del).then(function(){});},700);}
+Storage.prototype.setItem=function(k,v){setI.apply(this,arguments);if(this===LS&&!quiet&&ready&&role&&String(k).indexOf("myapri-")===0&&!LOCAL[k]&&srv[k]!==String(v)){srv[k]=String(v);pend[k]=String(v);flush();}};
+Storage.prototype.removeItem=function(k){rmI.apply(this,arguments);if(this===LS&&!quiet&&ready&&role&&String(k).indexOf("myapri-")===0&&!LOCAL[k]&&k in srv){delete srv[k];pend[k]=null;flush();}};
+function put(k,v){quiet=true;try{if(v==null){rmI.call(LS,k);delete srv[k];}else{var j=JSON.stringify(v);setI.call(LS,k,j);srv[k]=j;}}catch(e){}quiet=false;}
+/* 3. the admin's "current customers" list goes to Chef Apri (row cuseed_healthy) */
+var chefLast="";
+var chefRead=null;
+function saveChef(c){if(!sb||!role||!ready||!c||!c.list||!c.list.length)return;var js=JSON.stringify(c.list);if(js===chefLast)return;
+  if(!chefRead){chefRead=sb.from("purchases").select("data").eq("id","cuseed_healthy").maybeSingle().then(function(r){var d=r.data&&r.data.data&&r.data.data.doc;if(d&&d.list)chefLast=JSON.stringify(d.list);});}
+  chefRead.then(function(){if(js===chefLast)return;chefLast=js;
+  sb.from("purchases").upsert({id:"cuseed_healthy",data:{business:"healthy",plan:true,cudoc:true,date:"",name:"",doc:{list:c.list,at:new Date().toISOString(),from:"admin"}}}).then(function(r){if(r.error){chefLast="";warn(r.error.message);}});});}
+window.claude={use:function(n){if(n!=="db")return Promise.resolve(null);return Promise.resolve({doc:function(){return{
+  get:function(){return Promise.resolve({exists:false,data:function(){return{};}});},
+  set:function(P){if(P&&P.chef)saveChef(P.chef);return Promise.resolve();}};}});}};
+function rerender(){if(document.activeElement&&/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName))return;try{window.dispatchEvent(new HashChangeEvent("hashchange"));}catch(e){}}
+function warn(t){var b=document.getElementById("apriWarn");if(!b){b=document.createElement("div");b.id="apriWarn";document.body.appendChild(b);}b.textContent="⚠ "+t;b.hidden=false;setTimeout(function(){b.hidden=true;},8000);}
+/* 4. sign-in with the Chef Apri account (admin or Apricota manager) */
+var CSS="#apriGate{position:fixed;inset:0;z-index:99999;background:#F3F5F4;display:flex;align-items:center;justify-content:center;padding:16px;font-family:inherit}#apriGate form{width:100%;max-width:380px;background:#fff;border-radius:22px;padding:26px 22px;box-shadow:0 20px 50px rgba(19,59,48,.15);display:flex;flex-direction:column;gap:12px}#apriGate h1{margin:0;font-size:24px;color:#1D3A2F}#apriGate p{margin:0;color:#5B6670;font-size:14px}#apriGate label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:13px;color:#5B6670}#apriGate input{font:inherit;font-size:16px;padding:12px 44px 12px 12px;border-radius:12px;border:1.5px solid #D5DCD8;width:100%;box-sizing:border-box}#apriGate .pw{position:relative}#apriGate .eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:none;font-size:18px;cursor:pointer;padding:6px}#apriGate button.go{min-height:52px;border:0;border-radius:999px;background:#1D5545;color:#F6E3B4;font:inherit;font-weight:800;font-size:16px;cursor:pointer}#apriGate .err{color:#B42318;font-weight:700}#apriOut{position:fixed;left:12px;bottom:12px;z-index:9999;border:0;border-radius:999px;background:#1D5545;color:#F6E3B4;font:inherit;font-weight:800;padding:9px 14px;box-shadow:0 6px 16px rgba(0,0,0,.2);cursor:pointer}#apriWarn{position:fixed;left:50%;transform:translateX(-50%);top:12px;z-index:99999;background:#B42318;color:#fff;padding:10px 14px;border-radius:12px;font-weight:700;max-width:90vw}body.apri-mgr [data-ax-tab=fin],body.apri-mgr [data-ax-tab=acct]{display:none!important}";
+function gate(msg){var g=document.getElementById("apriGate");if(!g){g=document.createElement("div");g.id="apriGate";document.body.appendChild(g);}
+  g.innerHTML='<form novalidate><h1>Apricota · Admin</h1><p>Մուտք գործեք Chef Apri Work-ի ձեր հաշվով։</p><label>Email<input id="apE" type="email" autocomplete="username" required></label><label>Գաղտնաբառ<span class="pw"><input id="apP" type="password" autocomplete="current-password" required><button type="button" class="eye" aria-label="Ցույց տալ գաղտնաբառը">👁</button></span></label>'+(msg?'<p class="err">'+msg+'</p>':'')+'<button class="go">Մուտք</button></form>';
+  g.querySelector(".eye").onclick=function(){var i=document.getElementById("apP");i.type=i.type==="password"?"text":"password";};
+  g.querySelector("form").onsubmit=function(e){e.preventDefault();var b=g.querySelector(".go");b.disabled=true;b.textContent="…";
+    sb.auth.signInWithPassword({email:document.getElementById("apE").value.trim(),password:document.getElementById("apP").value}).then(function(r){if(r.error){gate("Սխալ email կամ գաղտնաբառ");return;}load(true);});};}
+function load(first){sb.rpc("apri_role").then(function(r){role=r.data||null;
+  if(r.error){gate(/apri_role/.test(r.error.message)?"Supabase-ում աշխատեցրեք apricota-admin.sql-ը":r.error.message);return;}
+  if(!role){ready=false;sb.auth.signOut();gate("Այս հաշիվը Apricota-ի ադմին կամ մենեջեր չէ");return;}
+  Promise.all([sb.from("apri_kv").select("key,value"),sb.from("apri_hf").select("id,data")]).then(function(x){var kv=x[0],hf=x[1];if(kv.error||hf.error){gate((kv.error||hf.error).message);return;}
+    var H={cust:[],months:[],inv:[],dates:{}};(hf.data||[]).forEach(function(r){if(r.id==="cust")H.cust=r.data;else if(r.id==="dates")H.dates=r.data;else if(r.id==="fin"){H.months=r.data.months||[];H.inv=r.data.inv||[];}});
+    var hfJs=JSON.stringify(H),changed=false;
+    (kv.data||[]).forEach(function(r){var cur=null;try{cur=LS.getItem(r.key);}catch(e){}var nv=JSON.stringify(r.value);if(cur!==nv){put(r.key,r.value);changed=true;}else srv[r.key]=nv;});
+    if(first){Object.keys(LS).forEach(function(k){if(k.indexOf("myapri-")===0&&!LOCAL[k]&&!(kv.data||[]).some(function(r){return r.key===k;}))put(k,null);});}
+    var oldHf=null;try{oldHf=LS.getItem("apri-hf-cache");}catch(e){}
+    try{setI.call(LS,"apri-hf-cache",hfJs);SS.setItem("apri-role",role);}catch(e){}
+    if(!ready||first||oldHf!==hfJs){try{SS.setItem("apri-ready","1");SS.setItem("myapri-admin-in","1");if(!LS.getItem("myapri-admin"))setI.call(LS,"myapri-admin",JSON.stringify({name:"Admin",email:"",pw:"supabase"}));}catch(e){}try{history.replaceState(null,"","/admin#admin");}catch(e){}location.reload();return;}
+    document.body.classList.toggle("apri-mgr",role!=="admin");if(changed)rerender();live();});});}
+var liveOn=false;
+function live(){if(liveOn)return;liveOn=true;sb.channel("apri-kv").on("postgres_changes",{event:"*",schema:"public",table:"apri_kv"},function(p){var r=p.new&&p.new.key?p.new:null;
+  if(r){var cur=null;try{cur=LS.getItem(r.key);}catch(e){}if(cur!==JSON.stringify(r.value)){put(r.key,r.value);rerender();}}
+  else if(p.old&&p.old.key){put(p.old.key,null);rerender();}}).subscribe();}
+function signOut(){if(!confirm("Դուրս գա՞լ ադմինից"))return;sb.auth.signOut().then(function(){try{Object.keys(LS).forEach(function(k){if(k.indexOf("myapri-")===0||k==="apri-hf-cache")rmI.call(LS,k);});SS.clear();}catch(e){}location.replace("/admin");});}
+function start(){var st=document.createElement("style");st.textContent=CSS;document.head.appendChild(st);
+  if(!window.supabase){warn("Supabase-ը չբեռնվեց");return;}
+  sb=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,storageKey:"apri-admin-auth"}});
+  try{if(SS.getItem("apri-role")&&SS.getItem("apri-role")!=="admin")document.body.classList.add("apri-mgr");}catch(e){}
+  var out=document.createElement("button");out.id="apriOut";out.type="button";out.textContent="⎋ Ելք";out.onclick=signOut;
+  sb.auth.getSession().then(function(r){if(!r.data.session){try{SS.removeItem("apri-ready");SS.removeItem("myapri-admin-in");}catch(e){}gate("");return;}
+    document.body.appendChild(out);load(!ready);});}
+var sc=document.createElement("script");sc.src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.js";sc.onload=function(){if(document.readyState!=="loading")start();else document.addEventListener("DOMContentLoaded",start);};document.head.appendChild(sc);
+if(!ready){document.addEventListener("DOMContentLoaded",function(){if(document.getElementById("apriGate"))return;var g=document.createElement("div");g.id="apriGate";g.innerHTML='<p style="font-weight:700;color:#1D5545">Apricota · Admin…</p>';document.body.appendChild(g);var st=document.createElement("style");st.textContent="#apriGate{position:fixed;inset:0;z-index:99999;background:#F3F5F4;display:flex;align-items:center;justify-content:center}";document.head.appendChild(st);});}
+})();</script>
 <script>(function(){
+if(window.APRI_ADMIN)return;
 function g(){var h=location.hash;if(h.indexOf("#admin")===0||h.indexOf("#driver")===0){try{history.replaceState(null,"",location.pathname+"#home");}catch(e){location.hash="#home";}}}
 g();window.addEventListener("hashchange",g);
 var API="/api/order.php";
@@ -39,7 +107,7 @@ Storage.prototype.setItem=function(k,v){var r=orig.apply(this,arguments);
 /* On a wide screen, show the whole site inside a phone-size frame so it looks exactly like on a phone */
 (function(){
   if(window.name==='apriPhone'){ var wd=function(){ try{ parent.postMessage({apriHash:location.hash},'*'); }catch(e){} }; wd(); window.addEventListener('hashchange',wd); return; }
-  if(window.innerWidth<700) return;
+  if(window.innerWidth<700||window.APRI_ADMIN) return;
   window.__apriOuter=true;
   document.write('<plaintext id="apriSrc" style="display:none">');
   document.addEventListener('DOMContentLoaded',function(){
