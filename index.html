@@ -1297,6 +1297,9 @@ footer#siteFooter{border-radius:30px 30px 0 0;margin-top:20px}
 .menu-card .eyebrow{color:#1F8075!important}
 .menu-card{border-top:4px solid #2E9E8E}
 .dc-t{color:#1F8075!important}
+.cu-sw{margin-left:auto;display:inline-flex;gap:2px;background:#F4EEE9!important;border-radius:999px;padding:3px}
+.cu-sw button{border:0;background:none;border-radius:999px;min-height:36px;padding:0 12px;font:800 13px var(--body);color:var(--ink);cursor:pointer}
+.cu-sw button.on{background:#fff;color:#1F8075;box-shadow:0 0 0 1px rgba(29,77,72,.08),0 4px 10px -6px rgba(29,77,72,.5)}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -1427,11 +1430,11 @@ footer#siteFooter{border-radius:30px 30px 0 0;margin-top:20px}
         <h2 class="h2">How many calories do you need?</h2>
         <p class="lead" style="margin-bottom:24px">Free calculator, no sign-up needed.</p>
         <form class="card" id="calcForm">
-          <div style="grid-column:1/-1;display:flex;gap:8px"><button type="button" class="chip on" data-sex="f">Female</button><button type="button" class="chip" data-sex="m">Male</button></div>
+          <div style="grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button type="button" class="chip on" data-sex="f">Female</button><button type="button" class="chip" data-sex="m">Male</button><span class="cu-sw langs" role="group" aria-label="Units"><button type="button" data-cu="us" class="on">lb · in</button><button type="button" data-cu="met">kg · cm</button></span></div>
           <label class="f">Age<input id="cAge" type="number" value="34" min="16" max="90"></label>
-          <label class="f">Height (inches)<input id="cH" type="number" value="66" min="50" max="90"></label>
-          <label class="f">Current weight (lbs)<input id="cW" type="number" value="180" min="80" max="450"></label>
-          <label class="f">Target weight (lbs)<input id="cT" type="number" value="160" min="80" max="450"></label>
+          <label class="f"><span id="cHl">Height (inches)</span><input id="cH" type="number" value="66" min="50" max="90" step="any"></label>
+          <label class="f"><span id="cWl">Current weight (lbs)</span><input id="cW" type="number" value="180" min="80" max="450" step="any"></label>
+          <label class="f"><span id="cTl">Target weight (lbs)</span><input id="cT" type="number" value="160" min="80" max="450" step="any"></label>
           <label class="f" style="grid-column:1/-1">Activity<select id="cA"><option value="1.2">Mostly sitting</option><option value="1.375" selected>Light, 1–3 workouts a week</option><option value="1.55">Active, 3–5 workouts a week</option><option value="1.725">Very active</option></select></label>
           <button type="submit" class="btn btn-green" style="grid-column:1/-1;min-height:54px">Calculate</button>
         </form>
@@ -1903,7 +1906,7 @@ footer#siteFooter{border-radius:30px 30px 0 0;margin-top:20px}
   var sex='f';
   $$('[data-sex]').forEach(function(b){ b.onclick=function(){ sex=b.dataset.sex; $$('[data-sex]').forEach(function(x){x.classList.toggle('on',x===b);}); calc(); }; });
   function calc(){
-    var age=+$('#cAge').value||34, inch=+$('#cH').value||66, lb=+$('#cW').value||180, tgt=+$('#cT').value||160, act=+$('#cA').value;
+    var met=CU_MET, age=+$('#cAge').value||34, inch=met?(+$('#cH').value||168)/2.54:(+$('#cH').value||66), lb=met?(+$('#cW').value||82)/0.4536:(+$('#cW').value||180), tgt=met?(+$('#cT').value||73)/0.4536:(+$('#cT').value||160), act=+$('#cA').value;
     var kg=lb*0.4536, cm=inch*2.54;
     var bmr=10*kg+6.25*cm-5*age+(sex==='m'?5:-161);
     var tdee=bmr*act, goal=tgt<lb? tdee-500 : tdee;
@@ -1913,6 +1916,15 @@ footer#siteFooter{border-radius:30px 30px 0 0;margin-top:20px}
     $('#cBmi').textContent='BMI '+bmi.toFixed(1);
   }
   $('#calcForm').addEventListener('submit',function(e){e.preventDefault();calc();});
+  /* the calorie calculator works in pounds/inches or kilograms/centimeters */
+  var CU_MET=false;
+  var cuSet=function(met){ if(met===CU_MET) return; var H=$('#cH'), W=$('#cW'), T=$('#cT');
+    if(met){ H.value=Math.round((+H.value||66)*2.54); W.value=Math.round((+W.value||180)*0.4536*10)/10; T.value=Math.round((+T.value||160)*0.4536*10)/10; H.min=120;H.max=230;W.min=35;W.max=205;T.min=35;T.max=205; }
+    else { H.value=Math.round((+H.value||168)/2.54); W.value=Math.round((+W.value||82)/0.4536); T.value=Math.round((+T.value||73)/0.4536); H.min=50;H.max=90;W.min=80;W.max=450;T.min=80;T.max=450; }
+    CU_MET=met; $('#cHl').textContent=met?'Height (cm)':'Height (inches)'; $('#cWl').textContent=met?'Current weight (kg)':'Current weight (lbs)'; $('#cTl').textContent=met?'Target weight (kg)':'Target weight (lbs)';
+    document.querySelectorAll('[data-cu]').forEach(function(b){ b.classList.toggle('on',(b.dataset.cu==='met')===met); }); try{ localStorage.setItem('apri-calc-units',met?'met':'us'); }catch(x){} calc(); };
+  document.querySelectorAll('[data-cu]').forEach(function(b){ b.addEventListener('click',function(){ cuSet(b.dataset.cu==='met'); }); });
+  try{ if(localStorage.getItem('apri-calc-units')==='met') setTimeout(function(){ cuSet(true); },0); }catch(x){}
 
   /* quiz */
   var Q=[
@@ -3752,6 +3764,7 @@ var AQYN=[["Yes","Այո"],["No","Ոչ"]];
 /* Languages: English source text is translated in place; [hy, ru, es] */
 (function(){
 var D={
+"Target weight (kg)":["Նպատակային քաշ (կգ)", "Целевой вес (кг)", "Peso objetivo (kg)"],
 "Now":["Հիմա", "Сейчас", "Ahora"],
 "Good night":["Բարի գիշեր", "Спокойной ночи", "Buenas noches"],
 "Breakfast · 9:00":["Նախաճաշ · 9:00", "Завтрак · 9:00", "Desayuno · 9:00"],
